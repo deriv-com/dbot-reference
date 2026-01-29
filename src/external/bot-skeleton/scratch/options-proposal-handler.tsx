@@ -105,21 +105,71 @@ export const requestOptionsProposalForQS = (
 
     // Handle undefined WebSocket case
     if (!ws) {
-        return Promise.reject(new Error('WebSocket is not available'));
+        return Promise.reject(
+            new Error('API connection is not available. Please check your internet connection and try again.')
+        );
     }
 
-    // Handle the response which might be a Promise or direct response
-    const response = ws.send(proposal_request);
+    // Check if WebSocket connection is ready
+    if ('connection' in ws && ws.connection && ws.connection.readyState !== 1) {
+        return Promise.reject(new Error('API connection is not ready. Please wait and try again.'));
+    }
 
-    // Normalize the response to always be a Promise
-    return Promise.resolve(response)
-        .then(response => {
-            if (response.error) {
-                return Promise.reject(response.error);
-            }
-            return response;
-        })
-        .catch(error => {
-            throw error;
-        });
+    try {
+        // Handle the response which might be a Promise or direct response
+        const response = ws.send(proposal_request);
+
+        // Normalize the response to always be a Promise
+        return Promise.resolve(response)
+            .then(response => {
+                if (response.error) {
+                    // Provide more specific error messages based on error codes
+                    const error = response.error;
+                    let errorMessage = error.message || 'An error occurred while processing your request';
+
+                    switch (error.code) {
+                        case 'InvalidSymbol':
+                            errorMessage = 'The selected symbol is not available for trading';
+                            break;
+                        case 'InvalidContractType':
+                            errorMessage = 'The selected contract type is not available for this symbol';
+                            break;
+                        case 'InvalidAmount':
+                            errorMessage = 'Please enter a valid stake amount';
+                            break;
+                        case 'MarketIsClosed':
+                            errorMessage = 'Market is currently closed for this symbol';
+                            break;
+                        case 'InvalidDuration':
+                            errorMessage = 'Please select a valid duration for this contract';
+                            break;
+                        default:
+                            // Keep the original error message for unknown error codes
+                            break;
+                    }
+
+                    return Promise.reject({
+                        ...error,
+                        message: errorMessage,
+                    });
+                }
+                return response;
+            })
+            .catch(error => {
+                // Handle network and connection errors
+                if (error.name === 'NetworkError' || error.message?.includes('network')) {
+                    throw new Error('Network error. Please check your internet connection and try again.');
+                }
+
+                if (error.name === 'TimeoutError' || error.message?.includes('timeout')) {
+                    throw new Error('Request timed out. Please try again.');
+                }
+
+                // Re-throw the error as-is if it's already formatted
+                throw error;
+            });
+    } catch (error) {
+        // Handle synchronous errors
+        return Promise.reject(new Error('Failed to send proposal request. Please try again.'));
+    }
 };

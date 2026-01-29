@@ -270,10 +270,13 @@ export const getBackendErrorMessages = () => ({
     OpenPositionLimit: localize(
         'Sorry, you cannot hold more than {{param1}} contracts at a given time. Please wait until some contracts have closed and try again.'
     ),
-    OpenPositionLimitExceeded: localize('You have too many open positions for this contract type.'),
+    OpenPositionLimitExceeded: localize(
+        'You have open positions of this asset and trade type. Close or wait for them to settle first.'
+    ),
     OpenPositionPayoutLimit: localize(
         'Sorry, the aggregate payouts of contracts on your account cannot exceed {{param1}} {{param2}}.'
     ),
+
     OrderUpdateNotAllowed: localize('Only updates to these parameters are allowed {{param1}}.'),
     OutdatedVolatilityData: localize('Trading is suspended due to missing market (out-of-date volatility) data.'),
     PastExpiryTime: localize('Expiry time cannot be in the past.'),

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useEffect } from 'react';
-import Cookies from 'js-cookie';
 import RootStore from '@/stores/root-store';
 import { Analytics } from '@deriv-com/analytics';
 
@@ -32,8 +31,6 @@ export const useOauth2 = ({
     const isSilentLoginExcluded =
         window.location.pathname.includes('callback') || window.location.pathname.includes('endpoint');
 
-    const loggedState = Cookies.get('logged_state');
-
     useEffect(() => {
         window.addEventListener('unhandledrejection', event => {
             if (event?.reason?.error?.code === 'InvalidToken') {
@@ -43,15 +40,16 @@ export const useOauth2 = ({
     }, []);
 
     useEffect(() => {
-        const willEventuallySSO = loggedState === 'true' && !isClientAccountsPopulated;
-        const willEventuallySLO = loggedState === 'false' && isClientAccountsPopulated;
-
+        // Simplified logic without relying on logged_state cookie
+        // Set loading state based on whether we're in a transition state
+        const willEventuallySSO = !isClientAccountsPopulated;
+        const willEventuallySLO = isClientAccountsPopulated;
         if (!isSilentLoginExcluded && (willEventuallySSO || willEventuallySLO)) {
             setIsSingleLoggingIn(true);
         } else {
             setIsSingleLoggingIn(false);
         }
-    }, [isClientAccountsPopulated, loggedState, isSilentLoginExcluded]);
+    }, [isClientAccountsPopulated, isSilentLoginExcluded]);
 
     const logoutHandler = async () => {
         client?.setIsLoggingOut(true);

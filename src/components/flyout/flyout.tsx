@@ -8,7 +8,7 @@ import GTM from '@/utils/gtm';
 import { help_content_config } from '@/utils/help-content/help-content.config';
 import { LabelPairedCircleExclamationCaptionFillIcon } from '@deriv/quill-icons';
 import { localize } from '@deriv-com/translations';
-import { getPlatformSettings } from '../shared';
+import { getPlatformConfig } from '../shared';
 import Input from '../shared_ui/input';
 import Text from '../shared_ui/text';
 import ThemedScrollbars from '../shared_ui/themed-scrollbars';
@@ -77,7 +77,7 @@ const FlyoutContent = (props: TFlyoutContent) => {
                         <span className='flyout__content-disclaimer-text'>
                             {localize(
                                 'Indicators on the chart tab are for indicative purposes only and may vary slightly from the ones on the {{platform_name_dbot}} workspace.',
-                                { platform_name_dbot: getPlatformSettings('dbot').name }
+                                { platform_name_dbot: getPlatformConfig().name }
                             )}
                         </span>
                     </div>

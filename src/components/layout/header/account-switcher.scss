@@ -135,11 +135,17 @@
     }
 
     &__account-type {
-        @include typeface(--xxsmall-left-normal-grey);
+        @include typeface(--xxsmall-left-normal-green);
 
         line-height: 1;
         margin: 0;
         font-size: var(--text-size-xxs);
+    }
+
+    &--is-virtual {
+        .acc-info__account-type {
+            color: $color-yellow;
+        }
     }
 
     &__balance-section {
@@ -230,10 +236,8 @@
         }
     }
 
-    &--is-virtual {
-        .acc-info__balance {
-            @include typeface(--paragraph-left-bold-green);
-        }
+    .acc-info__balance {
+        @include typeface(--paragraph-left-bold-black);
     }
 
     &--is-disabled {

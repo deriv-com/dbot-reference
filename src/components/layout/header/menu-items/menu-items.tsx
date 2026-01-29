@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
+import { isDemoAccount } from '@/analytics/utils';
 import { useFirebaseCountriesConfig } from '@/hooks/firebase/useFirebaseCountriesConfig';
 import { useStore } from '@/hooks/useStore';
 import { handleTraderHubRedirect } from '@/utils/traders-hub-redirect';
@@ -25,6 +26,7 @@ export const MenuItems = observer(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const account_param = urlParams.get('account');
     const is_virtual = client.is_virtual || account_param === 'demo' || false;
+    const loginid = client?.loginid;
 
     // Use handleTraderHubRedirect for all links
     const getModifiedHref = (originalHref: string) => {
@@ -36,6 +38,10 @@ export const MenuItems = observer(() => {
         } else if (currency) {
             // For real accounts, set the account parameter to the currency
             redirect_url.searchParams.set('account', currency);
+        }
+        if (loginid) {
+            redirect_url.searchParams.set('account_id', loginid);
+            redirect_url.searchParams.set('account_type', isDemoAccount(loginid) ? 'demo' : 'real');
         }
 
         return redirect_url.toString();

@@ -1,0 +1,112 @@
+@use 'components/shared/styles/constants' as *;
+@use 'components/shared/styles/mixins' as *;
+
+.journal-stats-modal {
+    &-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 16px 16px;
+
+        @include mobile-or-tablet-screen {
+            padding: 10px 6px;
+        }
+
+        &__text {
+            margin-bottom: 8px;
+            color: var(--text-general);
+            width: 100%;
+        }
+
+        &__video {
+            margin-bottom: 16px;
+            border-radius: 4px;
+            overflow: hidden;
+            width: 56.3rem;
+            height: 44.8rem;
+
+            @include mobile-or-tablet-screen {
+                width: 100%;
+                height: 320px;
+            }
+
+            iframe {
+                width: 100%;
+                height: 100%;
+                border: 0;
+            }
+
+            video {
+                transform: scale(1);
+            }
+
+            // Ensure StreamIframe wrapper takes full height
+            .stream__wrapper {
+                width: 100%;
+                height: 100%;
+            }
+        }
+    }
+}
+
+.stream__wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    &--is-loading {
+        background-color: var(--color-surface);
+    }
+}
+
+.stream__loading-skeleton {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        var(--color-surface) 25%,
+        var(--color-surface-light) 50%,
+        var(--color-surface) 75%
+    );
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    position: absolute;
+    top: 0;
+    inset-inline-start: 0;
+    z-index: 1;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+[dir='rtl'] {
+    @keyframes loading {
+        0% {
+            background-position: -200% 0;
+        }
+
+        100% {
+            background-position: 200% 0;
+        }
+    }
+}
+
+.info-icon {
+    cursor: pointer;
+    margin-inline-start: 5px;
+    vertical-align: sub;
+    height: 14px;
+    width: 14px;
+
+    &:hover {
+        opacity: 0.7;
+        transition: all 0.2s ease;
+    }
+}

@@ -1,8 +1,7 @@
 import { action, computed, makeObservable, observable, reaction, runInAction } from 'mobx';
 import { botNotification } from '@/components/bot-notification/bot-notification';
 import { notification_message } from '@/components/bot-notification/bot-notification-utils';
-import { isSafari, mobileOSDetect, standalone_routes } from '@/components/shared';
-import { redirectToSignUp } from '@/components/shared';
+import { generateSignupURL, isSafari, mobileOSDetect, standalone_routes } from '@/components/shared';
 import { contract_stages, TContractStage } from '@/constants/contract-stage';
 import { run_panel } from '@/constants/run-panel';
 import { ErrorTypes, MessageTypes, observer, unrecoverable_errors } from '@/external/bot-skeleton';
@@ -55,8 +54,8 @@ export default class RunPanelStore {
             setHasOpenContract: action,
             setIsRunning: action,
             onRunButtonClick: action,
-            is_contracy_buying_in_progress: observable,
-            OpenPositionLimitExceededEvent: action,
+            is_contract_buying_in_progress: observable,
+            SetpurchaseInProgress: action,
             onStopButtonClick: action,
             onClearStatClick: action,
             clearStat: action,
@@ -108,7 +107,7 @@ export default class RunPanelStore {
     is_dialog_open = false;
     is_sell_requested = false;
     show_bot_stop_message = false;
-    is_contracy_buying_in_progress = false;
+    is_contract_buying_in_progress = false;
 
     run_id = '';
     onOkButtonClick: (() => void) | null = null;
@@ -124,7 +123,7 @@ export default class RunPanelStore {
     }
 
     get is_stop_button_disabled() {
-        if (this.is_contracy_buying_in_progress) {
+        if (this.is_contract_buying_in_progress) {
             return false;
         }
         return [contract_stages.PURCHASE_SENT as number, contract_stages.IS_STOPPING as number].includes(
@@ -218,7 +217,7 @@ export default class RunPanelStore {
     };
 
     onStopButtonClick = () => {
-        this.is_contracy_buying_in_progress = false;
+        this.is_contract_buying_in_progress = false;
         const { is_multiplier } = this.root_store.summary_card;
 
         if (is_multiplier) {
@@ -229,6 +228,8 @@ export default class RunPanelStore {
     };
 
     onStopBotClick = () => {
+        this.is_contract_buying_in_progress = false;
+
         const { is_multiplier } = this.root_store.summary_card;
         const { summary_card } = this.root_store;
 
@@ -372,7 +373,7 @@ export default class RunPanelStore {
     showLoginDialog = () => {
         // Only allow closing through the buttons
         this.onOkButtonClick = () => {
-            redirectToSignUp();
+            window.open(generateSignupURL());
             this.is_dialog_open = false;
         };
         this.onCancelButtonClick = () => {
@@ -447,11 +448,14 @@ export default class RunPanelStore {
         observer.register('bot.contract', this.onBotContractEvent);
         observer.register('bot.contract', summary_card.onBotContractEvent);
         observer.register('bot.contract', transactions.onBotContractEvent);
+        observer.register('bot.stop_button_click', this.onStopBotClick);
         observer.register('Error', this.onError);
-        observer.register('bot.recoverOpenPositionLimitExceeded', this.OpenPositionLimitExceededEvent);
+        observer.register('bot.setPurchaseInProgress', this.SetpurchaseInProgress);
     };
 
-    OpenPositionLimitExceededEvent = () => (this.is_contracy_buying_in_progress = true);
+    SetpurchaseInProgress = () => {
+        return (this.is_contract_buying_in_progress = true);
+    };
 
     registerReactions = () => {
         const { client, common } = this.core;
@@ -583,7 +587,7 @@ export default class RunPanelStore {
                 break;
             }
             case 'contract.purchase_received': {
-                this.is_contracy_buying_in_progress = false;
+                this.is_contract_buying_in_progress = false;
                 this.setContractStage(contract_stages.PURCHASE_RECEIVED);
                 const { buy } = contract_status;
                 const { is_virtual } = this.core.client;
@@ -736,10 +740,12 @@ export default class RunPanelStore {
         observer.unregisterAll('bot.running');
         observer.unregisterAll('bot.stop');
         observer.unregisterAll('bot.click_stop');
+        observer.unregisterAll('bot.stop_button_click');
         observer.unregisterAll('bot.trade_again');
         observer.unregisterAll('contract.status');
         observer.unregisterAll('bot.contract');
         observer.unregisterAll('Error');
+        observer.unregisterAll('bot.setPurchaseInProgress');
     };
 
     setContractStage = (contract_stage: TContractStage) => {

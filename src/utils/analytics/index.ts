@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { getAppId, LocalStore, MAX_MOBILE_WIDTH } from '@/components/shared';
+import { LocalStore, MAX_MOBILE_WIDTH } from '@/components/shared';
 import { Analytics } from '@deriv-com/analytics';
 import getCountry from '../getCountry';
 import FIREBASE_INIT_DATA from '../remote_config.json';
@@ -42,8 +42,13 @@ export const AnalyticsInitializer = async () => {
             console.info('Remote config URL not configured, using default flags');
         }
 
-        // Initialize analytics if conditions are met
-        if (process.env.RUDDERSTACK_KEY && flags?.tracking_rudderstack) {
+        // Initialize RudderStack and/or PostHog based on feature flags
+        // Note: posthogKey and posthogHost are supported in @deriv-com/analytics v1.33.0+
+        const hasRudderStack = !!(process.env.RUDDERSTACK_KEY && flags?.tracking_rudderstack);
+        const hasPostHog = !!(process.env.POSTHOG_KEY && flags?.tracking_posthog);
+
+        // RudderStack key is required by the Analytics package
+        if (hasRudderStack) {
             let ppc_campaign_cookies = Cookies.get('utm_data') as unknown as Record<string, string> | null;
 
             if (!ppc_campaign_cookies) {
@@ -55,15 +60,24 @@ export const AnalyticsInitializer = async () => {
                 };
             }
 
-            const config = {
+            const config: {
+                growthbookKey?: string | undefined;
+                growthbookDecryptionKey?: string | undefined;
+                rudderstackKey: string;
+                posthogKey?: string | undefined;
+                posthogHost?: string | undefined;
+                growthbookOptions?: {
+                    disableCache: boolean;
+                    attributes: Record<string, unknown>;
+                };
+            } = {
                 growthbookKey: flags.marketing_growthbook ? process.env.GROWTHBOOK_CLIENT_KEY : undefined,
                 growthbookDecryptionKey: flags.marketing_growthbook ? process.env.GROWTHBOOK_DECRYPTION_KEY : undefined,
-                rudderstackKey: process.env.RUDDERSTACK_KEY,
+                rudderstackKey: process.env.RUDDERSTACK_KEY!,
                 growthbookOptions: {
                     disableCache: process.env.APP_ENV !== 'production',
                     attributes: {
                         account_type: account_type === 'null' ? 'unlogged' : account_type,
-                        app_id: String(getAppId()),
                         device_type: window.innerWidth <= MAX_MOBILE_WIDTH ? 'mobile' : 'desktop',
                         device_language: navigator?.language || 'en-EN',
                         user_language: LocalStore?.get('i18n_language')
@@ -79,6 +93,11 @@ export const AnalyticsInitializer = async () => {
                     },
                 },
             };
+
+            if (hasPostHog) {
+                config.posthogKey = process.env.POSTHOG_KEY;
+                config.posthogHost = process.env.POSTHOG_HOST;
+            }
 
             try {
                 await Analytics?.initialise(config);

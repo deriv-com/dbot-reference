@@ -1,11 +1,17 @@
+import { getAccountId, getAccountType } from '@/analytics/utils';
 import { getSocketURL } from '@/components/shared';
-import { website_name } from '@/utils/site-config';
 import DerivAPIBasic from '@deriv/deriv-api/dist/DerivAPIBasic';
 import APIMiddleware from './api-middleware';
 
 export const generateDerivApiInstance = () => {
-    const cleanedServer = getSocketURL().replace(/[^a-zA-Z0-9.]/g, '');
-    const socket_url = `wss://${cleanedServer}/websockets/v3?brand=${website_name.toLowerCase()}`;
+    const cleanedServer = getSocketURL();
+    const account_id = getAccountId();
+    const account_type = getAccountType(account_id);
+    let socket_url = `wss://${cleanedServer}/${account_type}`;
+    // Add account_id query param for authenticated endpoints (real/demo)
+    if (account_id) {
+        socket_url += `?account_id=${account_id}`;
+    }
     const deriv_socket = new WebSocket(socket_url);
     const deriv_api = new DerivAPIBasic({
         connection: deriv_socket,
@@ -20,21 +26,9 @@ export const getLoginId = () => {
     return null;
 };
 
-export const V2GetActiveToken = () => {
-    const token = localStorage.getItem('session_token');
-    if (token && token !== 'null') return token;
-    return null;
-};
-
-export const V2GetActiveClientId = () => {
-    const token = V2GetActiveToken();
-
-    if (!token) return null;
-    const account_list = JSON.parse(localStorage.getItem('accountsList'));
-    if (account_list && account_list !== 'null') {
-        const active_clientId = Object.keys(account_list).find(key => account_list[key] === token);
-        return active_clientId;
-    }
+export const V2GetActiveAccountId = () => {
+    const account_id = localStorage.getItem('active_loginid');
+    if (account_id && account_id !== 'null') return account_id;
     return null;
 };
 

@@ -191,7 +191,8 @@ export default class ContractsFor {
     }
 
     async getContractsFor(symbol) {
-        if (!symbol || symbol === 'na') {
+        if (!symbol || symbol === 'na' || symbol === 'DEFAULT') {
+            console.warn('Invalid symbol provided to getContractsFor:', symbol);
             return [];
         }
 
@@ -203,7 +204,7 @@ export default class ContractsFor {
         const getContractsForFromApi = async () => {
             if (this.retrieving_contracts_for[symbol]) {
                 await this.retrieving_contracts_for[symbol];
-                return this.contracts_for[symbol].contracts;
+                return this.contracts_for[symbol]?.contracts || [];
             }
 
             this.retrieving_contracts_for[symbol] = new PendingPromise();
@@ -211,15 +212,25 @@ export default class ContractsFor {
             try {
                 const response = await api_base.api.send({ contracts_for: symbol });
 
-                if (response.error) {
-                    this.retrieving_contracts_for[symbol].resolve();
-                    delete this.retrieving_contracts_for[symbol];
+                if (!response || response.error) {
+                    console.warn('contracts_for API error for symbol:', symbol, response?.error);
+                    if (this.retrieving_contracts_for[symbol]) {
+                        this.retrieving_contracts_for[symbol].resolve();
+                        delete this.retrieving_contracts_for[symbol];
+                    }
                     return [];
                 }
 
-                if (!response.contracts_for || !response.contracts_for.available) {
-                    this.retrieving_contracts_for[symbol].resolve();
-                    delete this.retrieving_contracts_for[symbol];
+                if (
+                    !response.contracts_for ||
+                    !response.contracts_for.available ||
+                    !Array.isArray(response.contracts_for.available)
+                ) {
+                    console.warn('No contracts_for data available for symbol:', symbol);
+                    if (this.retrieving_contracts_for[symbol]) {
+                        this.retrieving_contracts_for[symbol].resolve();
+                        delete this.retrieving_contracts_for[symbol];
+                    }
                     return [];
                 }
 
@@ -236,14 +247,18 @@ export default class ContractsFor {
                     timestamp: this.server_time.unix(),
                 };
 
-                this.retrieving_contracts_for[symbol].resolve();
-                delete this.retrieving_contracts_for[symbol];
+                if (this.retrieving_contracts_for[symbol]) {
+                    this.retrieving_contracts_for[symbol].resolve();
+                    delete this.retrieving_contracts_for[symbol];
+                }
 
                 return filtered_contracts;
             } catch (error) {
-                console.error('DEBUG: Error in contracts_for API call:', error);
-                this.retrieving_contracts_for[symbol].resolve();
-                delete this.retrieving_contracts_for[symbol];
+                console.error('Error in contracts_for API call:', error);
+                if (this.retrieving_contracts_for[symbol]) {
+                    this.retrieving_contracts_for[symbol].resolve();
+                    delete this.retrieving_contracts_for[symbol];
+                }
                 return [];
             }
         };
@@ -412,7 +427,7 @@ export default class ContractsFor {
 
             if (multiplier_range.length === 0) {
                 console.warn(
-                    'DEBUG: No multiplier range found for symbol:',
+                    'No multiplier range found for symbol:',
                     symbol,
                     'Available contracts:',
                     contracts.map(c => ({ contract_type: c.contract_type, has_multiplier_range: !!c.multiplier_range }))
@@ -421,7 +436,7 @@ export default class ContractsFor {
 
             return multiplier_range;
         } catch (error) {
-            console.error('DEBUG: Error in getMultiplierRange:', error);
+            console.error('Error in getMultiplierRange:', error);
             return [];
         }
     }

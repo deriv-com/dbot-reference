@@ -23,16 +23,14 @@ window.Blockly.Blocks.text_getSubstring = {
     },
     definition() {
         return {
-            message0: localize(
-                'in text {{ input_text }} get substring from {{ position1 }} {{ index1 }} to {{ position2 }} {{ index2 }}',
-                {
-                    input_text: '%1',
+            message0:
+                'in text %1 ' +
+                localize('get substring from {{ position1 }} {{ index1 }} to {{ position2 }} {{ index2 }}', {
                     position1: '%2',
                     index1: '%3',
                     position2: '%4',
                     index2: '%5',
-                }
-            ),
+                }),
             args0: [
                 {
                     type: 'input_value',

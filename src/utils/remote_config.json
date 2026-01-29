@@ -6,5 +6,6 @@
     "tracking_GTM": true,
     "tracking_datadog": true,
     "tracking_hotjar": true,
-    "tracking_rudderstack": true
+    "tracking_rudderstack": true,
+    "tracking_posthog": true
 }

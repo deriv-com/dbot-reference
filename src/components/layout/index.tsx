@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import clsx from 'clsx';
-import Cookies from 'js-cookie';
+import { observer } from 'mobx-react-lite';
 import { Outlet } from 'react-router-dom';
 import { api_base } from '@/external/bot-skeleton';
+import { useStore } from '@/hooks/useStore';
 import { useDevice } from '@deriv-com/ui';
 import { crypto_currencies_display_order, fiat_currencies_display_order } from '../shared';
 import Footer from './footer';
@@ -10,12 +11,12 @@ import AppHeader from './header';
 import Body from './main-body';
 import './layout.scss';
 
-const Layout = () => {
+const Layout = observer(() => {
     const { isDesktop } = useDevice();
-
+    const store = useStore();
+    const is_quick_strategy_active = store?.quick_strategy?.is_open;
     const isCallbackPage = window.location.pathname === '/callback';
 
-    const isLoggedInCookie = Cookies.get('logged_state') === 'true';
     const isEndpointPage = window.location.pathname.includes('endpoint');
     const checkClientAccount = JSON.parse(localStorage.getItem('clientAccounts') ?? '{}');
     const getQueryParams = new URLSearchParams(window.location.search);
@@ -45,6 +46,7 @@ const Layout = () => {
     let subscription: { unsubscribe: () => void };
 
     const validateApiAccounts = ({ data }: any) => {
+        //TO do work on this with account switcher
         if (data.msg_type === 'authorize') {
             const account_list = data?.authorize?.account_list || [];
             const account_list_filter = account_list.filter((acc: any) => acc.is_disabled === 0);
@@ -124,7 +126,7 @@ const Layout = () => {
 
         // Authentication is now handled by the OAuth flow
         setIsAuthenticating(false);
-    }, [isLoggedInCookie, isClientAccountsPopulated, isEndpointPage, isCallbackPage, clientHasCurrency, currency]);
+    }, [isClientAccountsPopulated, isEndpointPage, isCallbackPage, clientHasCurrency, currency]);
 
     // Add a state to track if initial authentication check is complete
     const [isInitialAuthCheckComplete, setIsInitialAuthCheckComplete] = useState(false);
@@ -142,7 +144,12 @@ const Layout = () => {
     }, [isAuthenticating, isInitialAuthCheckComplete]);
 
     return (
-        <div className={clsx('layout', { responsive: isDesktop })}>
+        <div
+            className={clsx('layout', {
+                responsive: isDesktop,
+                'quick-strategy-active': is_quick_strategy_active && !isDesktop,
+            })}
+        >
             {!isCallbackPage && <AppHeader isAuthenticating={isAuthenticating || !isInitialAuthCheckComplete} />}
             <Body>
                 <Outlet />
@@ -150,6 +157,6 @@ const Layout = () => {
             {!isCallbackPage && isDesktop && <Footer />}
         </div>
     );
-};
+});
 
 export default Layout;

@@ -8,7 +8,7 @@ import {
     rudderStackSendUploadStrategyCompletedEvent,
     rudderStackSendUploadStrategyFailedEvent,
 } from '../analytics/rudderstack-common-events';
-import { getStrategyType } from '../analytics/utils';
+import { getAccountType, getDeviceType, getRsStrategyType, getStrategyType } from '../analytics/utils';
 import RootStore from './root-store';
 
 export type TErrorWithStatus = Error & { status?: number; result?: { error: { message: string } } };
@@ -100,7 +100,11 @@ export default class GoogleDriveStore {
         this.client = google.accounts.oauth2.initTokenClient({
             client_id: this.client_id,
             scope: this.scope,
-            callback: (response: { expires_in?: number; access_token?: string; error?: any }) => {
+            callback: (response: {
+                expires_in?: number;
+                access_token?: string;
+                error?: { error: string; error_description?: string };
+            }) => {
                 if (response?.access_token && !response?.error && response?.expires_in) {
                     this.access_token = response.access_token;
                     this.setIsAuthorized(true);
@@ -319,15 +323,7 @@ export default class GoogleDriveStore {
             const loadPickerCallback = async (data: TPickerCallbackResponse) => {
                 if (data.action === google.picker.Action.PICKED) {
                     const file = data.docs[0];
-                    if (file?.driveError === 'NETWORK') {
-                        rudderStackSendUploadStrategyFailedEvent({
-                            upload_provider: 'google_drive' as any,
-                            upload_id: this.upload_id,
-                            upload_type: 'not_found',
-                            error_message: 'File not found',
-                            error_code: '404',
-                        });
-                    }
+                    // Removed premature error event - network errors should be handled in the actual download attempt below
 
                     const file_name = file.name;
                     const fileId = file.id;
@@ -369,25 +365,64 @@ export default class GoogleDriveStore {
 
                         resolve({ xml_doc: response.body, file_name });
                         const upload_type = getStrategyType(response.body);
-                        rudderStackSendUploadStrategyCompletedEvent({
+                        // Get dynamic account type and device type
+                        const account_type = getAccountType();
+                        const device_type = getDeviceType();
+
+                        // Extract strategy name, asset, and trade type from workspace
+                        let strategy_name, asset, trade_type;
+                        try {
+                            // Extract strategy name from file name or use getRsStrategyType
+                            strategy_name = file_name || getRsStrategyType(file_name || '');
+
+                            // Extract asset/symbol from trade_definition_market block using derivWorkspace
+                            const workspace = window.Blockly?.derivWorkspace;
+                            const market_block = workspace
+                                ?.getAllBlocks?.()
+                                ?.find((block: any) => block.type === 'trade_definition_market');
+                            asset = market_block?.getFieldValue?.('SYMBOL_LIST');
+
+                            // Extract trade type from trade_definition_tradetype block
+                            const trade_type_block = workspace
+                                ?.getAllBlocks?.()
+                                ?.find((block: any) => block.type === 'trade_definition_tradetype');
+                            trade_type = trade_type_block?.getFieldValue?.('TRADETYPE_LIST');
+                        } catch (error) {
+                            // Fallback to undefined if extraction fails
+                            strategy_name = undefined;
+                            asset = undefined;
+                            trade_type = undefined;
+                        }
+
+                        const baseParams = {
+                            form_name: 'ce_bot_form_v2',
                             upload_provider: 'google_drive',
                             upload_type,
-                            upload_id: this.upload_id,
-                        });
-                    } catch (downloadError: any) {
+                            upload_id: this.upload_id || '',
+                            strategy_name,
+                            asset,
+                            trade_type,
+                            device_type,
+                        };
+
+                        const eventParams = account_type ? { ...baseParams, account_type } : baseParams;
+
+                        rudderStackSendUploadStrategyCompletedEvent(eventParams);
+                    } catch (downloadError: unknown) {
                         // Handle specific error cases
-                        let errorMessage = downloadError.message || 'Unknown error occurred';
+                        const error = downloadError as { message?: string; status?: number };
+                        let errorMessage = error.message || 'Unknown error occurred';
                         let errorCode = '500';
 
-                        if (downloadError.status === 403) {
+                        if (error.status === 403) {
                             errorMessage =
                                 'Access denied. The file may not be accessible with current permissions. Please check file sharing settings or re-authenticate with broader permissions.';
                             errorCode = '403';
-                        } else if (downloadError.status === 404) {
+                        } else if (error.status === 404) {
                             errorMessage =
                                 'File not found. The file may have been deleted or you may not have permission to access it.';
                             errorCode = '404';
-                        } else if (downloadError.status === 401) {
+                        } else if (error.status === 401) {
                             errorMessage = 'Authentication failed. Please sign out and sign in again.';
                             errorCode = '401';
                             // Force sign out on 401 errors
@@ -398,8 +433,9 @@ export default class GoogleDriveStore {
                         botNotification(errorMessage, undefined, { closeButton: true });
 
                         rudderStackSendUploadStrategyFailedEvent({
-                            upload_provider: 'google_drive' as any,
-                            upload_id: this.upload_id,
+                            form_name: 'ce_bot_form_v2',
+                            upload_provider: 'google_drive',
+                            upload_id: this.upload_id || '',
                             upload_type: 'download_failed',
                             error_message: errorMessage,
                             error_code: errorCode,

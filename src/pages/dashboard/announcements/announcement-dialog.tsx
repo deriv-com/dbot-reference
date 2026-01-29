@@ -2,7 +2,7 @@ import React from 'react';
 import Dialog from '@/components/shared_ui/dialog';
 import Text from '@/components/shared_ui/text';
 import { LabelPairedCheckCaptionFillIcon } from '@deriv/quill-icons';
-import { rudderStackSendCloseEvent } from '../../../analytics/rudderstack-common-events';
+// Removed import for rudderStackSendCloseEvent as per V2 requirements - no close events needed
 import { IconAnnounceModal } from './announcement-components';
 import { TAnnounce, TContentItem } from './config';
 import './announcement-dialog.scss';
@@ -52,10 +52,7 @@ const AnnouncementDialog = ({
             has_close_icon
             onClose={() => {
                 setIsAnnounceDialogOpen(false);
-                rudderStackSendCloseEvent({
-                    subform_name: 'announcements',
-                    announcement_name: main_title,
-                });
+                // Removed close event tracking as per V2 requirements
             }}
             className={is_tablet ? `${base_classname} ${base_classname}--tablet` : base_classname}
         >

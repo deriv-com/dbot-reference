@@ -42,82 +42,40 @@
     },
     "platform": {
         "name": "Deriv Bot",
-        "primary_color": "secondary",
-        "hub_url": "/bot"
-    },
-    "legal_entities": {
-        "fx": "Deriv (FX) Ltd",
-        "malta": "Deriv (Europe) Limited",
-        "maltainvest": "Deriv Investments (Europe) Limited",
-        "mx": "Deriv (MX) Ltd",
-        "samoa": "Deriv Capital International Ltd",
-        "svg": "Deriv (SVG) LLC",
-        "v": "Deriv (V) Ltd"
-    },
-    "platforms": {
-        "trader": {
-            "name": "Deriv Trader",
-            "icon": "IcRebrandingDerivTrader"
+        "logo": "IcRebrandingDerivBot",
+        "hostname": {
+            "production": {
+                "com": "bot.deriv.com",
+                "be": "bot.deriv.be",
+                "me": "bot.deriv.me"
+            },
+            "staging": {
+                "com": "staging-bot.deriv.com",
+                "be": "staging-bot.deriv.be",
+                "me": "staging-bot.deriv.me"
+            }
         },
-        "dbot": {
-            "name": "Deriv Bot",
-            "icon": "IcRebrandingDerivBot"
+        "websocket_servers": {
+            "staging": "staging-api-core.deriv.com/options/v1/ws",
+            "production": "api-core.deriv.com/options/v1/ws"
         },
-        "mt5": {
-            "name": "Deriv MT5",
-            "icon": "IcRebrandingDmt5"
+        "whoami_endpoint": {
+            "staging": "https://staging-auth.deriv.com/sessions/whoami",
+            "production": "https://auth.deriv.com/sessions/whoami"
         },
-        "ctrader": {
-            "name": "Deriv cTrader",
-            "icon": "IcRebrandingCtrader"
+        "logout_endpoint": {
+            "staging": "https://staging-auth.deriv.com/self-service/logout/browser",
+            "production": "https://auth.deriv.com/self-service/logout/browser"
         },
-        "dxtrade": {
-            "name": "Deriv X",
-            "icon": "IcRebrandingDxtrade"
-        },
-        "smarttrader": {
-            "name": "SmartTrader",
-            "icon": "IcRebrandingSmarttrader"
-        },
-        "bbot": {
-            "name": "Binary Bot",
-            "icon": "IcRebrandingBinaryBot"
-        },
-        "go": {
-            "name": "Deriv GO",
-            "icon": "IcRebrandingDerivGo"
-        }
-    },
-    "platforms_appstore": {
-        "trader": {
-            "name": "Deriv Trader",
-            "icon": "DTrader",
-            "availability": "All"
-        },
-        "dbot": {
-            "name": "Deriv Bot",
-            "icon": "DBot",
-            "availability": "Non-EU"
-        },
-        "smarttrader": {
-            "name": "SmartTrader",
-            "icon": "SmartTrader",
-            "availability": "Non-EU"
-        },
-        "bbot": {
-            "name": "Binary Bot",
-            "icon": "BinaryBot",
-            "availability": "Non-EU"
-        },
-        "go": {
-            "name": "Deriv GO",
-            "icon": "DerivGo",
-            "availability": "Non-EU"
-        },
-        "ctrader": {
-            "name": "",
-            "icon": "",
-            "availability": ""
+        "auth_urls": {
+            "production": {
+                "login": "https://home.deriv.com/dashboard/login",
+                "signup": "https://home.deriv.com/dashboard/signup"
+            },
+            "staging": {
+                "login": "https://staging-home.deriv.com/dashboard/login",
+                "signup": "https://staging-home.deriv.com/dashboard/signup"
+            }
         }
     }
 }

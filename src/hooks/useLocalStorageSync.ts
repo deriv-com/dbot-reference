@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-    removeSessionToken as removeSessionTokenUtil,
-    setSessionToken as setSessionTokenUtil,
-} from '@/utils/session-token-utils';
+import { setSessionToken as setSessionTokenUtil } from '@/utils/session-token-utils';
 import { useStore } from './useStore';
 
 /**
@@ -82,22 +79,8 @@ export const useLocalStorageSync = () => {
         }, 50);
     };
 
-    /**
-     * Wrapper function to remove session_token from localStorage and cookies
-     */
-    const removeSessionToken = () => {
-        isOwnChange.current = true;
-        removeSessionTokenUtil();
-
-        // Reset the flag after a short delay
-        setTimeout(() => {
-            isOwnChange.current = false;
-        }, 50);
-    };
-
     return {
         setSessionToken,
-        removeSessionToken,
         showAccountChangeModal,
         handleReload,
         handleModalClose,

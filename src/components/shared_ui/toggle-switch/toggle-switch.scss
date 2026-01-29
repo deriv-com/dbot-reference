@@ -31,5 +31,16 @@
 
     &:checked + &__label &__button {
         transform: translateX(2.25rem);
+
+        [dir='rtl'] & {
+            transform: translateX(-0.2rem);
+        }
+    }
+
+    /* RTL-specific styles */
+    [dir='rtl'] & {
+        &__label {
+            flex-direction: row-reverse;
+        }
     }
 }

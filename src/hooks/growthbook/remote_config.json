@@ -6,5 +6,6 @@
     "passkeys": true,
     "tracking_GTM": true,
     "tracking_hotjar": true,
-    "tracking_rudderstack": true
+    "tracking_rudderstack": true,
+    "tracking_posthog": true
 }

@@ -23,6 +23,20 @@ import {
 import { LocalizeHTMLForSellConditions } from './localize_html';
 import { TConfigItem, TStrategies, TValidationItem } from './types';
 
+// Block ID constants for better maintainability and readability
+export const RESET_STRATEGIES_BLOCK_IDS = [
+    'YBm3.OP{L7y^WWz%GM#R',
+    'Ym$v.ix]r{xp0?1EOEDP',
+    'M(`gZ)-p}|aY(Aj2111K',
+    '=},I)bcka#FK`KQ3PQ%5',
+];
+export const RESET_STRATEGIES = [
+    'accumulators_martingale_on_stat_reset',
+    'accumulators_dalembert_on_stat_reset',
+    'accumulators_reverse_martingale_on_stat_reset',
+    'accumulators_reverse_dalembert_on_stat_reset',
+];
+
 export const FORM_TABS = () => [
     {
         label: localize('Trade parameters'),

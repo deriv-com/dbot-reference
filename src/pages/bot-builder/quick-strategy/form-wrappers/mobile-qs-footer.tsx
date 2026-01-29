@@ -1,7 +1,7 @@
-import React from 'react';
 import { useFormikContext } from 'formik';
 import { observer } from 'mobx-react-lite';
 import { rudderStackSendQsRunStrategyEvent } from '@/analytics/rudderstack-quick-strategy';
+import { getAccountType, getDeviceType } from '@/analytics/utils';
 import Button from '@/components/shared_ui/button';
 import { useStore } from '@/hooks/useStore';
 import { localize } from '@deriv-com/translations';
@@ -24,10 +24,27 @@ export const MobileQSFooter = observer(({ current_step, setCurrentStep }: TMobil
     const is_selected_strategy_step = current_step === QsSteps.StrategySelect;
 
     const onRun = () => {
-        rudderStackSendQsRunStrategyEvent({
+        // Get dynamic account type and device type
+        const account_type = getAccountType();
+        const device_type = getDeviceType();
+
+        const eventParams: {
+            form_values: TFormValues;
+            selected_strategy: string;
+            device_type?: string;
+            account_type?: string;
+        } = {
             form_values: values,
             selected_strategy,
-        });
+            device_type,
+        };
+
+        // Only add account_type if it exists
+        if (account_type) {
+            eventParams.account_type = account_type;
+        }
+
+        rudderStackSendQsRunStrategyEvent(eventParams);
         handleSubmit();
     };
 

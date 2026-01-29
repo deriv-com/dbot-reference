@@ -1,9 +1,10 @@
+import { isDemoAccount } from '@/analytics/utils';
 import { getInitialLanguage } from '@deriv-com/translations';
 
 /**
- * Generate URL with redirect parameter back to current page, account_type, and language if available
+ * Generate URL with redirect parameter back to current page, account_id, account_type, and language if available
  * @param baseUrl - The base URL to add parameters to
- * @returns URL with redirect parameter to current page, account_type, and lang parameters (excluding query params)
+ * @returns URL with redirect parameter to current page, account_id, account_type, and lang parameters (excluding query params)
  */
 export const generateUrlWithRedirect = (baseUrl: string): string => {
     try {
@@ -14,10 +15,19 @@ export const generateUrlWithRedirect = (baseUrl: string): string => {
         // Always add redirect parameter
         url.searchParams.set('redirect', currentUrl);
 
-        // Add account_type parameter if it exists in localStorage
-        const accountType = localStorage.getItem('account_type');
-        if (accountType) {
-            url.searchParams.set('account_type', accountType);
+        // Priority 1: Check URL parameters for account_id
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlAccountId = urlParams.get('account_id');
+
+        // Priority 2: Fallback to localStorage
+        const localStorageLoginId = localStorage.getItem('active_loginid');
+
+        // Use the first available account ID based on priority
+        const loginId = urlAccountId || localStorageLoginId;
+
+        if (loginId) {
+            url.searchParams.set('account_id', loginId);
+            url.searchParams.set('account_type', isDemoAccount(loginId) ? 'demo' : 'real');
         }
 
         // Add lang parameter with current language

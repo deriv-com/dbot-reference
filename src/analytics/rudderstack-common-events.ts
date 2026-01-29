@@ -1,16 +1,17 @@
-import { Analytics, TEvents } from '@deriv-com/analytics';
-import { ACTION, form_name, TFormStrategy } from './constants';
-import { getRsStrategyType } from './utils';
+import { Analytics } from '@deriv-com/analytics';
+import { ACTION, AnalyticsTracker, form_name_v2, TBotFormV2BaseEvent, TUploadStrategyEvent } from './constants';
+
+const tracker = Analytics as unknown as AnalyticsTracker;
 
 export const rudderStackSendOpenEvent = ({
     subpage_name,
     subform_source,
     subform_name,
     load_strategy_tab,
-}: TEvents['ce_bot_form']) => {
-    Analytics.trackEvent('ce_bot_form', {
+}: TBotFormV2BaseEvent & { load_strategy_tab?: string }) => {
+    tracker.trackEvent('ce_bot_form_v2', {
         action: ACTION.OPEN,
-        form_name,
+        form_name: form_name_v2,
         subpage_name,
         subform_name,
         subform_source,
@@ -18,36 +19,20 @@ export const rudderStackSendOpenEvent = ({
     });
 };
 
-export const rudderStackSendCloseEvent = ({
-    subform_name,
-    quick_strategy_tab,
-    selected_strategy,
-    load_strategy_tab,
-    announcement_name,
-}: TEvents['ce_bot_form'] & TFormStrategy) => {
-    Analytics.trackEvent('ce_bot_form', {
-        action: ACTION.CLOSE,
-        form_name,
-        subform_name,
-        quick_strategy_tab,
-        strategy_name: getRsStrategyType(selected_strategy),
-        load_strategy_tab,
-        announcement_name,
-    });
-};
+// Removed rudderStackSendCloseEvent as per requirements - no close events needed in V2
 
-export const rudderStackSendRunBotEvent = ({ subpage_name }: TEvents['ce_bot_form']) => {
-    Analytics.trackEvent('ce_bot_form', {
+export const rudderStackSendRunBotEvent = ({ subpage_name }: TBotFormV2BaseEvent) => {
+    tracker.trackEvent('ce_bot_form_v2', {
         action: ACTION.RUN_BOT,
-        form_name,
+        form_name: form_name_v2,
         subpage_name,
     });
 };
 
-export const rudderStackSendUploadStrategyStartEvent = ({ upload_provider, upload_id }: TEvents['ce_bot_form']) => {
-    Analytics.trackEvent('ce_bot_form', {
+export const rudderStackSendUploadStrategyStartEvent = ({ upload_provider, upload_id }: TUploadStrategyEvent) => {
+    tracker.trackEvent('ce_bot_form_v2', {
         action: ACTION.UPLOAD_STRATEGY_START,
-        form_name,
+        form_name: form_name_v2,
         subform_name: 'load_strategy',
         subpage_name: 'bot_builder',
         upload_provider,
@@ -59,15 +44,25 @@ export const rudderStackSendUploadStrategyCompletedEvent = ({
     upload_provider,
     upload_id,
     upload_type,
-}: TEvents['ce_bot_form']) => {
-    Analytics.trackEvent('ce_bot_form', {
+    strategy_name,
+    asset,
+    trade_type,
+    account_type,
+    device_type,
+}: TUploadStrategyEvent) => {
+    tracker.trackEvent('ce_bot_form_v2', {
         action: ACTION.UPLOAD_STRATEGY_COMPLETED,
-        form_name,
+        form_name: form_name_v2,
         subform_name: 'load_strategy',
         subpage_name: 'bot_builder',
         upload_provider,
         upload_id,
         upload_type,
+        strategy_name,
+        asset,
+        trade_type,
+        account_type,
+        device_type,
     });
 };
 
@@ -77,10 +72,10 @@ export const rudderStackSendUploadStrategyFailedEvent = ({
     upload_type,
     error_message,
     error_code,
-}: TEvents['ce_bot_form']) => {
-    Analytics.trackEvent('ce_bot_form', {
+}: TUploadStrategyEvent) => {
+    tracker.trackEvent('ce_bot_form_v2', {
         action: ACTION.UPLOAD_STRATEGY_FAILED,
-        form_name,
+        form_name: form_name_v2,
         subform_name: 'load_strategy',
         subpage_name: 'bot_builder',
         upload_provider,
@@ -92,17 +87,17 @@ export const rudderStackSendUploadStrategyFailedEvent = ({
 };
 
 export const rudderStackSendGoogleDriveConnectEvent = () => {
-    Analytics.trackEvent('ce_bot_form', {
+    tracker.trackEvent('ce_bot_form_v2', {
         action: ACTION.GOOGLE_DRIVE_CONNECT,
-        form_name,
+        form_name: form_name_v2,
         subpage_name: 'bot_builder',
     });
 };
 
 export const rudderStackSendGoogleDriveDisconnectEvent = () => {
-    Analytics.trackEvent('ce_bot_form', {
+    tracker.trackEvent('ce_bot_form_v2', {
         action: ACTION.GOOGLE_DRIVE_DISCONNECT,
-        form_name,
+        form_name: form_name_v2,
         subpage_name: 'bot_builder',
     });
 };

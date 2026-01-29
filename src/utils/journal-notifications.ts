@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { arrayAsMessage, messageWithButton } from '@/components/notify-item';
 import { localize } from '@deriv-com/translations';
 
@@ -19,7 +20,8 @@ export const isCustomJournalMessage = (
     { message, block_id, variable_name },
     showErrorMessage,
     centerAndHighlightBlock,
-    pushMessage
+    pushMessage,
+    isStatNotification
 ) => {
     // notify undefined variable block
     if (message === undefined && variable_name != null) {
@@ -65,6 +67,22 @@ export const isCustomJournalMessage = (
     // notify boolean results
     if (typeof message === 'boolean') {
         pushMessage(message.toString());
+        return true;
+    }
+    if (isStatNotification) {
+        // Create localized strings separately first
+        const waitingText = localize('Waiting for the stat to be reset before proceeding with the order.');
+        const statsText = localize('Stats');
+
+        // Combine with HTML for formatting - send direct HTML string with SVG icon
+        const statusMessage = `
+        <div key="stat-count-${uuidv4()}">${waitingText}</div>
+        <span>
+            <strong>${statsText}</strong>&nbsp;&nbsp;|&nbsp;&nbsp;${message}
+        </span>
+    `;
+
+        pushMessage(statusMessage);
         return true;
     }
 

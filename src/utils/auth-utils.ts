@@ -1,5 +1,3 @@
-import { removeSessionToken } from '@/utils/session-token-utils';
-
 /**
  * Utility functions for authentication-related operations
  */
@@ -11,7 +9,6 @@ export const clearAuthData = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('active_loginid');
     localStorage.removeItem('client.country');
-    removeSessionToken();
     localStorage.removeItem('account_type'); // Clear account type when clearing auth data
     localStorage.removeItem('accountsList');
     localStorage.removeItem('clientAccounts');

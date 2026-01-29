@@ -1,13 +1,9 @@
-import Cookies from 'js-cookie';
+import { getAccountId, getAccountType, isDemoAccount, removeUrlParameter } from '@/analytics/utils';
 import CommonStore from '@/stores/common-store';
 import { TAuthData } from '@/types/api-types';
 import { clearAuthData } from '@/utils/auth-utils';
 import { handleBackendError, isBackendError } from '@/utils/error-handler';
-import { setSessionToken } from '@/utils/session-token-utils';
-import { clearInvalidTokenParams } from '@/utils/url-utils';
-import { tradingTimesService } from '../../../../components/shared/services/trading-times-service';
-import { ACTIVE_SYMBOLS, generateDisplayName, MARKET_MAPPINGS } from '../../../../components/shared/utils/common-data';
-import { translateMarketCategory } from '../../../../utils/market-category-translator';
+import { activeSymbolsProcessorService } from '../../../../services/active-symbols-processor.service';
 import { observer as globalObserver } from '../../utils/observer';
 import { doUntilDone, socket_state } from '../tradeEngine/utils/helpers';
 import {
@@ -19,7 +15,7 @@ import {
     setIsAuthorizing,
 } from './observables/connection-status-stream';
 import ApiHelpers from './api-helpers';
-import { generateDerivApiInstance, V2GetActiveClientId, V2GetActiveToken } from './appId';
+import { generateDerivApiInstance, V2GetActiveAccountId } from './appId';
 import chart_api from './chart-api';
 
 type CurrentSubscription = {
@@ -64,6 +60,12 @@ class APIBase {
     is_authorized = false;
     active_symbols_promise: Promise<any[] | undefined> | null = null;
     common_store: CommonStore | undefined;
+    reconnection_attempts: number = 0;
+
+    // Constants for timeouts - extracted magic numbers for better maintainability
+    private readonly ACTIVE_SYMBOLS_TIMEOUT_MS = 10000; // 10 seconds
+    private readonly ENRICHMENT_TIMEOUT_MS = 10000; // 10 seconds
+    private readonly MAX_RECONNECTION_ATTEMPTS = 5; // Maximum number of reconnection attempts before session reset
 
     unsubscribeAllSubscriptions = () => {
         this.current_auth_subscriptions?.forEach(subscription_promise => {
@@ -81,68 +83,35 @@ class APIBase {
     onsocketopen() {
         setConnectionStatus(CONNECTION_STATUS.OPENED);
 
+        // Reset reconnection attempts on successful connection
+        this.reconnection_attempts = 0;
+
+        const currentClientStore = globalObserver.getState('client.store');
+        if (currentClientStore) {
+            currentClientStore.setIsAccountRegenerating(false);
+        }
+
         this.handleTokenExchangeIfNeeded();
     }
 
     private async handleTokenExchangeIfNeeded() {
-        // Check URL directly for one-time token (no localStorage needed)
         const urlParams = new URLSearchParams(window.location.search);
-        const oneTimeToken = urlParams.get('token');
+        const account_id = urlParams.get('account_id');
         const accountType = urlParams.get('account_type');
 
-        // Only save account_type when BOTH token and account_type are present
-        if (oneTimeToken && accountType) {
-            localStorage.setItem('account_type', accountType);
+        if (account_id) {
+            localStorage.setItem('active_loginid', account_id);
+            // Remove account_id from URL after storing
+            removeUrlParameter('account_id');
         }
-        // If no token or account_type, don't save anything - will fallback to demo server
-
-        if (oneTimeToken) {
-            // Remove token from URL immediately for security
-            const url = new URL(window.location.href);
-            url.searchParams.delete('token');
-            // Also remove account_type from URL after processing
-            if (accountType) {
-                url.searchParams.delete('account_type');
-            }
-            window.history.replaceState({}, document.title, url.toString());
-
-            // Exchange the token
-            setIsAuthorizing(true);
-
-            try {
-                const response = await this.getSessionToken(oneTimeToken);
-
-                if (response?.error) {
-                    const errorMessage = isBackendError(response.error)
-                        ? handleBackendError(response.error)
-                        : response.error.message || 'Token exchange failed';
-                    console.error('Token exchange failed:', errorMessage);
-                    // Clear URL query parameters and emit InvalidToken event for invalid URL parameter tokens
-                    clearInvalidTokenParams();
-                    globalObserver.emit('InvalidToken', {
-                        error: { ...response.error, localizedMessage: errorMessage },
-                    });
-                    setIsAuthorizing(false);
-                    return;
-                }
-
-                if (response?.get_session_token?.token) {
-                    const sessionToken = response.get_session_token.token;
-                    const expires = response.get_session_token.expires;
-                    setSessionToken(sessionToken, expires);
-                }
-            } catch (error) {
-                console.error('Error exchanging token:', error);
-                // Clear URL query parameters and emit InvalidToken event for any token exchange errors
-                clearInvalidTokenParams();
-                globalObserver.emit('InvalidToken', { error });
-                setIsAuthorizing(false);
-                return;
-            }
+        if (accountType) {
+            localStorage.setItem('account_type', accountType);
+            // Remove account_type from URL after storing
+            removeUrlParameter('account_type');
         }
 
         // Now proceed with normal authorization if we have a token
-        if (V2GetActiveToken()) {
+        if (getAccountId()) {
             setIsAuthorizing(true);
             await this.authorizeAndSubscribe();
         }
@@ -160,6 +129,11 @@ class APIBase {
             this.unsubscribeAllSubscriptions();
         }
 
+        // Reset reconnection attempts counter on successful connection initialization
+        if (!force_create_connection) {
+            this.reconnection_attempts = 0;
+        }
+
         if (!this.api || this.api?.connection.readyState !== 1 || force_create_connection) {
             if (this.api?.connection) {
                 ApiHelpers.disposeInstance();
@@ -169,13 +143,24 @@ class APIBase {
                 this.api.connection.removeEventListener('close', this.onsocketclose.bind(this));
             }
             this.api = generateDerivApiInstance();
+
             this.api?.connection.addEventListener('open', this.onsocketopen.bind(this));
             this.api?.connection.addEventListener('close', this.onsocketclose.bind(this));
+
+            // Store the current account ID used for this WebSocket connection
+            // This will be used to check if we need to regenerate the connection when the tab becomes active
+            const currentClientStore = globalObserver.getState('client.store');
+            if (currentClientStore) {
+                const active_login_id = getAccountId();
+                if (active_login_id) {
+                    currentClientStore.setWebSocketLoginId(active_login_id);
+                }
+            }
         }
 
-        const hasToken = V2GetActiveToken();
+        const hasAccountID = V2GetActiveAccountId();
 
-        if (!this.has_active_symbols && !hasToken) {
+        if (!this.has_active_symbols && !hasAccountID) {
             this.active_symbols_promise = this.getActiveSymbols().then(() => undefined);
         }
 
@@ -219,77 +204,110 @@ class APIBase {
         if (this.api?.connection?.readyState && this.api?.connection?.readyState > 1) {
             // eslint-disable-next-line no-console
             console.log('Info: Connection to the server was closed, trying to reconnect.');
+
+            this.reconnection_attempts += 1;
+
+            if (this.reconnection_attempts >= this.MAX_RECONNECTION_ATTEMPTS) {
+                // Reset reconnection counter
+                this.reconnection_attempts = 0;
+
+                // Properly handle logout through the API
+                setIsAuthorized(false);
+                setAccountList([]);
+                setAuthData(null);
+
+                // Clear necessary storage items
+                localStorage.removeItem('active_loginid');
+                localStorage.removeItem('account_type');
+                localStorage.removeItem('accountsList');
+                localStorage.removeItem('clientAccounts');
+            }
+
             this.init(true);
         }
     };
 
     async authorizeAndSubscribe() {
-        const token = V2GetActiveToken();
-        if (!token || !this.api) return;
+        if (!this.api) return;
 
-        this.token = token;
-        this.account_id = V2GetActiveClientId() ?? '';
+        this.account_id = getAccountId() || '';
         setIsAuthorizing(true);
 
         try {
-            const { authorize, error } = await this.api.authorize(this.token);
+            const { balance, error } = await this.api.balance();
+
             if (error) {
                 const errorMessage = isBackendError(error)
                     ? handleBackendError(error)
                     : error.message || 'Authorization failed';
 
-                if (error.code === 'InvalidToken') {
-                    // Clear URL query parameters for InvalidToken errors
-                    clearInvalidTokenParams();
-                    if (Cookies.get('logged_state') === 'true') {
-                        globalObserver.emit('InvalidToken', { error: { ...error, localizedMessage: errorMessage } });
-                    } else {
-                        clearAuthData();
-                    }
-                } else {
-                    // Authorization error
-                    console.error('Authorization error:', errorMessage);
-                }
+                // Authorization error
+                console.error('Authorization error:', errorMessage);
+
                 setIsAuthorizing(false);
                 return { ...error, localizedMessage: errorMessage };
             }
 
-            this.account_info = authorize;
+            this.account_info = {
+                balance: balance?.balance,
+                currency: balance?.currency,
+                loginid: balance?.loginid,
+            };
+            this.token = balance?.loginid;
 
-            const currentAccount = authorize?.loginid
+            const account_type = getAccountType(balance?.loginid);
+            const currentAccount = balance?.loginid
                 ? {
-                      balance: authorize.balance,
-                      currency: authorize.currency || 'USD',
-                      is_virtual: authorize.is_virtual || 0,
-                      loginid: authorize.loginid,
+                      balance: balance.balance,
+                      currency: balance.currency || 'USD',
+                      is_virtual: account_type === 'real' ? 0 : 1,
+                      loginid: balance.loginid,
                   }
                 : null;
-
             const accountList = currentAccount ? [currentAccount] : [];
 
             setAccountList(accountList); // Observable stream
-            setAuthData(authorize);
+            setAuthData({
+                balance: balance?.balance,
+                currency: balance?.currency,
+                loginid: balance?.loginid,
+                is_virtual: account_type === 'real' ? 0 : 1,
+                account_list: accountList,
+            });
+
+            // // Set account_type in localStorage based on loginid prefix using centralized utility
+            const loginid = balance?.loginid || '';
+            const isDemo = isDemoAccount(loginid);
+
+            if (isDemo) {
+                localStorage.setItem('account_type', 'demo');
+            } else {
+                localStorage.setItem('account_type', 'real');
+            }
 
             globalObserver.emit('api.authorize', {
                 account_list: accountList,
                 current_account: {
-                    loginid: authorize?.loginid,
-                    currency: authorize?.currency || 'USD',
-                    is_virtual: authorize?.is_virtual || 0,
-                    balance: typeof authorize?.balance === 'number' ? authorize.balance : undefined,
+                    loginid: balance?.loginid,
+                    currency: balance?.currency || 'USD',
+                    is_virtual: account_type === 'real' ? 0 : 1,
+                    balance: typeof balance?.balance === 'number' ? balance.balance : undefined,
                 },
             });
+
+            // Update the WebSocket login ID in the client store
+            const currentClientStore = globalObserver.getState('client.store');
+            if (currentClientStore && balance?.loginid) {
+                currentClientStore.setWebSocketLoginId(balance.loginid);
+            }
 
             setIsAuthorized(true);
             this.is_authorized = true;
             localStorage.setItem('client_account_details', JSON.stringify(accountList));
-            localStorage.setItem('client.country', authorize?.country);
+            localStorage.setItem('client.country', balance?.country);
 
-            if (authorize?.loginid && this.token) {
-                const existingAccountsList = JSON.parse(localStorage.getItem('accountsList') || '{}');
-                existingAccountsList[authorize.loginid] = this.token;
-                localStorage.setItem('accountsList', JSON.stringify(existingAccountsList));
-                localStorage.setItem('active_loginid', authorize.loginid);
+            if (balance?.loginid) {
+                localStorage.setItem('active_loginid', balance.loginid);
             }
 
             if (this.has_active_symbols) {
@@ -306,16 +324,6 @@ class APIBase {
         } finally {
             setIsAuthorizing(false);
         }
-    }
-
-    async getSessionToken(oneTimeToken: string) {
-        if (!this.api) {
-            throw new Error('API connection not available');
-        }
-
-        return this.api.send({
-            get_session_token: oneTimeToken,
-        });
     }
 
     async subscribe() {
@@ -344,293 +352,56 @@ class APIBase {
 
     getActiveSymbols = async () => {
         if (!this.api) {
-            this.useActiveSymbols();
-            return;
+            throw new Error('API connection not available for fetching active symbols');
         }
 
         try {
             // Add timeout to prevent hanging
             const timeout = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Active symbols fetch timeout')), 10000)
+                setTimeout(() => reject(new Error('Active symbols fetch timeout')), this.ACTIVE_SYMBOLS_TIMEOUT_MS)
             );
 
             const activeSymbolsPromise = doUntilDone(() => this.api?.send({ active_symbols: 'brief' }), [], this);
 
-            const result = await Promise.race([activeSymbolsPromise, timeout]);
+            const apiResult = await Promise.race([activeSymbolsPromise, timeout]);
 
-            const { active_symbols = [], error = {} } = result as any;
+            const { active_symbols = [], error = {} } = apiResult as any;
 
             if (error && Object.keys(error).length > 0) {
-                this.useActiveSymbols();
-                return;
+                throw new Error(`Active symbols API error: ${error.message || 'Unknown error'}`);
             }
 
             if (!active_symbols.length) {
-                this.useActiveSymbols();
-                return;
+                throw new Error('No active symbols received from API');
             }
 
-            const pip_sizes = {};
             this.has_active_symbols = true;
 
-            // Process pip sizes - handle both old and new field names
-            active_symbols.forEach((symbol: any) => {
-                const underlying_symbol = symbol.underlying_symbol || symbol.symbol;
-                const pip_size = symbol.pip_size || symbol.pip;
-                if (underlying_symbol && pip_size) {
-                    (pip_sizes as Record<string, number>)[underlying_symbol] = +(+pip_size)
-                        .toExponential()
-                        .substring(3);
-                }
-            });
-            this.pip_sizes = pip_sizes as Record<string, number>;
-
-            // Enrich active symbols with trading times data with timeout
+            // Process active symbols using the dedicated service with fallback
             try {
-                const enrichmentTimeout = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Enrichment timeout')), 5000)
+                const enrichmentTimeout = new Promise<never>((_, reject) =>
+                    setTimeout(() => reject(new Error('Enrichment timeout')), this.ENRICHMENT_TIMEOUT_MS)
                 );
 
-                const enrichmentPromise = this.enrichActiveSymbolsWithTradingTimes(active_symbols);
-                const enriched_symbols = await Promise.race([enrichmentPromise, enrichmentTimeout]);
+                const enrichmentPromise = activeSymbolsProcessorService.processActiveSymbols(active_symbols);
+                const processedResult = await Promise.race([enrichmentPromise, enrichmentTimeout]);
 
-                this.active_symbols = enriched_symbols as any[];
-            } catch (enrichment_error) {
-                // Fallback to original active symbols if enrichment fails
+                this.active_symbols = processedResult.enrichedSymbols;
+                this.pip_sizes = processedResult.pipSizes;
+            } catch (enrichmentError) {
+                console.warn('Symbol enrichment failed, using raw symbols:', enrichmentError);
+                // Fallback to raw symbols if enrichment fails
                 this.active_symbols = active_symbols;
+                this.pip_sizes = {};
             }
+
             this.toggleRunButton(false);
             return this.active_symbols;
-        } catch (fetch_error) {
-            this.useActiveSymbols();
+        } catch (error) {
+            console.error('Failed to fetch and process active symbols:', error);
+            throw error;
         }
     };
-
-    private useActiveSymbols() {
-        // Use common active symbols
-        this.active_symbols = ACTIVE_SYMBOLS;
-
-        // Set pip sizes
-        const pip_sizes = {};
-        this.active_symbols.forEach((symbol: any) => {
-            const underlying_symbol = symbol.underlying_symbol || symbol.symbol;
-            const pip_size = symbol.pip;
-            if (underlying_symbol && pip_size) {
-                (pip_sizes as Record<string, number>)[underlying_symbol] = +(+pip_size).toExponential().substring(3);
-            }
-        });
-        this.pip_sizes = pip_sizes as Record<string, number>;
-
-        this.has_active_symbols = true;
-        this.toggleRunButton(false);
-    }
-
-    /**
-     * Maps active symbols market codes to trading times market names
-     */
-    private getMarketMapping(): Map<string, string> {
-        return MARKET_MAPPINGS.MARKET_DISPLAY_NAMES;
-    }
-
-    /**
-     * Maps active symbols submarket codes to trading times submarket names
-     */
-    private getSubmarketMapping(): Map<string, string> {
-        return MARKET_MAPPINGS.SUBMARKET_DISPLAY_NAMES;
-    }
-
-    /**
-     * Enriches active symbols with market display names from trading times
-     */
-    private async enrichActiveSymbolsWithTradingTimes(active_symbols: any[]) {
-        if (!active_symbols || !active_symbols.length) {
-            return active_symbols;
-        }
-
-        try {
-            // Get trading times data
-            const trading_times = await tradingTimesService.getTradingTimes();
-
-            if (!trading_times?.markets) {
-                return active_symbols;
-            }
-
-            // Create lookup maps for efficient searching
-            const market_display_names = new Map<string, string>();
-            const submarket_display_names = new Map<string, string>();
-            const market_mapping = this.getMarketMapping();
-            const submarket_mapping = this.getSubmarketMapping();
-
-            if (!trading_times.markets || !Array.isArray(trading_times.markets)) {
-                return active_symbols;
-            }
-
-            try {
-                trading_times.markets.forEach((market: any) => {
-                    // Use the name property and translate it
-                    if (market.name) {
-                        const translatedMarketName = translateMarketCategory(market.name);
-                        market_display_names.set(market.name, translatedMarketName);
-
-                        // Also create reverse mapping for market codes
-                        for (const [code, name] of market_mapping.entries()) {
-                            if (name === market.name) {
-                                market_display_names.set(code, translatedMarketName);
-                            }
-                        }
-                    }
-
-                    if (market.submarkets) {
-                        market.submarkets.forEach((submarket: any) => {
-                            // Use the name property and translate it
-                            if (submarket.name && market.name) {
-                                const translatedSubmarketName = translateMarketCategory(submarket.name);
-                                const key = `${market.name}_${submarket.name}`;
-                                submarket_display_names.set(key, translatedSubmarketName);
-
-                                // Also create mapping for market codes and submarket codes
-                                for (const [code, name] of market_mapping.entries()) {
-                                    if (name === market.name) {
-                                        const code_key = `${code}_${submarket.name}`;
-                                        submarket_display_names.set(code_key, translatedSubmarketName);
-                                    }
-                                }
-                            }
-                        });
-                    }
-                });
-            } catch (markets_error) {
-                return active_symbols;
-            }
-
-            // Add direct submarket code mappings
-            for (const [submarket_code, submarket_name] of submarket_mapping.entries()) {
-                submarket_display_names.set(submarket_code, submarket_name);
-
-                // Also add with market prefixes
-                for (const [market_code] of market_mapping.entries()) {
-                    const key = `${market_code}_${submarket_code}`;
-                    submarket_display_names.set(key, submarket_name);
-                }
-            }
-
-            // Create symbol display names lookup
-            const symbol_display_names = new Map<string, string>();
-
-            trading_times.markets.forEach((market: any) => {
-                if (market.submarkets) {
-                    market.submarkets.forEach((submarket: any) => {
-                        if (submarket.symbols) {
-                            submarket.symbols.forEach((symbol_info: any) => {
-                                if (symbol_info.symbol && symbol_info.display_name) {
-                                    symbol_display_names.set(symbol_info.symbol, symbol_info.display_name);
-                                }
-                                // Also handle underlying_symbol if present
-                                if (symbol_info.underlying_symbol && symbol_info.display_name) {
-                                    symbol_display_names.set(symbol_info.underlying_symbol, symbol_info.display_name);
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-
-            // Enrich each active symbol
-            return active_symbols.map(symbol => {
-                const enriched_symbol = { ...symbol };
-
-                // Add market display name using the name property from trading times
-                if (symbol.market) {
-                    enriched_symbol.market_display_name = market_display_names.get(symbol.market) || symbol.market;
-                }
-
-                // Add submarket display name using the name property from trading times
-                if (symbol.submarket) {
-                    // Try multiple lookup strategies for submarket
-                    let submarket_display_name = symbol.submarket;
-
-                    // 1. Try with market prefix
-                    if (symbol.market) {
-                        const submarket_key = `${symbol.market}_${symbol.submarket}`;
-                        submarket_display_name = submarket_display_names.get(submarket_key) || submarket_display_name;
-                    }
-
-                    // 2. Try direct submarket code lookup
-                    submarket_display_name = submarket_display_names.get(symbol.submarket) || submarket_display_name;
-
-                    enriched_symbol.submarket_display_name = submarket_display_name;
-                }
-
-                // Add subgroup display name if available using the name property from trading times
-                if (symbol.subgroup) {
-                    let subgroup_display_name = symbol.subgroup;
-
-                    // Try with market prefix
-                    if (symbol.market) {
-                        const subgroup_key = `${symbol.market}_${symbol.subgroup}`;
-                        subgroup_display_name = submarket_display_names.get(subgroup_key) || subgroup_display_name;
-                    }
-
-                    // Try direct subgroup code lookup
-                    subgroup_display_name = submarket_display_names.get(symbol.subgroup) || subgroup_display_name;
-
-                    enriched_symbol.subgroup_display_name = subgroup_display_name;
-                }
-
-                // Add symbol display name from trading times
-                const symbol_code = symbol.underlying_symbol || symbol.symbol;
-                if (symbol_code) {
-                    const symbol_display_name = symbol_display_names.get(symbol_code);
-                    if (symbol_display_name) {
-                        enriched_symbol.display_name = symbol_display_name;
-                    } else {
-                        // Fallback: Generate a display name if not found in trading times
-                        enriched_symbol.display_name = this.generateFallbackDisplayName(symbol_code, symbol);
-                    }
-                }
-
-                // Add underlying_symbol display name from trading times
-                if (symbol.underlying_symbol) {
-                    const underlying_symbol_display_name = symbol_display_names.get(symbol.underlying_symbol);
-                    if (underlying_symbol_display_name) {
-                        enriched_symbol.underlying_symbol_display_name = underlying_symbol_display_name;
-                    }
-                }
-
-                // Also add symbol display name if symbol field exists
-                if (symbol.symbol) {
-                    const symbol_field_display_name = symbol_display_names.get(symbol.symbol);
-                    if (symbol_field_display_name) {
-                        enriched_symbol.symbol_display_name = symbol_field_display_name;
-                    }
-                }
-
-                // Handle new API field names - ensure backward compatibility
-                if (symbol.symbol_type && !symbol.underlying_symbol_type) {
-                    enriched_symbol.underlying_symbol_type = symbol.symbol_type;
-                }
-
-                // Ensure we have both symbol and underlying_symbol for backward compatibility
-                if (symbol.underlying_symbol && !symbol.symbol) {
-                    enriched_symbol.symbol = symbol.underlying_symbol;
-                } else if (symbol.symbol && !symbol.underlying_symbol) {
-                    enriched_symbol.underlying_symbol = symbol.symbol;
-                }
-
-                return enriched_symbol;
-            });
-        } catch (error) {
-            return active_symbols;
-        }
-    }
-
-    /**
-     * Generates a fallback display name for symbols not found in trading times
-     * Aligned with frontend getMarketNamesMap() configuration
-     */
-    private generateFallbackDisplayName(symbol_code: string, symbol: any): string {
-        return generateDisplayName(symbol_code, symbol);
-    }
 
     toggleRunButton = (toggle: boolean) => {
         const run_button = document.querySelector('#db-animation__run-button');

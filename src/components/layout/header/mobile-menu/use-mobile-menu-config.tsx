@@ -1,9 +1,11 @@
 import { ComponentProps, ReactNode, useEffect, useMemo, useState } from 'react';
+import { standalone_routes } from '@/components/shared';
 import { useFirebaseCountriesConfig } from '@/hooks/firebase/useFirebaseCountriesConfig';
 import useThemeSwitcher from '@/hooks/useThemeSwitcher';
 import RootStore from '@/stores/root-store';
 import { handleTraderHubRedirect } from '@/utils/traders-hub-redirect';
-import { LegacyLogout1pxIcon, LegacyReportsIcon, LegacyTheme1pxIcon } from '@deriv/quill-icons/Legacy';
+import { LabelPairedFileMdRegularIcon } from '@deriv/quill-icons/LabelPaired';
+import { LegacyHomeNewIcon, LegacyLogout1pxIcon, LegacyTheme1pxIcon } from '@deriv/quill-icons/Legacy';
 import { useTranslations } from '@deriv-com/translations';
 import { ToggleSwitch } from '@deriv-com/ui';
 
@@ -24,7 +26,7 @@ type TMenuConfig = {
 }[];
 
 const useMobileMenuConfig = (client?: RootStore['client'], onLogout?: () => void) => {
-    const { localize } = useTranslations();
+    const { localize, currentLang } = useTranslations();
     const { is_dark_mode_on, toggleTheme } = useThemeSwitcher();
     const { hubEnabledCountryList } = useFirebaseCountriesConfig();
 
@@ -50,12 +52,23 @@ const useMobileMenuConfig = (client?: RootStore['client'], onLogout?: () => void
     }, [client?.is_virtual, client?.residence, hubEnabledCountryList, client?.is_logged_in]);
 
     const menuConfig = useMemo((): TMenuConfig[] => {
+        // Create home URL with language parameter
+        const homeUrl = currentLang
+            ? `${standalone_routes.deriv_app}?lang=${currentLang.toUpperCase()}`
+            : standalone_routes.deriv_app;
+
         return [
             [
+                {
+                    as: 'a',
+                    label: localize('Home'),
+                    LeftComponent: LegacyHomeNewIcon,
+                    href: homeUrl,
+                },
                 client?.is_logged_in && {
                     as: 'button',
                     label: localize('Reports'),
-                    LeftComponent: LegacyReportsIcon,
+                    LeftComponent: LabelPairedFileMdRegularIcon,
                     submenu: 'reports',
                     onClick: () => {},
                 },
@@ -87,6 +100,7 @@ const useMobileMenuConfig = (client?: RootStore['client'], onLogout?: () => void
         is_dark_mode_on,
         toggleTheme,
         localize,
+        currentLang,
         redirect_url_str,
         hubEnabledCountryList,
     ]);

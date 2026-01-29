@@ -166,9 +166,7 @@ const getBackoffDelayInMs = (error_obj, delay_index) => {
             case 'MarketIsClosed':
                 message_to_print = getLocalizedErrorMessage('MarketIsClosed', error_details);
                 break;
-            case 'OpenPositionLimitExceeded':
-                message_to_print = getLocalizedErrorMessage('OpenPositionLimitExceeded', error_details);
-                break;
+
             default:
                 message_to_print = getLocalizedErrorMessage('RequestFailed', {
                     message_type: msg_type || localize('unknown'),
@@ -211,14 +209,12 @@ export const shouldThrowError = (error, errors_to_ignore = []) => {
         'RateLimit',
         'DisconnectError',
         'MarketIsClosed',
-        'OpenPositionLimitExceeded',
     ];
     updateErrorMessage(error);
     const is_ignorable_error = errors_to_ignore
         .concat(default_errors_to_ignore)
         .includes(error?.error?.code ?? error?.name);
 
-    if (error.error?.code === 'OpenPositionLimitExceeded') globalObserver.emit('bot.recoverOpenPositionLimitExceeded');
     return !is_ignorable_error;
 };
 
@@ -233,6 +229,14 @@ export const recoverFromError = (promiseFn, recoverFn, errors_to_ignore, delay_i
                  * `!api_base.is_running` will check the bot status if it is not running it will kick out the control from loop
                  */
                 if (shouldThrowError(error, errors_to_ignore) || (api_base && !api_base.is_running)) {
+                    // Check if this is a position limit exceeded error
+                    if (error?.error?.code === 'OpenPositionLimitExceeded') {
+                        // Emit click_stop event to trigger the stopBot method in run-panel-store
+                        setTimeout(() => {
+                            globalObserver.emit('bot.stop_button_click');
+                        }, 500);
+                    }
+
                     reject(error);
                     return;
                 }

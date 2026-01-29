@@ -446,6 +446,8 @@
     &__button {
         @include mobile-or-tablet-screen {
             flex-basis: 100%;
+            white-space: normal;
+            word-break: break-word;
         }
     }
 }

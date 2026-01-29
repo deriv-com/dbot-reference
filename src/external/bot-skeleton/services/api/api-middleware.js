@@ -1,6 +1,5 @@
 export const REQUESTS = [
     'active_symbols',
-    'authorize',
     'balance',
     'buy',
     'proposal',

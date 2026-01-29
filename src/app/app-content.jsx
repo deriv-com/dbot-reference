@@ -7,17 +7,15 @@ import ChunkLoader from '@/components/loader/chunk-loader';
 import { getUrlBase } from '@/components/shared';
 import TransactionDetailsModal from '@/components/transaction-details';
 import { api_base, ApiHelpers, ServerTime } from '@/external/bot-skeleton';
-import { V2GetActiveToken } from '@/external/bot-skeleton/services/api/appId';
 import { CONNECTION_STATUS } from '@/external/bot-skeleton/services/api/observables/connection-status-stream';
 import { useApiBase } from '@/hooks/useApiBase';
 import useDevMode from '@/hooks/useDevMode';
-import useIntercom from '@/hooks/useIntercom';
 import { useStore } from '@/hooks/useStore';
 import useThemeSwitcher from '@/hooks/useThemeSwitcher';
 import useTrackjs from '@/hooks/useTrackjs';
 import initDatadog from '@/utils/datadog';
-import { setSmartChartsPublicPath } from '@deriv-com/derivatives-charts';
 import { ThemeProvider } from '@deriv-com/quill-ui';
+import { setSmartChartsPublicPath } from '@deriv-com/smartcharts-champion';
 import { localize } from '@deriv-com/translations';
 import Audio from '../components/audio';
 import BlocklyLoading from '../components/blockly-loading';
@@ -60,8 +58,9 @@ const AppContent = observer(() => {
 
     useLiveChat(livechat_client_information);
 
-    const token = V2GetActiveToken() ?? null;
-    useIntercom(token);
+    // NOTE: Disabled Intercom until further notice
+    // const token = V2GetActiveToken() ?? null;
+    // useIntercom(token);
 
     useEffect(() => {
         if (connectionStatus === CONNECTION_STATUS.OPENED) {

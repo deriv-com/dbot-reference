@@ -12,14 +12,6 @@
 }
 
 .flyout {
-    &__loading {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-        min-height: 100px;
-    }
-
     $flyout: &;
     $default-margin: 15px;
     $button-padding: 5px 20px;
@@ -38,6 +30,14 @@
     box-shadow: 0 2px 8px 0 var(--shadow-box);
     min-width: 400px;
     visibility: hidden;
+
+    &__loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        min-height: 100px;
+    }
 
     &__item:hover {
         .flyout__button-add--hide {

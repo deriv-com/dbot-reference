@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { botNotification } from '@/components/bot-notification/bot-notification';
-import { APP_IDS } from '@/components/shared/utils/config/config';
+import { WS_SERVERS } from '@/components/shared/utils/config/config';
 import { LocalStorageConstants } from '@deriv-com/utils';
 
-const DEV_SERVER_URL = 'qa197.deriv.dev';
-const DEV_APP_ID = APP_IDS.LOCALHOST; // 36300
+const DEV_SERVER_URL = WS_SERVERS.STAGING;
+//to be checked after login function done.
 
 const useDevMode = () => {
     const switchToDevServer = () => {
@@ -17,8 +17,6 @@ const useDevMode = () => {
         // Delay localStorage change to allow snackbar to be read
         setTimeout(() => {
             localStorage.setItem(LocalStorageConstants.configServerURL, DEV_SERVER_URL);
-            localStorage.setItem(LocalStorageConstants.configAppId, DEV_APP_ID.toString());
-
             // Manually reload page to apply server changes
             window.location.reload();
         }, 1500);

@@ -56,15 +56,19 @@ export default Engine =>
         }
 
         getLastTick(raw, toString = false) {
-            return new Promise(resolve =>
+            return new Promise((resolve, reject) =>
                 this.$scope.ticksService
                     .request({ symbol: this.symbol })
                     .then(ticks => {
-                        let last_tick = raw ? getLast(ticks) : getLast(ticks).quote;
-                        if (!raw && toString) {
-                            last_tick = last_tick.toFixed(this.getPipSize());
+                        try {
+                            let last_tick = raw ? getLast(ticks) : getLast(ticks).quote;
+                            if (!raw && toString) {
+                                last_tick = last_tick.toFixed(this.getPipSize());
+                            }
+                            resolve(last_tick);
+                        } catch (error) {
+                            reject(error);
                         }
-                        resolve(last_tick);
                     })
                     .catch(e => {
                         if (e.code === 'MarketIsClosed') {

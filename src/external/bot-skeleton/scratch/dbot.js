@@ -588,7 +588,7 @@ class DBot {
 
                     if (!input && !block.domToMutation) {
                         // Detected a non-existent required input
-                    } else if (input.connection) {
+                    } else if (input && input?.connection) {
                         const order = window.Blockly.JavaScript.javascriptGenerator.ORDER_ATOMIC;
                         const value = window.Blockly.JavaScript.javascriptGenerator.valueToCode(
                             block,

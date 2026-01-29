@@ -8,7 +8,7 @@ import { config as qs_config } from '@/external/bot-skeleton';
 import { useStore } from '@/hooks/useStore';
 import { localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
-import { rudderStackSendCloseEvent } from '../../../analytics/rudderstack-common-events';
+// Removed import for rudderStackSendCloseEvent as per V2 requirements - no close events needed
 import DesktopFormWrapper from './form-wrappers/desktop-form-wrapper';
 import MobileFormWrapper from './form-wrappers/mobile-form-wrapper';
 import MobileQSFooter from './form-wrappers/mobile-qs-footer';
@@ -16,7 +16,7 @@ import { QsSteps } from './form-wrappers/trade-constants';
 import LossThresholdWarningDialog from './parts/loss-threshold-warning-dialog';
 import { STRATEGIES } from './config';
 import Form from './form';
-import { TConfigItem, TFormData, TFormValues } from './types';
+import { TConfigItem, TFormData } from './types';
 import './quick-strategy.scss';
 
 type TFormikWrapper = {
@@ -207,9 +207,8 @@ const FormikWrapper: React.FC<TFormikWrapper> = observer(({ children }) => {
 const QuickStrategy = observer(() => {
     const { quick_strategy } = useStore();
     const { isDesktop } = useDevice();
-    const { is_open, setFormVisibility, form_data, selected_strategy } = quick_strategy;
+    const { is_open, setFormVisibility } = quick_strategy;
 
-    const active_tab_ref = useRef<HTMLDivElement>(null);
     const [current_step, setCurrentStep] = React.useState(QsSteps.StrategySelect);
     const [selected_trade_type, setSelectedTradeType] = React.useState('');
 
@@ -226,21 +225,8 @@ const QuickStrategy = observer(() => {
         };
     }, [is_open]);
 
-    const sendRudderStackQsFormCloseData = () => {
-        const active_tab =
-            active_tab_ref.current?.querySelector('.active')?.textContent?.toLowerCase() === 'learn more'
-                ? 'learn more'
-                : 'trade parameters';
-        rudderStackSendCloseEvent({
-            subform_name: 'quick_strategy',
-            quick_strategy_tab: active_tab,
-            selected_strategy,
-            form_values: form_data as TFormValues,
-        });
-    };
-
     const handleClose = () => {
-        sendRudderStackQsFormCloseData();
+        // Removed close event tracking as per V2 requirements
         setFormVisibility(false);
     };
 

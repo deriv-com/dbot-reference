@@ -2,33 +2,7 @@ import config_data from '../../../../../brand.config.json';
 
 type TPlatform = {
     name: string;
-    icon: string;
-};
-
-type TPlatformAppstore = {
-    name: string;
-    icon: string;
-    availability: string;
-};
-
-type TPlatforms = {
-    ctrader: TPlatform;
-    trader: TPlatform;
-    dbot: TPlatform;
-    mt5: TPlatform;
-    dxtrade: TPlatform;
-    smarttrader: TPlatform;
-    bbot: TPlatform;
-    go: TPlatform;
-};
-
-type TPlatformsAppstore = {
-    ctrader: TPlatformAppstore;
-    trader: TPlatformAppstore;
-    dbot: TPlatformAppstore;
-    smarttrader: TPlatformAppstore;
-    bbot: TPlatformAppstore;
-    go: TPlatformAppstore;
+    logo: string;
 };
 
 const isDomainAllowed = (domain_name: string) => {
@@ -41,22 +15,13 @@ export const getBrandWebsiteName = () => {
     return config_data.domain_name;
 };
 
-export const getPlatformSettings = (platform_key: keyof TPlatforms): TPlatform => {
-    const allowed_config_data = config_data.platforms[platform_key];
+export const getPlatformConfig = (): TPlatform => {
+    const allowed_config_data = config_data.platform;
 
     if (!isDomainAllowed(window.location.host)) {
         // Remove all official platform logos if the app is hosted under unofficial domain
-        allowed_config_data.icon = '';
+        allowed_config_data.logo = '';
     }
 
     return allowed_config_data;
-};
-
-export const getAppstorePlatforms = () => {
-    const platform_data: Record<string, Record<string, string>> = config_data.platforms_appstore;
-    return Object.keys(platform_data).map(key => platform_data[key]);
-};
-
-export const getPlatformSettingsAppstore = (platform_key: keyof TPlatformsAppstore): TPlatformAppstore => {
-    return config_data.platforms_appstore[platform_key];
 };

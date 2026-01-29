@@ -31,7 +31,7 @@ const config: Config = {
     coveragePathIgnorePatterns: ['/node_modules/'],
 
     // Indicates which provider should be used to instrument code for coverage
-    // coverageProvider: "babel",
+    coverageProvider: 'v8', // faster and avoids babel-plugin-istanbul
 
     // A list of reporter names that Jest uses when writing coverage reports
     // coverageReporters: [
@@ -84,7 +84,9 @@ const config: Config = {
         '@deriv-com/translations': '<rootDir>/__mocks__/translation.mock.js',
         '@deriv-com/ui': '<rootDir>/node_modules/@deriv-com/ui',
         '@deriv-com/auth-client': '<rootDir>/node_modules/@deriv-com/auth-client',
+        '^@/analytics/(.*)$': '<rootDir>/src/analytics/$1',
         '^@/external/(.*)$': '<rootDir>/src/external/$1',
+        '^@/adapters/(.*)$': '<rootDir>/src/adapters/$1',
         '^@/utils/(.*)$': '<rootDir>/src/utils/$1',
         '^@/components/(.*)$': '<rootDir>/src/components/$1',
         '^@/constants/(.*)$': '<rootDir>/src/constants/$1',
@@ -174,8 +176,8 @@ const config: Config = {
 
     // A map from regular expressions to paths to transformers
     transform: {
+        '^.+\\.(ts|tsx)$': 'ts-jest',
         '^.+\\.(js|jsx)$': 'babel-jest',
-        '^.+\\.tsx?$': 'babel-jest',
         '^.+\\.xml$': 'jest-transform-stub',
     },
 

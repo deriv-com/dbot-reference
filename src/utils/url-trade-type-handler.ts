@@ -26,6 +26,12 @@ const URL_TO_TRADE_TYPE_MAPPING: Record<string, string> = {
     only_up_only_down: 'runs', // Only Ups/Only Downs -> first dropdown only
     touch: 'touchnotouch', // Touch/No Touch -> first dropdown only
     multipliers: 'multiplier', // Multipliers -> first dropdown only
+
+    // Additional new trade types
+    ends_between_ends_outside: 'inout', // Ends Between/Ends Outside -> inout
+    stays_between_goes_outside: 'inout', // Stays Between/Goes Outside -> inout
+    asians: 'asian', // Asians -> asian
+    reset_call_reset_put: 'reset', // Reset Call/Reset Put -> reset
 };
 
 // Mapping from URL parameter values to specific trade types within categories
@@ -55,6 +61,12 @@ const URL_TO_SPECIFIC_TRADE_TYPE_MAPPING: Record<string, string> = {
     only_up_only_down: 'runs', // Only Ups/Only Downs -> first dropdown only
     touch: 'touchnotouch', // Touch/No Touch -> first dropdown only
     multipliers: 'multiplier', // Multipliers -> first dropdown only
+
+    // Additional new trade types
+    ends_between_ends_outside: 'endsinout', // Ends Between/Ends Outside -> inout category
+    stays_between_goes_outside: 'staysinout', // Stays Between/Goes Outside -> inout category
+    asians: 'asians', // Asians -> asian category
+    reset_call_reset_put: 'reset', // Reset Call/Reset Put -> reset category
 };
 
 /**
@@ -92,8 +104,8 @@ export const getTradeTypeFromUrlParam = (urlParam: string): TradeTypeFromUrl => 
     const isValidCategory = Boolean(tradeTypeCategory && tradeTypeCategory in TRADE_TYPE_CATEGORIES);
     const isValidTradeType = Boolean(
         tradeType &&
-            isValidCategory &&
-            TRADE_TYPE_CATEGORIES[tradeTypeCategory as keyof typeof TRADE_TYPE_CATEGORIES].includes(tradeType)
+        isValidCategory &&
+        TRADE_TYPE_CATEGORIES[tradeTypeCategory as keyof typeof TRADE_TYPE_CATEGORIES].includes(tradeType)
     );
 
     return {

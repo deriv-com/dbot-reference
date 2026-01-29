@@ -62,35 +62,7 @@
             transition: transform 0.25s ease;
 
             @include mobile-screen {
-                background: transparent;
-                border-width: 0;
-                bottom: calc(12rem + env(safe-area-inset-bottom, 0));
-
-                /* Default bottom position for all browsers */
-
-                .sc-chart-mode,
-                .sc-studies {
-                    background: var(--general-section-1);
-                    padding: 0.4rem 0.2rem;
-                    width: 4rem;
-                    height: 4rem;
-                    border-radius: 50%;
-                    margin: 0.8rem;
-                    opacity: 0.75;
-
-                    @include flex-center;
-
-                    &__menu {
-                        &__timeperiod {
-                            top: 0.8rem;
-                            left: 0.8rem;
-                        }
-
-                        & > .ic-icon {
-                            top: 0.6rem;
-                        }
-                    }
-                }
+                bottom: 80px;
             }
 
             .app-contents .ciq-menu {

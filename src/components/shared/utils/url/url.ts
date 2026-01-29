@@ -1,4 +1,3 @@
-import { getCurrentProductionDomain } from '../config/config';
 import { standalone_routes } from '../routes';
 import { deriv_urls } from './constants';
 import { getPlatformFromUrl } from './helpers';
@@ -9,7 +8,6 @@ type TOption = {
     language?: string;
 };
 
-const default_domain = 'binary.com';
 const host_map = {
     // the exceptions regarding updating the URLs
     'bot.binary.com': 'www.binary.bot',
@@ -89,29 +87,6 @@ export const urlFor = (
     }
 
     return new_url;
-};
-
-export const urlForCurrentDomain = (href: string) => {
-    const current_domain = getCurrentProductionDomain();
-
-    if (!current_domain) {
-        return href; // don't change when domain is not supported
-    }
-
-    const url_object = new URL(href);
-    if (Object.keys(host_map).includes(url_object.hostname)) {
-        url_object.hostname = host_map[url_object.hostname as keyof typeof host_map];
-    } else if (url_object.hostname.match(default_domain)) {
-        // to keep all non-Binary links unchanged, we use default domain for all Binary links in the codebase (javascript and templates)
-        url_object.hostname = url_object.hostname.replace(
-            new RegExp(`\\.${default_domain}`, 'i'),
-            `.${current_domain}`
-        );
-    } else {
-        return href;
-    }
-
-    return url_object.href;
 };
 
 export const websiteUrl = () => `${location.protocol}//${location.hostname}/`;

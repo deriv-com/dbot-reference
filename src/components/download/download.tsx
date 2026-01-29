@@ -100,18 +100,23 @@ const Download = observer(({ tab }: TDownloadProps) => {
         filtered_messages.map(item => {
             let array_message;
             if (item.message_type !== 'success') {
-                array_message = JSON.stringify(item.message);
+                const message = item.message;
+                array_message = typeof message === 'string' ? message : JSON.stringify(message);
             } else {
                 array_message = getSuccessJournalMessage(item.message.toString(), {
                     ...item.extra,
                     profit: String(item.extra?.profit || ''),
                 });
             }
-            const arr = [
-                String(item.date || ''),
-                String(item.time || ''),
-                String(array_message?.replace('&#x2F;', '/') || ''),
-            ];
+
+            // Single sanitization pass for all messages
+            const sanitizedMessage = String(array_message?.replace('&#x2F;', '/') || '')
+                .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
+                .replace(/<[^>]*>/g, ' ') // Strip all HTML tags
+                .replace(/\s+/g, ' ') // Normalize whitespace
+                .trim(); // Trim extra spaces
+
+            const arr = [String(item.date || ''), String(item.time || ''), sanitizedMessage];
             items.push(arr);
         });
         const content = items.map(e => e.join(',')).join('\n');

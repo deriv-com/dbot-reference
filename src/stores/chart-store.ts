@@ -136,141 +136,17 @@ export default class ChartStore {
 
         const has_synthetic_index = !!active_symbols.find(s => s.market === synthetic_index);
 
-        // Define the exact order we want for volatility indices (Bot Builder UI pattern)
-        // const VOLATILITY_ORDER = [
-        //     'Volatility 10 (1s) Index',
-        //     'Volatility 10 Index',
-        //     'Volatility 15 (1s) Index',
-        //     'Volatility 25 (1s) Index',
-        //     'Volatility 25 Index',
-        //     'Volatility 30 (1s) Index',
-        //     'Volatility 50 (1s) Index',
-        //     'Volatility 50 Index',
-        //     'Volatility 75 (1s) Index',
-        //     'Volatility 75 Index',
-        //     'Volatility 90 (1s) Index',
-        //     'Volatility 100 (1s) Index',
-        //     'Volatility 100 Index',
-        // ];
-
-        return (
-            active_symbols
-                // .slice()
-                // .sort((a, b) => {
-                //     const aDisplayName = a.display_name || '';
-                //     const bDisplayName = b.display_name || '';
-
-                //     // Check if both are volatility indices
-                //     const aIsVolatility = VOLATILITY_ORDER.includes(aDisplayName);
-                //     const bIsVolatility = VOLATILITY_ORDER.includes(bDisplayName);
-
-                //     if (aIsVolatility && bIsVolatility) {
-                //         // Both are volatility indices, sort by predefined order
-                //         const aIndex = VOLATILITY_ORDER.indexOf(aDisplayName);
-                //         const bIndex = VOLATILITY_ORDER.indexOf(bDisplayName);
-                //         return aIndex - bIndex;
-                //     } else if (aIsVolatility && !bIsVolatility) {
-                //         // a is volatility, b is not - volatility indices come first in their section
-                //         return -1;
-                //     } else if (!aIsVolatility && bIsVolatility) {
-                //         // b is volatility, a is not - volatility indices come first in their section
-                //         return 1;
-                //     } else {
-                //         // Neither is volatility, use alphabetical sorting
-                //         return aDisplayName.localeCompare(bDisplayName);
-                //     }
-                // })
-                .map(s => s.market)
-                .reduce(
-                    (arr, market) => {
-                        if (arr.indexOf(market) === -1) arr.push(market);
-                        return arr;
-                    },
-                    has_synthetic_index ? [synthetic_index] : []
-                )
-        );
+        return active_symbols
+            .map(s => s.market)
+            .reduce(
+                (arr, market) => {
+                    if (arr.indexOf(market) === -1) arr.push(market);
+                    return arr;
+                },
+                has_synthetic_index ? [synthetic_index] : []
+            );
     };
 
-    // /**
-    //  * Apply chart-specific symbol filtering
-    //  * @param {Array} symbols - Original active symbols
-    //  * @returns {Array} Filtered symbols for chart
-    //  */
-    // getChartFilteredSymbols = (symbols: any[]) => {
-    //     if (!symbols || !Array.isArray(symbols)) {
-    //         return [];
-    //     }
-
-    //     // Chart-specific symbol exclusions
-    //     const CHART_EXCLUDED_SYMBOLS = ['OTC_IBEX35']; // Spain 35
-
-    //     // Create a copy and filter out excluded symbols
-    //     const filtered_symbols = symbols.filter(symbol => {
-    //         const symbol_code = symbol.underlying_symbol || symbol.symbol;
-    //         return !CHART_EXCLUDED_SYMBOLS.includes(symbol_code);
-    //     });
-
-    //     // Ensure new 1s volatility indices are included for chart
-    //     const required_1s_symbols = ['1HZ15V', '1HZ30V', '1HZ90V'];
-
-    //     required_1s_symbols.forEach(required_symbol => {
-    //         const exists = filtered_symbols.some(symbol => {
-    //             const symbol_code = symbol.underlying_symbol || symbol.symbol;
-    //             return symbol_code === required_symbol;
-    //         });
-
-    //         if (!exists) {
-    //             // Add the missing 1s volatility index
-    //             const symbol_config: Record<string, any> = {
-    //                 '1HZ15V': {
-    //                     symbol: '1HZ15V',
-    //                     underlying_symbol: '1HZ15V',
-    //                     display_name: 'Volatility 15 (1s) Index',
-    //                     market: 'synthetic_index',
-    //                     market_display_name: 'Derived',
-    //                     submarket: 'random_index',
-    //                     submarket_display_name: 'Continuous Indices',
-    //                     pip: 0.001,
-    //                     pip_size: 0.001,
-    //                     exchange_is_open: true,
-    //                     is_trading_suspended: false,
-    //                 },
-    //                 '1HZ30V': {
-    //                     symbol: '1HZ30V',
-    //                     underlying_symbol: '1HZ30V',
-    //                     display_name: 'Volatility 30 (1s) Index',
-    //                     market: 'synthetic_index',
-    //                     market_display_name: 'Derived',
-    //                     submarket: 'random_index',
-    //                     submarket_display_name: 'Continuous Indices',
-    //                     pip: 0.001,
-    //                     pip_size: 0.001,
-    //                     exchange_is_open: true,
-    //                     is_trading_suspended: false,
-    //                 },
-    //                 '1HZ90V': {
-    //                     symbol: '1HZ90V',
-    //                     underlying_symbol: '1HZ90V',
-    //                     display_name: 'Volatility 90 (1s) Index',
-    //                     market: 'synthetic_index',
-    //                     market_display_name: 'Derived',
-    //                     submarket: 'random_index',
-    //                     submarket_display_name: 'Continuous Indices',
-    //                     pip: 0.001,
-    //                     pip_size: 0.001,
-    //                     exchange_is_open: true,
-    //                     is_trading_suspended: false,
-    //                 },
-    //             };
-
-    //             if (symbol_config[required_symbol]) {
-    //                 filtered_symbols.push(symbol_config[required_symbol]);
-    //             }
-    //         }
-    //     });
-
-    //     return filtered_symbols;
-    // };
     setChartSubscriptionId = (chartSubscriptionId: string) => {
         this.chart_subscription_id = chartSubscriptionId;
     };

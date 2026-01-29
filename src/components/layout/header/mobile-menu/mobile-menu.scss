@@ -70,6 +70,7 @@
                 .deriv-toggle-switch {
                     margin-left: auto;
                     margin-right: 1.6rem;
+                    min-width: 4.4rem;
                 }
 
                 &--active {
@@ -121,14 +122,6 @@
             &-selected {
                 border: 1px solid var(--brand-blue, var(--brand-secondary));
                 border-radius: 4px;
-            }
-
-            // Hide flag SVG icons in mobile language drawer buttons - icons are intentionally not shown,
-            // only language names are displayed for better accessibility and consistency
-            // Target only flag icons, not all SVGs to prevent breaking other UI elements
-            > svg,
-            .flag-icon svg {
-                display: none;
             }
         }
     }

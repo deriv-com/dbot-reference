@@ -135,7 +135,6 @@ State.prototype = InScriptStore.prototype;
  * Shorthand function to get values from response object of State
  *
  * @param {String} pathname
- *     e.g. getResponse('authorize.currency') == get(['response', 'authorize', 'authorize', 'currency'])
  */
 State.prototype.getResponse = function (pathname: string | string[]) {
     let path = pathname;

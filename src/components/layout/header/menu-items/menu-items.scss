@@ -1,4 +1,8 @@
 .app-header__menu {
     gap: 0.8rem;
     padding: 1.25rem 1.25rem 1.25rem 1.5rem;
+
+    &:hover {
+        background-color: transparent;
+    }
 }

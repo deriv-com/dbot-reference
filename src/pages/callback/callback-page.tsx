@@ -1,7 +1,5 @@
-import Cookies from 'js-cookie';
 import { crypto_currencies_display_order, fiat_currencies_display_order } from '@/components/shared';
 import { generateDerivApiInstance } from '@/external/bot-skeleton/services/api/appId';
-import { observer as globalObserver } from '@/external/bot-skeleton/utils/observer';
 import { clearAuthData } from '@/utils/auth-utils';
 import { clearInvalidTokenParams } from '@/utils/url-utils';
 import { Callback } from '@deriv-com/auth-client';
@@ -71,16 +69,8 @@ const CallbackPage = () => {
                             // Clear URL query parameters and set is_token_set to true to prevent the app from getting stuck in loading state
                             clearInvalidTokenParams();
                             is_token_set = true;
-
-                            // Emit the InvalidToken event for handling by the application
-                            if (Cookies.get('logged_state') === 'true') {
-                                globalObserver.emit('InvalidToken', { error });
-                            }
-
-                            if (Cookies.get('logged_state') === 'false') {
-                                // If the user is not logged out, we need to clear the local storage
-                                clearAuthData();
-                            }
+                            // Clear auth data for invalid tokens
+                            clearAuthData();
                         }
                     } else {
                         localStorage.setItem('callback_token', authorize.toString());

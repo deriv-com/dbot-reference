@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { isVirtualAccount } from '@/analytics/utils';
 import { CurrencyIcon } from '@/components/currency/currency-icon';
 import { addComma, getDecimalPlaces } from '@/components/shared';
 import { useApiBase } from '@/hooks/useApiBase';
@@ -24,10 +25,8 @@ const useActiveAccount = ({
     const modifiedAccount = useMemo(() => {
         if (!activeAccount) return undefined;
 
-        // Check if account should be treated as virtual/demo
-        // Use localStorage account_type as the source of truth for demo vs real
-        const savedAccountType = localStorage.getItem('account_type');
-        const isVirtual = Boolean(activeAccount?.is_virtual) || savedAccountType === 'demo';
+        // Use centralized utility to determine if demo account
+        const isVirtual = isVirtualAccount(activeAccount.loginid);
 
         return {
             ...activeAccount,

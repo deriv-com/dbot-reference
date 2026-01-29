@@ -427,6 +427,12 @@ export const getTradeTypeDisplayName = (urlParam: string): string => {
         only_up_only_down: 'Only Ups/Only Downs',
         touch: 'Touch/No Touch',
         multipliers: 'Multipliers',
+
+        // Additional new trade types
+        ends_between_ends_outside: 'Ends Between/Ends Outside',
+        stays_between_goes_outside: 'Stays Between/Goes Outside',
+        asians: 'Asians',
+        reset_call_reset_put: 'Reset Call/Reset Put',
     };
 
     return displayNames[urlParam] || urlParam;

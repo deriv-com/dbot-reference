@@ -112,7 +112,23 @@ export default class TradingTimes {
                     const { symbols } = submarket;
 
                     symbols?.forEach(symbol_obj => {
-                        const { times, symbol } = symbol_obj;
+                        const { times, underlying_symbol } = symbol_obj;
+
+                        // Validate symbol before processing
+                        if (
+                            !underlying_symbol ||
+                            typeof underlying_symbol !== 'string' ||
+                            underlying_symbol.trim() === ''
+                        ) {
+                            console.warn(`[TradingTimes] Invalid symbol in API response:`, symbol_obj);
+                            return;
+                        }
+
+                        // Validate times data
+                        if (!times || !times.open || !times.close) {
+                            console.warn(`[TradingTimes] Invalid times data for symbol ${underlying_symbol}:`, times);
+                            return;
+                        }
                         const { open, close } = times;
                         const is_open_all_day = open.length === 1 && open[0] === '00:00:00' && close[0] === '23:59:59';
                         const is_closed_all_day = open.length === 1 && open[0] === '--' && close[0] === '--';
@@ -125,8 +141,7 @@ export default class TradingTimes {
                                 close: getUTCDate(close[index]),
                             }));
                         }
-
-                        this.trading_times[symbol] = {
+                        this.trading_times[underlying_symbol] = {
                             is_open_all_day,
                             is_closed_all_day,
                             times: processed_times,
@@ -169,7 +184,20 @@ export default class TradingTimes {
         this.trading_times = {};
 
         TRADING_TIMES.SYMBOLS.forEach(symbol => {
-            this.trading_times[symbol] = getTradingTimes(symbol);
+            // Validate symbol before processing
+            if (symbol && typeof symbol === 'string' && symbol.trim() !== '') {
+                try {
+                    const tradingTimeData = getTradingTimes(symbol);
+                    // Only add if we get valid data
+                    if (tradingTimeData && typeof tradingTimeData === 'object') {
+                        this.trading_times[symbol] = tradingTimeData;
+                    }
+                } catch (error) {
+                    console.warn(`[TradingTimes] Failed to get trading times for symbol: ${symbol}`, error);
+                }
+            } else {
+                console.warn(`[TradingTimes] Invalid symbol encountered: ${symbol}`);
+            }
         });
     }
 

@@ -111,4 +111,5 @@ export const standalone_routes = {
     account_limits: `${getDerivDomain('derivDtrader')}/account/account-limits`,
     help_center: `${getDerivDomain('derivCom')}/help-centre/`,
     responsible: `${getDerivDomain('derivCom')}/responsible/`,
+    transfer: `${getDerivDomain('derivHome')}/dashboard/transfer?acc=options&from=home&source=options`,
 };

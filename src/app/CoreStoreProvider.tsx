@@ -36,14 +36,6 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
 
     const { oAuthLogout } = useOauth2({ handleLogout: async () => client.logout(), client });
 
-    const isLoggedOutCookie = Cookies.get('logged_state') === 'false';
-
-    useEffect(() => {
-        if (isLoggedOutCookie && client?.is_logged_in) {
-            oAuthLogout();
-        }
-    }, [isLoggedOutCookie, oAuthLogout, client?.is_logged_in]);
-
     const activeAccount = useMemo(
         () => accountList?.find(account => account.loginid === activeLoginid),
         [activeLoginid, accountList]
@@ -77,23 +69,42 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
     }, [currentLang, common]);
 
     useEffect(() => {
-        if (client && !isAuthorizing && !appInitialization.current) {
+        const updateServerTime = () => {
+            api_base.api
+                .time()
+                .then((res: TSocketResponseData<'time'>) => {
+                    common.setServerTime(toMoment(res.time), false);
+                })
+                .catch(() => {
+                    common.setServerTime(toMoment(Date.now()), true);
+                });
+        };
+
+        // Clear any existing interval before setting up a new one
+        if (timeInterval.current) {
+            clearInterval(timeInterval.current);
+            timeInterval.current = null;
+        }
+
+        if (client && !appInitialization.current) {
             if (!api_base?.api) return;
             appInitialization.current = true;
 
-            // Update server time every 10 seconds
-            timeInterval.current = setInterval(() => {
-                api_base.api
-                    ?.time()
-                    .then((res: TSocketResponseData<'time'>) => {
-                        common.setServerTime(toMoment(res.time), false);
-                    })
-                    .catch(() => {
-                        common.setServerTime(toMoment(Date.now()), true);
-                    });
-            }, 10000);
+            // Initial time update
+            updateServerTime();
+
+            // Schedule updates every 10 seconds
+            timeInterval.current = setInterval(updateServerTime, 10000);
         }
-    }, [client, common, isAuthorizing]);
+
+        // Cleanup on unmount or dependency change
+        return () => {
+            if (timeInterval.current) {
+                clearInterval(timeInterval.current);
+                timeInterval.current = null;
+            }
+        };
+    }, [client, common]);
 
     const handleMessages = useCallback(
         async (res: Record<string, unknown>) => {

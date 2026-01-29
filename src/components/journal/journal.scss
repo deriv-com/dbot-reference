@@ -120,6 +120,10 @@
         display: inline;
         color: var(--text-general);
 
+        &-content {
+            display: inline;
+        }
+
         &-time,
         &-date {
             display: inline;
@@ -161,6 +165,17 @@
 
             width: 100vw;
         }
+    }
+}
+
+// Modal styling for journal stats
+.journal-modal {
+    &__content {
+        padding: 0 16px;
+        margin-bottom: 16px;
+        color: var(--text-general);
+        font-size: var(--text-size-xs);
+        line-height: 1.5;
     }
 }
 

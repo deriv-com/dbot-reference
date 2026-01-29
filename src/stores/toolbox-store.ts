@@ -66,7 +66,6 @@ export default class ToolboxStore {
             () => this.is_toolbox_open,
             is_toolbox_open => {
                 if (is_toolbox_open) {
-                    //this.adjustWorkspace();
                     // Emit event to GTM
                     GTM?.pushDataLayer?.({ event: 'dbot_toolbox_visible', value: true });
                 }
@@ -277,7 +276,8 @@ export default class ToolboxStore {
         return false;
     };
 
-    onSearch = ({ search = '' }) => {
+    onSearch = (values: any) => {
+        const search = values?.search || '';
         this.is_search_focus = true;
         this.showSearch(search);
     };
@@ -312,8 +312,6 @@ export default class ToolboxStore {
         const all_variables = workspace.getVariablesOfType('');
         const all_procedures = window.Blockly.Procedures.allProcedures(workspace);
         const { flyout } = this.root_store;
-
-        flyout.setVisibility(false);
 
         // avoid general term which the result will return most of the blocks
         const general_term = [
@@ -492,5 +490,7 @@ export default class ToolboxStore {
 
         flyout.setIsSearchFlyout(true);
         flyout.setContents(flyout_content, search);
+        // Explicitly ensure flyout is visible after search completes
+        flyout.setVisibility(true);
     };
 }

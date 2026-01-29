@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { ChartMode, DrawTools, Share, StudyLegend, ToolbarWidget, Views } from '@deriv-com/derivatives-charts';
+import { ChartMode, DrawTools, Share, StudyLegend, ToolbarWidget, Views } from '@deriv-com/smartcharts-champion';
+import { useDevice } from '@deriv-com/ui';
 
 type TToolbarWidgetsProps = {
     updateChartType: (chart_type: string) => void;
@@ -9,10 +10,11 @@ type TToolbarWidgetsProps = {
 };
 
 const ToolbarWidgets = ({ updateChartType, updateGranularity, position, isDesktop }: TToolbarWidgetsProps) => {
+    const { isMobile } = useDevice();
     const validPosition = position === 'top' || position === 'bottom' ? position : 'top';
 
     return (
-        <ToolbarWidget position={validPosition}>
+        <ToolbarWidget position={validPosition || (isMobile ? 'bottom' : null)}>
             <ChartMode portalNodeId='modal_root' onChartType={updateChartType} onGranularity={updateGranularity} />
             {isDesktop && (
                 <>
@@ -23,7 +25,11 @@ const ToolbarWidgets = ({ updateChartType, updateGranularity, position, isDeskto
                         onGranularity={updateGranularity}
                         searchInputClassName='data-hj-whitelist'
                     />
-                    <DrawTools portalNodeId='modal_root' />
+                </>
+            )}
+            <DrawTools portalNodeId='modal_root' />
+            {isDesktop && (
+                <>
                     <Share portalNodeId='modal_root' />
                 </>
             )}

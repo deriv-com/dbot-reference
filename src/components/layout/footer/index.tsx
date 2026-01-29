@@ -1,3 +1,4 @@
+import { useApiBase } from '@/hooks/useApiBase';
 import useModalManager from '@/hooks/useModalManager';
 import { getActiveTabUrl } from '@/utils/getActiveTabUrl';
 import { FILTERED_LANGUAGES } from '@/utils/languages';
@@ -7,6 +8,7 @@ import ChangeTheme from './ChangeTheme';
 import Endpoint from './Endpoint';
 import FullScreen from './FullScreen';
 import LanguageSettings from './LanguageSettings';
+import LogoutFooter from './LogoutFooter';
 import NetworkStatus from './NetworkStatus';
 import ServerTime from './ServerTime';
 import './footer.scss';
@@ -14,11 +16,13 @@ import './footer.scss';
 const Footer = () => {
     const { currentLang = 'EN', localize, switchLanguage } = useTranslations();
     const { hideModal, isModalOpenFor, showModal } = useModalManager();
+    const { isAuthorized } = useApiBase();
 
     const openLanguageSettingModal = () => showModal('DesktopLanguagesModal');
     return (
         <footer className='app-footer'>
             <FullScreen />
+            {isAuthorized && <LogoutFooter />}
             <LanguageSettings openLanguageSettingModal={openLanguageSettingModal} />
             <div className='app-footer__vertical-line' />
             <ChangeTheme />

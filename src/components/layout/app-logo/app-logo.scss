@@ -1,17 +1,13 @@
-// [AI]
 .app-header {
     &__logo {
-        padding-inline-start: 1.2rem;
+        padding-inline-start: 3.2rem;
         padding-inline-end: 2rem;
         height: 32px;
         display: flex;
         align-items: center;
 
-        // Only show border on desktop when menu links are present
-        @media (width >= 768px) {
-            border-inline-end: 1px solid var(--general-section-1);
+        &-text {
+            margin-left: 8px;
         }
     }
 }
-
-// [/AI]

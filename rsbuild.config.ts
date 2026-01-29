@@ -43,6 +43,8 @@ export default defineConfig({
                 RUDDERSTACK_KEY: JSON.stringify(process.env.RUDDERSTACK_KEY),
                 GROWTHBOOK_CLIENT_KEY: JSON.stringify(process.env.GROWTHBOOK_CLIENT_KEY),
                 GROWTHBOOK_DECRYPTION_KEY: JSON.stringify(process.env.GROWTHBOOK_DECRYPTION_KEY),
+                POSTHOG_KEY: JSON.stringify(process.env.POSTHOG_KEY),
+                POSTHOG_HOST: JSON.stringify(process.env.POSTHOG_HOST),
             },
         },
         alias: {
@@ -59,19 +61,19 @@ export default defineConfig({
     output: {
         copy: [
             {
-                from: 'node_modules/@deriv-com/derivatives-charts/dist/*',
+                from: 'node_modules/@deriv-com/smartcharts-champion/dist/*',
                 to: 'js/smartcharts/[name][ext]',
                 globOptions: {
                     ignore: ['**/*.LICENSE.txt'],
                 },
             },
-            { from: 'node_modules/@deriv-com/derivatives-charts/dist/chart/assets/*', to: 'assets/[name][ext]' },
+            { from: 'node_modules/@deriv-com/smartcharts-champion/dist/assets/*', to: 'assets/[name][ext]' },
             {
-                from: 'node_modules/@deriv-com/derivatives-charts/dist/chart/assets/fonts/*',
+                from: 'node_modules/@deriv-com/smartcharts-champion/dist/assets/fonts/*',
                 to: 'assets/fonts/[name][ext]',
             },
             {
-                from: 'node_modules/@deriv-com/derivatives-charts/dist/chart/assets/shaders/*',
+                from: 'node_modules/@deriv-com/smartcharts-champion/dist/assets/shaders/*',
                 to: 'assets/shaders/[name][ext]',
             },
             { from: path.join(__dirname, 'public') },

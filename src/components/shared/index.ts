@@ -18,7 +18,6 @@ export * from './utils/loader';
 export * from './utils/loader-handler';
 export * from './utils/loader-handler';
 export * from './utils/location';
-export * from './utils/login';
 export * from './utils/number';
 export * from './utils/object';
 export * from './utils/os';

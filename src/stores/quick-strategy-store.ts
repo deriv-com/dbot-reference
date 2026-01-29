@@ -4,6 +4,7 @@ import { save_types } from '@/external/bot-skeleton/constants/save-type';
 import { addDynamicBlockToDOM } from '@/utils/xml-dom-quick-strategy';
 import { STRATEGIES } from '../pages/bot-builder/quick-strategy/config';
 import { TFormData } from '../pages/bot-builder/quick-strategy/types';
+import { getSetting, storeSetting } from '../utils/settings';
 import RootStore from './root-store';
 
 export type TActiveSymbol = {
@@ -29,6 +30,7 @@ interface IQuickStrategyStore {
     root_store: RootStore;
     is_open: boolean;
     selected_strategy: string;
+    selected_strategy_for_notofy: string;
     form_data: TFormData;
     loss_threshold_warning_data: {
         show: boolean;
@@ -50,6 +52,7 @@ export default class QuickStrategyStore implements IQuickStrategyStore {
     root_store: RootStore;
     is_open = false;
     selected_strategy = 'MARTINGALE';
+    selected_strategy_for_notofy = '';
     form_data: TFormData = {
         symbol: qs_config().QUICK_STRATEGY.DEFAULT.symbol,
         tradetype: qs_config().QUICK_STRATEGY.DEFAULT.tradetype,
@@ -79,6 +82,7 @@ export default class QuickStrategyStore implements IQuickStrategyStore {
             is_options_loading: observable,
             initializeLossThresholdWarningData: action,
             selected_strategy: observable,
+            selected_strategy_for_notofy: observable,
             loss_threshold_warning_data: observable,
             onSubmit: action,
             setAdditionalData: action,
@@ -91,6 +95,12 @@ export default class QuickStrategyStore implements IQuickStrategyStore {
             setOptionsLoading: action,
         });
         this.root_store = root_store;
+
+        // Initialize selected_strategy_for_notofy from localStorage if available
+        const savedStrategy = getSetting('selected_strategy_for_notofy');
+        if (savedStrategy) {
+            this.selected_strategy_for_notofy = savedStrategy;
+        }
         reaction(
             () => this.is_open,
             () => {
@@ -149,6 +159,9 @@ export default class QuickStrategyStore implements IQuickStrategyStore {
         const submarket = await contracts_for.getSubmarketBySymbol(data.symbol);
         const trade_type_cat = await contracts_for.getTradeTypeCategoryByTradeType(data.tradetype);
         const selected_strategy = STRATEGIES()[this.selected_strategy];
+        this.selected_strategy_for_notofy = this.selected_strategy;
+        // Persist the selected strategy for notifications in localStorage
+        storeSetting('selected_strategy_for_notofy', this.selected_strategy);
         const strategy_xml = await import(/* webpackChunkName: `[request]` */ `../xml/${selected_strategy.name}.xml`);
         const strategy_dom = window.Blockly.utils.xml.textToDom(strategy_xml.default);
         addDynamicBlockToDOM('PREDICTION', 'last_digit_prediction', trade_type_cat, strategy_dom);

@@ -1,8 +1,11 @@
 import { action, computed, makeObservable, observable, reaction, when } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
+import { isVirtualAccount } from '@/analytics/utils';
 import { formatDate } from '@/components/shared';
+import { run_panel } from '@/constants/run-panel';
 import { LogTypes, MessageTypes } from '@/external/bot-skeleton';
 import { config } from '@/external/bot-skeleton/constants/config';
+import { RESET_STRATEGIES, RESET_STRATEGIES_BLOCK_IDS, STRATEGIES } from '@/pages/bot-builder/quick-strategy/config';
 import { localize } from '@deriv-com/translations';
 import { isCustomJournalMessage } from '../utils/journal-notifications';
 import { getStoredItemsByKey, getStoredItemsByUser, setStoredItemsByKey } from '../utils/session-storage';
@@ -50,6 +53,11 @@ export interface IJournalStore {
     onError: (message: Error | string) => void;
     onNotify: (data: TNotifyData) => void;
     pushMessage: (message: string, message_type: string, className: string, extra?: TExtra) => void;
+    updateStatMessage: (
+        message: string,
+        setContractBuyInprogress: () => void,
+        isContractBuyInprogress: boolean
+    ) => void;
     filtered_messages: TMessageItem[];
     getServerTime: () => Date;
     playAudio: (sound: string) => void;
@@ -194,16 +202,36 @@ export default class JournalStore {
     }
 
     onNotify(data: TNotifyData) {
-        const { run_panel, dbot } = this.root_store;
+        const { run_panel, dbot, quick_strategy } = this.root_store;
+
         const { message, className, message_type, sound, block_id, variable_name } = data;
+        const selected_quick_strategy = quick_strategy.selected_strategy_for_notofy;
+
+        // Special handling for stat notifications by block_id
+        const isStatNotification =
+            RESET_STRATEGIES_BLOCK_IDS?.includes(block_id || '') &&
+            RESET_STRATEGIES?.includes(STRATEGIES()[selected_quick_strategy]?.name || '');
+
+        // Create a custom pushMessage handler that uses updateStatMessage for stats
+        const customPushMessage = (parsed_message: string) => {
+            if (isStatNotification) {
+                this.updateStatMessage(
+                    parsed_message,
+                    run_panel?.SetpurchaseInProgress,
+                    run_panel.is_contract_buying_in_progress
+                );
+            } else {
+                this.pushMessage(parsed_message, message_type || MessageTypes.NOTIFY, className);
+            }
+        };
 
         if (
             isCustomJournalMessage(
                 { message, block_id, variable_name },
                 run_panel.showErrorMessage,
                 () => dbot.centerAndHighlightBlock(block_id as string, true),
-                (parsed_message: string) =>
-                    this.pushMessage(parsed_message, message_type || MessageTypes.NOTIFY, className)
+                customPushMessage,
+                isStatNotification
             )
         ) {
             this.playAudio(sound);
@@ -224,7 +252,9 @@ export default class JournalStore {
 
         if (loginid) {
             const current_account = account_list?.find(account => account?.loginid === loginid);
-            extra.current_currency = current_account?.is_virtual ? 'Demo' : current_account?.currency;
+            // Use centralized utility to determine if demo account
+            const isVirtual = isVirtualAccount(loginid);
+            extra.current_currency = isVirtual ? 'Demo' : current_account?.currency;
         } else if (message === LogTypes.WELCOME) {
             return;
         }
@@ -235,6 +265,37 @@ export default class JournalStore {
 
         this.unfiltered_messages.unshift({ date, time, message, message_type, className, unique_id, extra });
         this.unfiltered_messages = this.unfiltered_messages.slice(); // force array update
+    }
+
+    // Method to update the existing stat message instead of creating a new one
+    updateStatMessage(message: string, setContractBuyInprogress: () => void, isContractBuyInprogress: boolean) {
+        // First check if the first message in the array is already a stat message
+
+        if (isContractBuyInprogress) {
+            const firstMessage = this.unfiltered_messages[0];
+
+            if (
+                firstMessage &&
+                typeof firstMessage.message === 'string' &&
+                firstMessage.message.includes('stat-count')
+            ) {
+                // Update the existing first message with the new stat value using immutable pattern
+                // to properly update MobX observable (avoid direct mutations)
+                this.unfiltered_messages[0] = {
+                    ...firstMessage,
+                    message,
+                    time: formatDate(this.getServerTime(), 'HH:mm:ss [GMT]'),
+                };
+                // Force array update
+                this.unfiltered_messages = this.unfiltered_messages.slice();
+                return;
+            }
+        }
+        setContractBuyInprogress();
+
+        // If no stat message found at the first position, create a new one
+        this.pushMessage(message, MessageTypes.NOTIFY, 'journal__item--content');
+        this.root_store.run_panel.setActiveTabIndex(run_panel.JOURNAL);
     }
 
     get filtered_messages() {

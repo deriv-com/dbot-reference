@@ -284,7 +284,7 @@ export default class TicksService {
                 })
                 .catch(error => {
                     // Handle AlreadySubscribed errors gracefully - they're not fatal
-                    if (error?.code === 'AlreadySubscribed') {
+                    if (error?.error?.code === 'AlreadySubscribed') {
                         // For AlreadySubscribed errors, we can still resolve with existing data
                         if (style === 'ticks' && this.ticks.has(symbol)) {
                             resolve(this.ticks.get(symbol));

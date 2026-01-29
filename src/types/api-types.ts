@@ -674,20 +674,20 @@ export type TAccount = {
 };
 
 export type TAuthData = {
-    account_list: TAccount[];
+    account_list?: TAccount[];
     balance: number;
-    country: string;
+    country?: string;
     currency: string;
-    email: string;
-    fullname: string;
+    email?: string;
+    fullname?: string;
     is_virtual: number;
 
-    linked_to: [];
-    local_currencies: Record<string, unknown>;
+    linked_to?: [];
+    local_currencies?: Record<string, unknown>;
     loginid: string;
-    preferred_language: string;
-    scopes: string[];
+    preferred_language?: string;
+    scopes?: string[];
 
-    user_id: number;
+    user_id?: number;
     token?: string;
 };

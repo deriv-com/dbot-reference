@@ -56,6 +56,19 @@ type TErrorResponse = {
     };
 };
 
+/**
+ * Helper function to get localized error message with subcode priority
+ * Prioritizes subcode over code for consistency with centralized error handling
+ */
+const getLocalizedError = (typedError: TErrorResponse): string => {
+    if (typedError?.error?.subcode) {
+        return getLocalizedErrorMessage(typedError.error.subcode, typedError.error);
+    } else if (typedError?.error?.code) {
+        return getLocalizedErrorMessage(typedError.error.code, typedError.error);
+    }
+    return typedError?.error?.message || '';
+};
+
 const GrowthRateSelect: React.FC<TContractTypes> = observer(({ name }) => {
     const { ui, client } = useStore();
     const { is_desktop } = ui;
@@ -150,23 +163,12 @@ const GrowthRateSelect: React.FC<TContractTypes> = observer(({ name }) => {
                 setFieldError('tick_count', undefined);
             }
             prev_error.current.take_profit = null;
-        } catch (error_response: any) {
+        } catch (error_response) {
             const typedError = error_response as TErrorResponse;
             let error_message = typedError?.message ?? typedError?.error?.message;
 
-            // Localize the error message using subcode if available, otherwise use main code
-            if (typedError?.error?.subcode === 'LimitOrderAmountTooLow') {
-                const amount = typedError?.error?.code_args?.[0] || '0.01';
-                error_message = localize('Enter an amount equal to or higher than {{param1}}.', {
-                    param1: amount,
-                });
-            } else if (typedError?.error?.code === 'ContractBuyValidationError') {
-                error_message = localize('Contract purchase validation failed');
-            } else if (typedError?.error?.subcode) {
-                error_message = getLocalizedErrorMessage(typedError.error.subcode, typedError.error);
-            } else if (typedError?.error?.code) {
-                error_message = getLocalizedErrorMessage(typedError.error.code, typedError.error);
-            }
+            // Use centralized error message handling for consistency
+            error_message = getLocalizedError(typedError);
 
             if (values.boolean_tick_count) {
                 setFieldError('tick_count', error_message);
@@ -183,12 +185,8 @@ const GrowthRateSelect: React.FC<TContractTypes> = observer(({ name }) => {
                 // Handle take_profit field errors
                 if (typedError?.error?.details?.field === 'take_profit') {
                     if (Number(values.take_profit) === 0) {
-                        // Use localized error message instead of raw API message
-                        if (typedError?.error?.code) {
-                            error_message = getLocalizedErrorMessage(typedError.error.code, typedError.error);
-                        } else {
-                            error_message = typedError?.error?.message;
-                        }
+                        // Use centralized error message handling
+                        error_message = getLocalizedError(typedError);
                     } else {
                         if (values?.take_profit && values.stake && ref_max_payout.current) {
                             const totalPayout = Number(values.take_profit) + Number(values.stake);
@@ -211,12 +209,8 @@ const GrowthRateSelect: React.FC<TContractTypes> = observer(({ name }) => {
                     const errorField = typedError?.error?.details?.field;
 
                     if (errorField === 'stake' || errorField === 'amount') {
-                        // Use localized error message
-                        if (typedError?.error?.code) {
-                            error_message = getLocalizedErrorMessage(typedError.error.code, typedError.error);
-                        } else {
-                            error_message = typedError?.error?.message || error_message;
-                        }
+                        // Use centralized error message handling
+                        error_message = getLocalizedError(typedError) || error_message;
 
                         // For 'amount' field from backend, only show error if stake has a value
                         // For 'stake' field, always show error

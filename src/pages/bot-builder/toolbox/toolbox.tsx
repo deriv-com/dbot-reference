@@ -18,7 +18,6 @@ const Toolbox = observer(() => {
         hasSubCategory,
         is_search_loading,
         onMount,
-        onSearch,
         onSearchBlur,
         onSearchClear,
         onSearchKeyUp,
@@ -88,7 +87,7 @@ const Toolbox = observer(() => {
                     >
                         <SearchBox
                             is_search_loading={is_search_loading}
-                            onSearch={onSearch}
+                            onSearch={toolbox.onSearch}
                             onSearchBlur={onSearchBlur}
                             onSearchClear={onSearchClear}
                             onSearchKeyUp={onSearchKeyUp}
