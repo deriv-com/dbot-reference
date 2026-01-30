@@ -134,30 +134,113 @@ export const getDebugServiceWorker = () => {
     return false;
 };
 
+// [AI]
+/**
+ * Generates a cryptographically secure CSRF token
+ * @returns A random base64url-encoded string
+ */
+const generateCSRFToken = (): string => {
+    // Generate 32 random bytes (256 bits) for strong security
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    
+    // Convert to base64url encoding (URL-safe)
+    const base64 = btoa(String.fromCharCode(...array));
+    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+};
+// [/AI]
+
+// [AI]
+/**
+ * Stores CSRF token in sessionStorage for validation after OAuth callback
+ * @param token The CSRF token to store
+ */
+const storeCSRFToken = (token: string): void => {
+    sessionStorage.setItem('oauth_csrf_token', token);
+    // Also store timestamp for token expiration (e.g., 10 minutes)
+    sessionStorage.setItem('oauth_csrf_token_timestamp', Date.now().toString());
+};
+// [/AI]
+
+// [AI]
+/**
+ * Validates CSRF token from OAuth callback
+ * @param token The token to validate
+ * @returns true if token is valid and not expired
+ */
+export const validateCSRFToken = (token: string): boolean => {
+    const storedToken = sessionStorage.getItem('oauth_csrf_token');
+    const timestamp = sessionStorage.getItem('oauth_csrf_token_timestamp');
+    
+    if (!storedToken || !timestamp) {
+        return false;
+    }
+    
+    // Check if token matches
+    if (storedToken !== token) {
+        return false;
+    }
+    
+    // Check if token is expired (10 minutes = 600000ms)
+    const tokenAge = Date.now() - parseInt(timestamp, 10);
+    if (tokenAge > 600000) {
+        // Clean up expired token
+        sessionStorage.removeItem('oauth_csrf_token');
+        sessionStorage.removeItem('oauth_csrf_token_timestamp');
+        return false;
+    }
+    
+    return true;
+};
+// [/AI]
+
+// [AI]
+/**
+ * Clears CSRF token from sessionStorage after successful validation
+ */
+export const clearCSRFToken = (): void => {
+    sessionStorage.removeItem('oauth_csrf_token');
+    sessionStorage.removeItem('oauth_csrf_token_timestamp');
+};
+// [/AI]
+
+// [AI]
 export const generateOAuthURL = () => {
     try {
         // Use brand config for login URLs
         const environment = getCurrentEnvironment();
-        const hostname = brandConfig?.brand_hostname?.[environment];
+        const hostname = brandConfig?.platform.auth2_url?.[environment];
+        const clientId = process.env.CLIENT_ID;
 
-        if (hostname) {
-            // Use the current host as redirect URL (no replacement needed)
-            const currentHost = window.location.host; // includes port
-            const redirectUrl = currentHost;
-
-            return `https://${hostname}/login?redirect=${redirectUrl}`;
+        if (hostname && clientId) {
+            // Generate CSRF token for security
+            const csrfToken = generateCSRFToken();
+            
+            // Store token for validation after callback
+            storeCSRFToken(csrfToken);
+            
+            // Build redirect URL
+            const protocol = window.location.protocol;
+            const host = window.location.host;
+            const redirectUrl = `${protocol}//${host}/callback`;
+            
+            // Build OAuth URL with CSRF token in state parameter
+            const oauthUrl = `${hostname}auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${csrfToken}`;
+            
+            return oauthUrl;
         }
     } catch (error) {
-        console.error('Error accessing brand config:', error);
+        console.error('Error generating OAuth URL:', error);
     }
 
     // Fallback to hardcoded URLs if brand config fails
-    const currentHost = window.location.host; // includes port
-    const redirectUrl = currentHost;
+    const currentHost = window.location.host;
+    const redirectUrl = `${window.location.protocol}//${currentHost}`;
 
     const loginUrl = currentHost.includes('staging') ? AUTH_URLS.STAGING.LOGIN : AUTH_URLS.PRODUCTION.LOGIN;
     return `${loginUrl}?redirect=${redirectUrl}`;
 };
+// [/AI]
 
 export const generateSignupURL = () => {
     try {

@@ -72,18 +72,29 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
         return () => clearTimeout(timer);
     }, [isAuthorizing, activeLoginid, setIsAuthorizing]);
 
+    // [AI]
     const handleLogin = useCallback(() => {
         try {
             // Set authorizing state immediately when login is clicked
             setIsAuthorizing(true);
-            // Redirect to OAuth URL
-            window.location.replace(generateOAuthURL());
+            
+            // Generate OAuth URL with CSRF token
+            const oauthUrl = generateOAuthURL();
+            
+            if (oauthUrl) {
+                // Redirect to OAuth URL
+                window.location.replace(oauthUrl);
+            } else {
+                console.error('Failed to generate OAuth URL');
+                setIsAuthorizing(false);
+            }
         } catch (error) {
             console.error('Login redirection failed:', error);
             // Reset authorizing state if redirection fails
             setIsAuthorizing(false);
         }
     }, [setIsAuthorizing]);
+    // [/AI]
 
     const renderAccountSection = useCallback(
         (position: 'left' | 'right' = 'right') => {

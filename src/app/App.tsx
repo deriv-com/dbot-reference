@@ -6,10 +6,11 @@ import ChunkLoader from '@/components/loader/chunk-loader';
 import LocalStorageSyncWrapper from '@/components/localStorage-sync-wrapper';
 import RoutePromptDialog from '@/components/route-prompt-dialog';
 import { crypto_currencies_display_order, fiat_currencies_display_order } from '@/components/shared';
+import { clearCSRFToken,validateCSRFToken } from '@/components/shared/utils/config/config';
 import { StoreProvider } from '@/hooks/useStore';
-import CallbackPage from '@/pages/callback';
 import Endpoint from '@/pages/endpoint';
 import { TAuthData } from '@/types/api-types';
+import { clearAuthData } from '@/utils/auth-utils';
 import { FILTERED_LANGUAGES } from '@/utils/languages';
 import { initializeI18n, localize, TranslationProvider, useTranslations } from '@deriv-com/translations';
 import CoreStoreProvider from './CoreStoreProvider';
@@ -109,12 +110,37 @@ const router = createBrowserRouter(
             {/* All child routes will be passed as children to Layout */}
             <Route index element={<AppRoot />} />
             <Route path='endpoint' element={<Endpoint />} />
-            <Route path='callback' element={<CallbackPage />} />
         </Route>
     )
 );
 
 function App() {
+    // [AI]
+    // Validate CSRF token on app initialization (for OAuth callback flow)
+    React.useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const csrfTokenFromUrl = urlParams.get('state');
+        
+        // Only validate if we have a state parameter (OAuth callback scenario)
+        if (csrfTokenFromUrl) {
+            if (!validateCSRFToken(csrfTokenFromUrl)) {
+                console.error('CSRF token validation failed - potential security threat');
+                clearAuthData();
+                // Redirect to home page without the state parameter
+                window.location.replace(window.location.origin);
+                return;
+            }
+            // Clear CSRF token after successful validation
+            clearCSRFToken();
+            
+            // Remove state parameter from URL after validation
+            const url = new URL(window.location.href);
+            url.searchParams.delete('state');
+            window.history.replaceState({}, '', url.toString());
+        }
+    }, []);
+    // [/AI]
+
     React.useEffect(() => {
         // Use the invalid token handler hook to automatically retrigger OIDC authentication
         // when an invalid token is detected and the cookie logged state is true

@@ -76,6 +76,10 @@
                 "login": "https://staging-home.deriv.com/dashboard/login",
                 "signup": "https://staging-home.deriv.com/dashboard/signup"
             }
+        },
+        "auth2_url": {
+            "production": "https://auth.deriv.com/oauth2/",
+            "staging": "https://staging-auth.deriv.com/oauth2/"
         }
     }
 }

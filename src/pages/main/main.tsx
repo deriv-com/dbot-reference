@@ -352,9 +352,16 @@ const AppWrapper = observer(() => {
         [active_tab]
     );
 
+    // [AI]
     const handleLoginGeneration = () => {
-        window.location.replace(generateOAuthURL());
+        const oauthUrl = generateOAuthURL();
+        if (oauthUrl) {
+            window.location.replace(oauthUrl);
+        } else {
+            console.error('Failed to generate OAuth URL');
+        }
     };
+    // [/AI]
     return (
         <React.Fragment>
             <div className='main'>
