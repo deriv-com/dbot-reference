@@ -152,6 +152,91 @@ const generateCSRFToken = (): string => {
 
 // [AI]
 /**
+ * Generates a PKCE code verifier (random string)
+ * @returns A cryptographically random base64url-encoded string (43-128 characters)
+ */
+const generateCodeVerifier = (): string => {
+    // Generate 32 random bytes (will result in 43 characters after base64url encoding)
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    
+    // Convert to base64url encoding (URL-safe, no padding)
+    const base64 = btoa(String.fromCharCode(...array));
+    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+};
+// [/AI]
+
+// [AI]
+/**
+ * Generates a PKCE code challenge from a code verifier using SHA-256
+ * @param verifier The code verifier string
+ * @returns Promise that resolves to the base64url-encoded SHA-256 hash
+ */
+const generateCodeChallenge = async (verifier: string): Promise<string> => {
+    // Encode the verifier as UTF-8
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    
+    // Hash with SHA-256
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    
+    // Convert to base64url encoding
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const base64 = btoa(String.fromCharCode(...hashArray));
+    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+};
+// [/AI]
+
+// [AI]
+/**
+ * Stores PKCE code verifier in sessionStorage for token exchange
+ * @param verifier The code verifier to store
+ */
+const storeCodeVerifier = (verifier: string): void => {
+    sessionStorage.setItem('oauth_code_verifier', verifier);
+    // Also store timestamp for verifier expiration (e.g., 10 minutes)
+    sessionStorage.setItem('oauth_code_verifier_timestamp', Date.now().toString());
+};
+// [/AI]
+
+// [AI]
+/**
+ * Retrieves and validates the stored PKCE code verifier
+ * @returns The code verifier if valid and not expired, null otherwise
+ */
+export const getCodeVerifier = (): string | null => {
+    const verifier = sessionStorage.getItem('oauth_code_verifier');
+    const timestamp = sessionStorage.getItem('oauth_code_verifier_timestamp');
+    
+    if (!verifier || !timestamp) {
+        return null;
+    }
+    
+    // Check if verifier is expired (10 minutes = 600000ms)
+    const verifierAge = Date.now() - parseInt(timestamp, 10);
+    if (verifierAge > 600000) {
+        // Clean up expired verifier
+        sessionStorage.removeItem('oauth_code_verifier');
+        sessionStorage.removeItem('oauth_code_verifier_timestamp');
+        return null;
+    }
+    
+    return verifier;
+};
+// [/AI]
+
+// [AI]
+/**
+ * Clears PKCE code verifier from sessionStorage after successful token exchange
+ */
+export const clearCodeVerifier = (): void => {
+    sessionStorage.removeItem('oauth_code_verifier');
+    sessionStorage.removeItem('oauth_code_verifier_timestamp');
+};
+// [/AI]
+
+// [AI]
+/**
  * Stores CSRF token in sessionStorage for validation after OAuth callback
  * @param token The CSRF token to store
  */
@@ -205,12 +290,12 @@ export const clearCSRFToken = (): void => {
 // [/AI]
 
 // [AI]
-export const generateOAuthURL = () => {
+export const generateOAuthURL = async () => {
     try {
         // Use brand config for login URLs
         const environment = getCurrentEnvironment();
         const hostname = brandConfig?.platform.auth2_url?.[environment];
-        const clientId = process.env.CLIENT_ID;
+        const clientId = process.env.CLIENT_ID || '32izC2lBT4MmiSNWuxq2l';
 
         if (hostname && clientId) {
             // Generate CSRF token for security
@@ -219,13 +304,23 @@ export const generateOAuthURL = () => {
             // Store token for validation after callback
             storeCSRFToken(csrfToken);
             
+            // Generate PKCE parameters
+            const codeVerifier = generateCodeVerifier();
+            const codeChallenge = await generateCodeChallenge(codeVerifier);
+            
+            // Store code verifier for token exchange
+            storeCodeVerifier(codeVerifier);
+            
             // Build redirect URL
             const protocol = window.location.protocol;
             const host = window.location.host;
             const redirectUrl = `${protocol}//${host}/callback`;
             
-            // Build OAuth URL with CSRF token in state parameter
-            const oauthUrl = `${hostname}auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${csrfToken}`;
+            // Build OAuth URL with PKCE parameters
+            // - state: CSRF token for security
+            // - code_challenge: SHA-256 hash of code_verifier
+            // - code_challenge_method: S256 (SHA-256)
+            const oauthUrl = `${hostname}auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${csrfToken}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
             
             return oauthUrl;
         }

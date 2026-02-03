@@ -1,5 +1,5 @@
 // [AI]
-import { isProduction } from '@/components/shared';
+import { isProduction, getCodeVerifier, clearCodeVerifier } from '@/components/shared';
 import brandConfig from '../../brand.config.json';
 
 /**
@@ -55,21 +55,38 @@ export class OAuthTokenExchangeService {
             console.log('[OAuth Token Exchange] Endpoint:', tokenEndpoint);
             console.log('[OAuth Token Exchange] Authorization code:', code);
 
+            // Retrieve the PKCE code verifier from session storage
+            const codeVerifier = getCodeVerifier();
+            
+            if (!codeVerifier) {
+                console.error('[OAuth Token Exchange] PKCE code verifier not found or expired');
+                return {
+                    error: 'invalid_request',
+                    error_description: 'PKCE code verifier not found or expired. Please restart the authentication flow.',
+                };
+            }
+
+            console.log('[OAuth Token Exchange] PKCE code verifier retrieved');
+
             // Prepare the request body
-            // OAuth2 token exchange typically requires:
+            // OAuth2 token exchange with PKCE requires:
             // - grant_type: 'authorization_code'
             // - code: the authorization code
             // - redirect_uri: must match the one used in authorization request
-            // - client_id: your OAuth2 client ID (if required)
+            // - client_id: your OAuth2 client ID
+            // - code_verifier: the PKCE code verifier (proves we initiated the auth flow)
 
             const clientId = process.env.CLIENT_ID || '';
+            const protocol = window.location.protocol;
+            const host = window.location.host;
+            const redirectUrl = `${protocol}//${host}`;
 
             const requestBody = new URLSearchParams({
                 grant_type: 'authorization_code',
                 code: code,
                 client_id: clientId,
-                // TODO: Add redirect_uri and client_id if required by your OAuth2 server
-                // redirect_uri: window.location.origin,
+                redirect_uri: redirectUrl,
+                code_verifier: codeVerifier, // PKCE: Include code verifier
             });
 
             const response = await fetch(tokenEndpoint, {
@@ -104,6 +121,10 @@ export class OAuthTokenExchangeService {
                 console.log('[OAuth Token Exchange] Token type:', data.token_type);
                 console.log('[OAuth Token Exchange] Expires in:', data.expires_in, 'seconds');
                 console.log('[OAuth Token Exchange] Scope:', data.scope);
+
+                // Clear the code verifier after successful exchange
+                clearCodeVerifier();
+                console.log('[OAuth Token Exchange] PKCE code verifier cleared');
 
                 // TODO: Store in sessionStorage
                 // sessionStorage.setItem('access_token', data.access_token);

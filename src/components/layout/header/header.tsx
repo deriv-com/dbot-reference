@@ -73,13 +73,13 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
     }, [isAuthorizing, activeLoginid, setIsAuthorizing]);
 
     // [AI]
-    const handleLogin = useCallback(() => {
+    const handleLogin = useCallback(async () => {
         try {
             // Set authorizing state immediately when login is clicked
             setIsAuthorizing(true);
             
-            // Generate OAuth URL with CSRF token
-            const oauthUrl = generateOAuthURL();
+            // Generate OAuth URL with CSRF token and PKCE parameters
+            const oauthUrl = await generateOAuthURL();
             
             if (oauthUrl) {
                 // Redirect to OAuth URL
