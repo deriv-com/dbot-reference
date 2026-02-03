@@ -76,7 +76,7 @@ export class OAuthTokenExchangeService {
             // - client_id: your OAuth2 client ID
             // - code_verifier: the PKCE code verifier (proves we initiated the auth flow)
 
-            const clientId = process.env.CLIENT_ID || '';
+            const clientId = process.env.CLIENT_ID || '32izC2lBT4MmiSNWuxq2l';
             const protocol = window.location.protocol;
             const host = window.location.host;
             const redirectUrl = `${protocol}//${host}`;
