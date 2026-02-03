@@ -15,6 +15,20 @@ interface TokenExchangeResponse {
     error_description?: string;
 }
 
+// [AI]
+/**
+ * Authentication information stored in sessionStorage
+ */
+interface AuthInfo {
+    access_token: string;
+    token_type: string;
+    expires_in: number;
+    expires_at: number; // Timestamp when token expires
+    scope?: string;
+    refresh_token?: string;
+}
+// [/AI]
+
 /**
  * Service for handling OAuth2 token exchange operations
  */
@@ -27,6 +41,67 @@ export class OAuthTokenExchangeService {
         const environment = isProduction() ? 'production' : 'staging';
         return brandConfig.platform.auth2_url[environment];
     }
+
+    // [AI]
+    /**
+     * Get stored authentication info from sessionStorage
+     * @returns AuthInfo object or null if not found or expired
+     */
+    static getAuthInfo(): AuthInfo | null {
+        try {
+            const authInfoStr = sessionStorage.getItem('auth_info');
+            if (!authInfoStr) {
+                return null;
+            }
+
+            const authInfo: AuthInfo = JSON.parse(authInfoStr);
+
+            // Check if token is expired
+            if (authInfo.expires_at && Date.now() >= authInfo.expires_at) {
+                console.log('[OAuth] Access token expired');
+                this.clearAuthInfo();
+                return null;
+            }
+
+            return authInfo;
+        } catch (error) {
+            console.error('[OAuth] Error parsing auth_info:', error);
+            return null;
+        }
+    }
+    // [/AI]
+
+    // [AI]
+    /**
+     * Clear authentication info from sessionStorage
+     */
+    static clearAuthInfo(): void {
+        sessionStorage.removeItem('auth_info');
+        console.log('[OAuth] Auth info cleared from sessionStorage');
+    }
+    // [/AI]
+
+    // [AI]
+    /**
+     * Check if user is authenticated (has valid access token)
+     * @returns true if authenticated with valid token
+     */
+    static isAuthenticated(): boolean {
+        const authInfo = this.getAuthInfo();
+        return authInfo !== null && !!authInfo.access_token;
+    }
+    // [/AI]
+
+    // [AI]
+    /**
+     * Get the current access token
+     * @returns Access token string or null
+     */
+    static getAccessToken(): string | null {
+        const authInfo = this.getAuthInfo();
+        return authInfo?.access_token || null;
+    }
+    // [/AI]
 
     /**
      * Exchange authorization code for access token
@@ -126,11 +201,25 @@ export class OAuthTokenExchangeService {
                 clearCodeVerifier();
                 console.log('[OAuth Token Exchange] PKCE code verifier cleared');
 
-                // TODO: Store in sessionStorage
-                // sessionStorage.setItem('access_token', data.access_token);
-                // if (data.refresh_token) {
-                //     sessionStorage.setItem('refresh_token', data.refresh_token);
-                // }
+                // [AI]
+                // Store authentication info in sessionStorage
+                const authInfo: AuthInfo = {
+                    access_token: data.access_token,
+                    token_type: data.token_type || 'bearer',
+                    expires_in: data.expires_in || 3600,
+                    expires_at: Date.now() + (data.expires_in || 3600) * 1000,
+                    scope: data.scope,
+                };
+
+                // Include refresh token if provided
+                if (data.refresh_token) {
+                    authInfo.refresh_token = data.refresh_token;
+                }
+
+                // Store as JSON string
+                sessionStorage.setItem('auth_info', JSON.stringify(authInfo));
+                console.log('[OAuth Token Exchange] Auth info stored in sessionStorage');
+                // [/AI]
             }
 
             return data;
@@ -184,8 +273,32 @@ export class OAuthTokenExchangeService {
 
             if (data.access_token) {
                 console.log('[OAuth Token Refresh] ✅ Token refresh successful');
-                // TODO: Update sessionStorage
-                // sessionStorage.setItem('access_token', data.access_token);
+                
+                // [AI]
+                // Update authentication info in sessionStorage
+                const authInfo: AuthInfo = {
+                    access_token: data.access_token,
+                    token_type: data.token_type || 'bearer',
+                    expires_in: data.expires_in || 3600,
+                    expires_at: Date.now() + (data.expires_in || 3600) * 1000,
+                    scope: data.scope,
+                };
+
+                // Include refresh token if provided (or keep existing one)
+                if (data.refresh_token) {
+                    authInfo.refresh_token = data.refresh_token;
+                } else {
+                    // Keep the existing refresh token if new one not provided
+                    const existingAuth = this.getAuthInfo();
+                    if (existingAuth?.refresh_token) {
+                        authInfo.refresh_token = existingAuth.refresh_token;
+                    }
+                }
+
+                // Store updated auth info
+                sessionStorage.setItem('auth_info', JSON.stringify(authInfo));
+                console.log('[OAuth Token Refresh] Auth info updated in sessionStorage');
+                // [/AI]
             }
 
             return data;

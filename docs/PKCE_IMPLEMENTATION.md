@@ -172,10 +172,40 @@ const handleLoginGeneration = async () => {
 - `oauth_code_verifier_timestamp`: Timestamp for expiration tracking
 - `oauth_csrf_token`: CSRF protection token (existing)
 - `oauth_csrf_token_timestamp`: CSRF token timestamp (existing)
+- `auth_info`: JSON object containing authentication information
+
+### auth_info Structure
+
+```typescript
+{
+  "access_token": "ory_at_...",
+  "token_type": "bearer",
+  "expires_in": 2591999,
+  "expires_at": 1738567890123, // Timestamp when token expires
+  "scope": "",
+  "refresh_token": "ory_rt_..." // Optional
+}
+```
 
 ## Expiration
 
 Both PKCE code verifier and CSRF token expire after **10 minutes** (600,000 milliseconds).
+
+## Helper Methods
+
+The `OAuthTokenExchangeService` class provides several helper methods:
+
+### `getAuthInfo(): AuthInfo | null`
+Retrieves the stored authentication info from sessionStorage. Returns null if not found or expired.
+
+### `clearAuthInfo(): void`
+Clears the authentication info from sessionStorage.
+
+### `isAuthenticated(): boolean`
+Checks if the user is authenticated (has a valid, non-expired access token).
+
+### `getAccessToken(): string | null`
+Returns the current access token or null if not authenticated.
 
 ## Testing
 
@@ -187,6 +217,8 @@ To test the PKCE implementation:
 4. Complete the OAuth flow
 5. Verify the token exchange request includes `code_verifier`
 6. Confirm `oauth_code_verifier` is cleared after successful exchange
+7. Check sessionStorage for `auth_info` object with token details
+8. Verify `expires_at` timestamp is set correctly
 
 ## Browser Compatibility
 
