@@ -39,7 +39,7 @@ interface OTPResponse {
 
 /**
  * Service for handling DerivWS account operations and WebSocket URL retrieval
- * 
+ *
  * This service manages:
  * - Fetching account list from derivatives/accounts endpoint
  * - Storing accounts in sessionStorage
@@ -110,16 +110,15 @@ export class DerivWSAccountsService {
     static async fetchAccountsList(accessToken: string): Promise<DerivAccount[]> {
         try {
             const baseURL = this.getDerivWSBaseURL();
-            const derivativesDir = brandConfig.platform.derivws.directories.derivatives;
-            const endpoint = `${baseURL}${derivativesDir}accounts`;
+            const OptionsDir = brandConfig.platform.derivws.directories.options;
+            const endpoint = `${baseURL}${OptionsDir}accounts`;
 
             console.log('[DerivWS] Fetching accounts from:', endpoint);
 
             const response = await fetch(endpoint, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`,
                 },
             });
 
@@ -128,12 +127,12 @@ export class DerivWSAccountsService {
             }
 
             const data: AccountsResponse = await response.json();
-            
+
             console.log('[DerivWS] Accounts response:', data);
 
             // Extract accounts array from nested data structure
             const accounts = data.data?.data || [];
-            
+
             if (accounts.length === 0) {
                 console.warn('[DerivWS] No accounts found in response');
             } else {
@@ -165,7 +164,7 @@ export class DerivWSAccountsService {
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
+                    Authorization: `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -175,7 +174,7 @@ export class DerivWSAccountsService {
             }
 
             const otpResponse: OTPResponse = await response.json();
-            
+
             console.log('[DerivWS] OTP response received');
 
             // Parse the nested JSON string
@@ -201,7 +200,7 @@ export class DerivWSAccountsService {
      * 2. Store accounts in sessionStorage
      * 3. Get default account (first from list)
      * 4. Fetch OTP and WebSocket URL for that account
-     * 
+     *
      * @param accessToken Bearer token from OAuth authentication
      * @returns Promise with WebSocket URL
      */
@@ -232,9 +231,9 @@ export class DerivWSAccountsService {
             const urlObj = new URL(websocketURL);
             const hostname = urlObj.hostname;
             const pathname = urlObj.pathname.replace(/\/(demo|real)$/, ''); // Remove /demo or /real suffix
-            
+
             const cleanURL = `${hostname}${pathname}`;
-            
+
             console.log('[DerivWS] ✅ Authenticated WebSocket URL obtained:', cleanURL);
 
             return cleanURL;
