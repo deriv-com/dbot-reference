@@ -336,12 +336,13 @@ export const generateOAuthURL = async () => {
             const protocol = window.location.protocol;
             const host = window.location.host;
             const redirectUrl = `${protocol}//${host}`;
+            const scopes = 'trade%20account_manage'
 
             // Build OAuth URL with PKCE parameters
             // - state: CSRF token for security
             // - code_challenge: SHA-256 hash of code_verifier
             // - code_challenge_method: S256 (SHA-256)
-            const oauthUrl = `${hostname}auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${csrfToken}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+            const oauthUrl = `${hostname}auth?scope=${scopes}&response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${csrfToken}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
 
             return oauthUrl;
         }

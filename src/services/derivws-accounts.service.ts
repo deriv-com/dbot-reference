@@ -18,9 +18,7 @@ export interface DerivAccount {
  * Response from derivatives/accounts endpoint
  */
 interface AccountsResponse {
-    data: {
-        data: DerivAccount[];
-    };
+    data: DerivAccount[];
 }
 
 /**
@@ -131,7 +129,7 @@ export class DerivWSAccountsService {
             console.log('[DerivWS] Accounts response:', data);
 
             // Extract accounts array from nested data structure
-            const accounts = data.data?.data || [];
+            const accounts = data?.data || [];
 
             if (accounts.length === 0) {
                 console.warn('[DerivWS] No accounts found in response');
