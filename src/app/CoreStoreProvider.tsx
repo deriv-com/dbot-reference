@@ -112,6 +112,8 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
             const data = res.data as TSocketResponseData<'balance'>;
             const { msg_type, error } = data;
 
+            // Handle auth errors by calling client.logout() directly instead of useLogout hook
+            // This prevents redundant logout operations since useLogout internally calls client.logout()
             if (
                 error?.code === 'AuthorizationRequired' ||
                 error?.code === 'DisabledClient' ||
@@ -119,7 +121,8 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
             ) {
                 // Clear all URL query parameters for these auth errors
                 clearInvalidTokenParams();
-                await handleLogout();
+                // Call client store logout directly to avoid double logout
+                await client?.logout();
             }
 
             if (msg_type === 'balance' && data && !error) {

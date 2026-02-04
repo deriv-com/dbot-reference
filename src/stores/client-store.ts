@@ -5,6 +5,7 @@ import { isMultipliersOnly, isOptionsBlocked } from '@/components/shared/common/
 import { removeCookies } from '@/components/shared/utils/storage/storage';
 import { observer as globalObserver, observer } from '@/external/bot-skeleton';
 import { api_base } from '@/external/bot-skeleton/services/api/api-base';
+import { ErrorLogger } from '@/utils/error-logger';
 import type { Balance } from '@deriv/api-types';
 import {
     authData$,
@@ -409,7 +410,7 @@ export default class ClientStore {
                 try {
                     await api_base.init(true); // ✅ Await the async call
                 } catch (initError) {
-                    console.error('WebSocket initialization failed:', initError);
+                    ErrorLogger.error('ClientStore', 'WebSocket initialization failed', initError);
                     this.setIsAccountRegenerating(false);
                     throw initError; // Re-throw to be caught by outer catch if needed
                 }
@@ -418,7 +419,7 @@ export default class ClientStore {
                 this.setWebSocketLoginId(active_login_id);
             }
         } catch (error) {
-            console.error('WebSocket regeneration failed:', error);
+            ErrorLogger.error('ClientStore', 'WebSocket regeneration failed', error);
             this.setIsAccountRegenerating(false);
             // Consider showing user-facing error notification here
             // or dispatching an event that UI components can listen to

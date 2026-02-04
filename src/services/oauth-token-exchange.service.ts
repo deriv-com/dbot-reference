@@ -1,4 +1,5 @@
-import { clearCodeVerifier,getCodeVerifier, isProduction } from '@/components/shared';
+import { clearCodeVerifier, getCodeVerifier, isProduction } from '@/components/shared';
+import { ErrorLogger } from '@/utils/error-logger';
 import brandConfig from '../../brand.config.json';
 
 /**
@@ -60,7 +61,7 @@ export class OAuthTokenExchangeService {
 
             return authInfo;
         } catch (error) {
-            console.error('[OAuth] Error parsing auth_info:', error);
+            ErrorLogger.error('OAuth', 'Error parsing auth_info', error);
             return null;
         }
     }
@@ -117,7 +118,7 @@ export class OAuthTokenExchangeService {
             const codeVerifier = getCodeVerifier();
             
             if (!codeVerifier) {
-                console.error('[OAuth Token Exchange] PKCE code verifier not found or expired');
+                ErrorLogger.error('OAuth', 'PKCE code verifier not found or expired');
                 return {
                     error: 'invalid_request',
                     error_description: 'PKCE code verifier not found or expired. Please restart the authentication flow.',
@@ -158,8 +159,10 @@ export class OAuthTokenExchangeService {
 
             // Check for errors in response
             if (data.error) {
-                console.error('[OAuth Token Exchange] Error:', data.error);
-                console.error('[OAuth Token Exchange] Error description:', data.error_description);
+                ErrorLogger.error('OAuth', `Token exchange error: ${data.error}`, {
+                    error: data.error,
+                    description: data.error_description,
+                });
                 return {
                     error: data.error,
                     error_description: data.error_description,
@@ -187,7 +190,6 @@ export class OAuthTokenExchangeService {
                 // Store as JSON string
                 sessionStorage.setItem('auth_info', JSON.stringify(authInfo));
 
-                // [AI]
                 // Immediately fetch accounts and initialize WebSocket after token exchange
                 try {
                     const { DerivWSAccountsService } = await import('./derivws-accounts.service');
@@ -208,23 +210,35 @@ export class OAuthTokenExchangeService {
                                       firstAccount.account_id.startsWith('VRTC');
                         localStorage.setItem('account_type', isDemo ? 'demo' : 'real');
                         
-                        console.log('[OAuth] Accounts fetched and stored, active_loginid set:', firstAccount.account_id);
+                        ErrorLogger.info('OAuth', 'Accounts fetched and stored', {
+                            loginid: firstAccount.account_id,
+                        });
                         
                         // Trigger WebSocket initialization by reloading or reinitializing api_base
                         // The api_base will pick up the active_loginid and authorize
                         const { api_base } = await import('@/external/bot-skeleton');
                         await api_base.init(true); // Force new connection with the account
+                    } else {
+                        // No accounts returned - this is an error condition
+                        ErrorLogger.error('OAuth', 'No accounts returned after token exchange');
+                        return {
+                            error: 'no_accounts',
+                            error_description: 'No accounts available after successful authentication',
+                        };
                     }
                 } catch (error) {
-                    console.error('[OAuth] Error fetching accounts after token exchange:', error);
-                    // Don't fail the token exchange, just log the error
-                    // The user can refresh to complete the flow
+                    ErrorLogger.error('OAuth', 'Error fetching accounts after token exchange', error);
+                    // Return error status to caller for UI feedback
+                    return {
+                        error: 'account_fetch_failed',
+                        error_description: error instanceof Error ? error.message : 'Failed to fetch accounts after authentication',
+                    };
                 }
             }
 
             return data;
         } catch (error: unknown) {
-            console.error('[OAuth Token Exchange] Network or parsing error:', error);
+            ErrorLogger.error('OAuth', 'Token exchange network or parsing error', error);
             return {
                 error: 'network_error',
                 error_description: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -260,7 +274,10 @@ export class OAuthTokenExchangeService {
             const data: TokenExchangeResponse = await response.json();
 
             if (data.error) {
-                console.error('[OAuth Token Refresh] Error:', data.error);
+                ErrorLogger.error('OAuth', `Token refresh error: ${data.error}`, {
+                    error: data.error,
+                    description: data.error_description,
+                });
                 return {
                     error: data.error,
                     error_description: data.error_description,
@@ -294,7 +311,7 @@ export class OAuthTokenExchangeService {
 
             return data;
         } catch (error: unknown) {
-            console.error('[OAuth Token Refresh] Error:', error);
+            ErrorLogger.error('OAuth', 'Token refresh error', error);
             return {
                 error: 'network_error',
                 error_description: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -302,4 +319,3 @@ export class OAuthTokenExchangeService {
         }
     }
 }
-// [/AI]
