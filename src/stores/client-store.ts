@@ -13,8 +13,6 @@ import {
     setAuthData,
     setIsAuthorized,
 } from '../external/bot-skeleton/services/api/observables/connection-status-stream';
-import { LogoutService } from '../services/logout.service';
-import { WhoAmIService } from '../services/whoami.service';
 import type { TAuthData } from '../types/api-types';
 import type RootStore from './root-store';
 
@@ -33,8 +31,6 @@ export default class ClientStore {
     private authDataSubscription: { unsubscribe: () => void } | null = null;
     private root_store: RootStore;
     private tab_visibility_handler: ((event: Event) => void) | null = null;
-    private focus_handler: ((event: FocusEvent) => void) | null = null;
-    private whoami_in_progress = false;
     private ws_login_id: string | null = null;
     private is_regenerating = false;
     private instance_id: string = '';
@@ -63,8 +59,6 @@ export default class ClientStore {
                 this.setBalance(data.current_account.balance.toString());
             }
 
-            // Check session validity after successful authorization
-            this.checkWhoAmI();
         }
     };
 
@@ -87,11 +81,8 @@ export default class ClientStore {
         this.instance_id = `client_store_${Date.now()}_${crypto.getRandomValues(new Uint32Array(1))[0].toString(36)}`;
         globalObserver.setState({ 'client.store': this, 'client.store.id': this.instance_id });
 
-        // Set up visibility change listener to check whoami when tab becomes visible
+        // Set up visibility change listener to regenerate WebSocket when tab becomes visible
         this.setupVisibilityListener();
-
-        // Set up focus listener to check whoami when window gets focus
-        this.setupFocusListener();
 
         makeObservable(this, {
             accounts: observable,
@@ -210,10 +201,6 @@ export default class ClientStore {
         });
         if (account_list) this.account_list = account_list;
 
-        // Check session validity after account list is set
-        if (this.is_logged_in) {
-            this.checkWhoAmI();
-        }
     };
 
     setBalance = (balance: string) => {
@@ -256,97 +243,78 @@ export default class ClientStore {
 
     logout = async () => {
         if (localStorage.getItem('active_loginid')) {
-            const response = await LogoutService.requestRestLogout();
+            // Clear DerivAPI singleton instance and close WebSocket
+            const { clearDerivApiInstance } = await import('@/external/bot-skeleton/services/api/appId');
+            clearDerivApiInstance();
 
-            if (response?.logout === 1) {
-                // Clear DerivAPI singleton instance and close WebSocket
-                const { clearDerivApiInstance } = await import(
-                    '@/external/bot-skeleton/services/api/appId'
-                );
-                clearDerivApiInstance();
+            // Clear accounts cache from DerivWSAccountsService
+            const { DerivWSAccountsService } = await import('@/services/derivws-accounts.service');
+            DerivWSAccountsService.clearStoredAccounts();
+            DerivWSAccountsService.clearCache();
 
-                // Clear accounts cache from DerivWSAccountsService
-                const { DerivWSAccountsService } = await import('@/services/derivws-accounts.service');
-                DerivWSAccountsService.clearStoredAccounts();
-                DerivWSAccountsService.clearCache();
+            // Clear OAuth token from sessionStorage
+            const { OAuthTokenExchangeService } = await import('@/services/oauth-token-exchange.service');
+            OAuthTokenExchangeService.clearAuthInfo();
 
-                // reset all the states
-                this.account_list = [];
+            // Reset all the states
+            this.account_list = [];
+            this.accounts = {};
+            this.is_logged_in = false;
+            this.loginid = '';
+            this.balance = '0';
+            this.currency = 'USD';
+            this.all_accounts_balance = null;
 
-                this.accounts = {};
-                this.is_logged_in = false;
-                this.loginid = '';
-                this.balance = '0';
-                this.currency = 'USD';
+            // Clear localStorage
+            localStorage.removeItem('active_loginid');
+            localStorage.removeItem('accountsList');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('clientAccounts');
+            localStorage.removeItem('account_type');
+            
+            // Clear sessionStorage
+            sessionStorage.clear();
+            
+            // Clear cookies
+            removeCookies('client_information');
 
-                this.all_accounts_balance = null;
+            // Reset observables
+            setIsAuthorized(false);
+            setAccountList([]);
+            setAuthData(null);
 
-                localStorage.removeItem('active_loginid');
-                localStorage.removeItem('accountsList');
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('clientAccounts');
-                localStorage.removeItem('account_type'); // Clear account type on logout
-                removeCookies('client_information');
+            this.setIsLoggingOut(false);
 
-                setIsAuthorized(false);
-                setAccountList([]);
-                setAuthData(null);
+            // Reset analytics
+            Analytics.reset();
 
-                this.setIsLoggingOut(false);
+            // Disable livechat
+            window.LC_API?.close_chat?.();
+            window.LiveChatWidget?.call('hide');
 
-                Analytics.reset();
-
-                // disable livechat
-                window.LC_API?.close_chat?.();
-                window.LiveChatWidget?.call('hide');
-
-                // shutdown and initialize intercom
-                if (window.Intercom) {
-                    window.Intercom('shutdown');
-                    window.DerivInterCom.initialize({
-                        hideLauncher: true,
-                        token: null,
-                    });
-                }
+            // Shutdown and initialize intercom
+            if (window.Intercom) {
+                window.Intercom('shutdown');
+                window.DerivInterCom.initialize({
+                    hideLauncher: true,
+                    token: null,
+                });
             }
         }
     };
 
     /**
-     * Checks session validity via whoami service and handles cleanup if needed
-     */
-    async checkWhoAmI() {
-        if (!this.is_logged_in || this.whoami_in_progress) return; // Only check if logged in and not already checking
-
-        this.whoami_in_progress = true;
-        try {
-            const result = await WhoAmIService.checkWhoAmI();
-
-            // If we get 401 error, user's session is invalid - log them out
-            if (result.error?.code === 401) {
-                await this.logout();
-            }
-        } finally {
-            this.whoami_in_progress = false;
-        }
-    }
-
-    /**
-     * Sets up visibility change listener to check whoami when tab becomes visible
+     * Sets up visibility change listener to regenerate WebSocket when tab becomes visible
      */
     setupVisibilityListener() {
-        //need to call check who am i rest api in every tab switch
         // Remove existing listener if any
         this.removeVisibilityListener();
 
-        // Create handler function - make it async to properly coordinate operations
+        // Create handler function
         this.tab_visibility_handler = async () => {
             if (document.visibilityState === 'visible' && !this.is_regenerating) {
-                // Tab became visible - check whoami first and await its completion
-                await this.checkWhoAmI();
-
-                // Only regenerate if still logged in after whoami check
-                if (this.is_logged_in && !this.whoami_in_progress) {
+                // Tab became visible - check if WebSocket needs regeneration
+                if (this.is_logged_in) {
                     this.checkAndRegenerateWebSocket();
                 }
             }
@@ -466,34 +434,6 @@ export default class ClientStore {
     }
 
     /**
-     * Sets up focus listener to check whoami when window gets focus
-     */
-    setupFocusListener() {
-        // Remove existing listener if any
-        this.removeFocusListener();
-
-        // Create handler function - make it async to properly coordinate operations
-        this.focus_handler = async () => {
-            if (!this.is_regenerating) {
-                await this.checkWhoAmI();
-            }
-        };
-
-        // Add listener
-        window.addEventListener('focus', this.focus_handler);
-    }
-
-    /**
-     * Removes the focus listener
-     */
-    removeFocusListener() {
-        if (this.focus_handler) {
-            window.removeEventListener('focus', this.focus_handler);
-            this.focus_handler = null;
-        }
-    }
-
-    /**
      * Removes the visibility change listener
      */
     removeVisibilityListener() {
@@ -507,9 +447,6 @@ export default class ClientStore {
         this.authDataSubscription?.unsubscribe();
         observer.unregister('api.authorize', this.onAuthorizeEvent);
         this.removeVisibilityListener();
-        this.removeFocusListener();
-        // Cancel any in-flight whoami checks
-        this.whoami_in_progress = false;
 
         // Properly clean up the global observer reference
         // Only clear if this instance is the one referenced by checking the instance ID

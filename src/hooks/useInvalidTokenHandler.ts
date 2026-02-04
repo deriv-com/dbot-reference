@@ -1,23 +1,19 @@
 import { useEffect } from 'react';
 import { observer as globalObserver } from '@/external/bot-skeleton/utils/observer';
-import { useOauth2 } from './auth/useOauth2';
 
 /**
- * Hook to handle invalid token events by retriggering OIDC authentication
+ * Hook to handle invalid token events by reloading the page
  *
  * This hook listens for 'InvalidToken' events emitted by the API base when
- * a token is invalid but the cookie logged state is true. When such an event
- * is detected, it automatically retriggers the OIDC authentication flow to
- * get a new token.
+ * a token is invalid. When such an event is detected, it reloads the page
+ * to trigger a new authentication flow.
  *
  * @returns {{ unregisterHandler: () => void }} An object containing a function to unregister the event handler
  */
 export const useInvalidTokenHandler = (): { unregisterHandler: () => void } => {
-    const { retriggerOAuth2Login } = useOauth2();
-
     const handleInvalidToken = () => {
-        // Clear localStorage similar to client.logout
-        retriggerOAuth2Login();
+        // Reload the page to trigger new authentication
+        window.location.reload();
     };
 
     // Subscribe to the InvalidToken event
@@ -28,7 +24,7 @@ export const useInvalidTokenHandler = (): { unregisterHandler: () => void } => {
         return () => {
             globalObserver.unregister('InvalidToken', handleInvalidToken);
         };
-    }, [retriggerOAuth2Login]);
+    }, []);
 
     // Return a function to unregister the handler manually if needed
     return {

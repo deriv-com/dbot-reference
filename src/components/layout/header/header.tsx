@@ -4,7 +4,6 @@ import { observer } from 'mobx-react-lite';
 import { generateOAuthURL, standalone_routes } from '@/components/shared';
 import Button from '@/components/shared_ui/button';
 import useActiveAccount from '@/hooks/api/account/useActiveAccount';
-import { useOauth2 } from '@/hooks/auth/useOauth2';
 import { useApiBase } from '@/hooks/useApiBase';
 import { useLogout } from '@/hooks/useLogout';
 import { useStore } from '@/hooks/useStore';
@@ -39,7 +38,6 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
     const currency = authData?.currency || '';
     const { localize } = useTranslations();
 
-    const { isSingleLoggingIn } = useOauth2({ handleLogout: async () => client?.logout(), client });
     const handleLogout = useLogout();
 
     // Handle direct URL access with token
@@ -72,7 +70,6 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
         return () => clearTimeout(timer);
     }, [isAuthorizing, activeLoginid, setIsAuthorizing]);
 
-    // [AI]
     const handleLogin = useCallback(async () => {
         try {
             // Set authorizing state immediately when login is clicked
@@ -94,7 +91,6 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
             setIsAuthorizing(false);
         }
     }, [setIsAuthorizing]);
-    // [/AI]
 
     const renderAccountSection = useCallback(
         (position: 'left' | 'right' = 'right') => {
@@ -160,7 +156,6 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
         [
             isAuthenticating,
             isAuthorizing,
-            isSingleLoggingIn,
             isDesktop,
             activeLoginid,
             isAuthorized,
@@ -173,6 +168,8 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
             handleLogout,
             authTimeout,
             is_account_regenerating,
+            authData,
+            handleLogin,
         ]
     );
 

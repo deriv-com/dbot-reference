@@ -1,23 +1,29 @@
 import { useCallback } from 'react';
-import { useOauth2 } from '@/hooks/auth/useOauth2';
 import { useStore } from '@/hooks/useStore';
+import { Analytics } from '@deriv-com/analytics';
 
 /**
  * Custom hook to handle logout functionality
- * Provides a consistent logout method with error handling and retry logic
+ * Clears all session and local storage to reset the session
  * @returns {Function} handleLogout - Function to trigger the logout process
  */
 export const useLogout = () => {
     const { client } = useStore() ?? {};
-    const { oAuthLogout } = useOauth2({ handleLogout: async () => client?.logout(), client });
 
     return useCallback(async () => {
         try {
-            await oAuthLogout();
+            // Call the client store logout method which clears all storage
+            await client?.logout();
+            Analytics.reset();
         } catch (error) {
             console.error('Logout failed:', error);
-            // Still try to logout even if there's an error
-            await oAuthLogout();
+            // Even if logout fails, try to clear storage manually
+            try {
+                sessionStorage.clear();
+                localStorage.clear();
+            } catch (storageError) {
+                console.error('Failed to clear storage:', storageError);
+            }
         }
-    }, [oAuthLogout]);
+    }, [client]);
 };

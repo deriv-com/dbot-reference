@@ -14,7 +14,6 @@ interface TokenExchangeResponse {
     error_description?: string;
 }
 
-// [AI]
 /**
  * Authentication information stored in sessionStorage
  */
@@ -187,6 +186,40 @@ export class OAuthTokenExchangeService {
 
                 // Store as JSON string
                 sessionStorage.setItem('auth_info', JSON.stringify(authInfo));
+
+                // [AI]
+                // Immediately fetch accounts and initialize WebSocket after token exchange
+                try {
+                    const { DerivWSAccountsService } = await import('./derivws-accounts.service');
+                    
+                    // Fetch accounts and store in sessionStorage
+                    const accounts = await DerivWSAccountsService.fetchAccountsList(data.access_token);
+                    
+                    if (accounts && accounts.length > 0) {
+                        // Store accounts
+                        DerivWSAccountsService.storeAccounts(accounts);
+                        
+                        // Set the first account as active in localStorage
+                        const firstAccount = accounts[0];
+                        localStorage.setItem('active_loginid', firstAccount.account_id);
+                        
+                        // Set account type
+                        const isDemo = firstAccount.account_id.startsWith('VRT') ||
+                                      firstAccount.account_id.startsWith('VRTC');
+                        localStorage.setItem('account_type', isDemo ? 'demo' : 'real');
+                        
+                        console.log('[OAuth] Accounts fetched and stored, active_loginid set:', firstAccount.account_id);
+                        
+                        // Trigger WebSocket initialization by reloading or reinitializing api_base
+                        // The api_base will pick up the active_loginid and authorize
+                        const { api_base } = await import('@/external/bot-skeleton');
+                        await api_base.init(true); // Force new connection with the account
+                    }
+                } catch (error) {
+                    console.error('[OAuth] Error fetching accounts after token exchange:', error);
+                    // Don't fail the token exchange, just log the error
+                    // The user can refresh to complete the flow
+                }
             }
 
             return data;
