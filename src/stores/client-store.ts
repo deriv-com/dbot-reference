@@ -6,7 +6,6 @@ import { removeCookies } from '@/components/shared/utils/storage/storage';
 import { observer as globalObserver, observer } from '@/external/bot-skeleton';
 import { api_base } from '@/external/bot-skeleton/services/api/api-base';
 import type { Balance } from '@deriv/api-types';
-import { Analytics } from '@deriv-com/analytics';
 import {
     authData$,
     setAccountList,
@@ -285,9 +284,6 @@ export default class ClientStore {
 
             this.setIsLoggingOut(false);
 
-            // Reset analytics
-            Analytics.reset();
-
             // Disable livechat
             window.LC_API?.close_chat?.();
             window.LiveChatWidget?.call('hide');
@@ -403,8 +399,6 @@ export default class ClientStore {
                 setAuthData(null);
 
                 this.setIsLoggingOut(false);
-
-                Analytics.reset();
 
                 // disable livechat
                 window.LC_API?.close_chat?.();

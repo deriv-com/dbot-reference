@@ -22,8 +22,6 @@
         "generate:brand-css": "node scripts/generate-brand-css.js"
     },
     "dependencies": {
-        "@datadog/browser-rum": "^5.31.1",
-        "@deriv-com/analytics": "1.33.0",
         "@deriv-com/quill-ui": "1.18.1",
         "@deriv-com/quill-ui-next": "^2.4.5",
         "@deriv-com/smartcharts-champion": "^1.3.14",
@@ -69,7 +67,6 @@
         "react-virtualized": "^9.22.5",
         "redux": "^5.0.1",
         "redux-thunk": "^3.1.0",
-        "trackjs": "^3.10.4",
         "ua-parser-js": "^1.0.38",
         "usehooks-ts": "^3.1.0",
         "uuid": "^9.0.1",
