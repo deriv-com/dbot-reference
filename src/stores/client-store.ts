@@ -259,6 +259,17 @@ export default class ClientStore {
             const response = await LogoutService.requestRestLogout();
 
             if (response?.logout === 1) {
+                // Clear DerivAPI singleton instance and close WebSocket
+                const { clearDerivApiInstance } = await import(
+                    '@/external/bot-skeleton/services/api/appId'
+                );
+                clearDerivApiInstance();
+
+                // Clear accounts cache from DerivWSAccountsService
+                const { DerivWSAccountsService } = await import('@/services/derivws-accounts.service');
+                DerivWSAccountsService.clearStoredAccounts();
+                DerivWSAccountsService.clearCache();
+
                 // reset all the states
                 this.account_list = [];
 
@@ -393,6 +404,16 @@ export default class ClientStore {
             const active_login_id = getAccountId();
 
             if (active_login_id) {
+                // Clear DerivAPI singleton instance to force new connection
+                const { clearDerivApiInstance } = await import(
+                    '@/external/bot-skeleton/services/api/appId'
+                );
+                clearDerivApiInstance();
+
+                // Clear accounts cache but keep stored accounts for reuse
+                const { DerivWSAccountsService } = await import('@/services/derivws-accounts.service');
+                DerivWSAccountsService.clearCache();
+
                 this.account_list = [];
 
                 this.accounts = {};

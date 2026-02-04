@@ -110,8 +110,35 @@ class APIBase {
             removeUrlParameter('account_type');
         }
 
-        // Now proceed with normal authorization if we have a token
-        if (getAccountId()) {
+        // Check if we have an account_id from URL or localStorage
+        let activeAccountId: string | null = getAccountId();
+
+        // If no account_id in localStorage, check sessionStorage for accounts
+        if (!activeAccountId) {
+            try {
+                const storedAccounts = sessionStorage.getItem('deriv_accounts');
+                if (storedAccounts) {
+                    const accounts = JSON.parse(storedAccounts);
+                    if (accounts && accounts.length > 0 && accounts[0].account_id) {
+                        // Use the first account as default
+                        const accountId = accounts[0].account_id as string;
+                        activeAccountId = accountId;
+                        localStorage.setItem('active_loginid', accountId);
+                        
+                        // Set account type based on account_id prefix
+                        const isDemo = accountId.startsWith('VRT') || accountId.startsWith('VRTC');
+                        localStorage.setItem('account_type', isDemo ? 'demo' : 'real');
+                        
+                        console.log('[APIBase] Set active_loginid from sessionStorage:', accountId);
+                    }
+                }
+            } catch (error) {
+                console.error('[APIBase] Error reading accounts from sessionStorage:', error);
+            }
+        }
+
+        // Now proceed with normal authorization if we have an account_id
+        if (activeAccountId) {
             setIsAuthorizing(true);
             await this.authorizeAndSubscribe();
         }
