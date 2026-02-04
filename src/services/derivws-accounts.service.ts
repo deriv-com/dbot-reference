@@ -163,7 +163,6 @@ export class DerivWSAccountsService {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
                 },
             });
 
