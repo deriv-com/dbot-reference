@@ -124,7 +124,6 @@ const getDefaultServerURL = () => {
  * @returns Promise with WebSocket URL or fallback to default server
  */
 export const getSocketURL = async (): Promise<string> => {
-    // [AI]
     try {
         // Check if user is authenticated
         const authInfo = OAuthTokenExchangeService.getAuthInfo();
@@ -140,7 +139,6 @@ export const getSocketURL = async (): Promise<string> => {
         return getDefaultServerURL();
     }
 };
-// [/AI]
 
 export const getDebugServiceWorker = () => {
     const debug_service_worker_flag = window.localStorage.getItem('debug_service_worker');
@@ -289,7 +287,7 @@ export const clearCSRFToken = (): void => {
 export const generateOAuthURL = async () => {
     try {
         // Use brand config for login URLs
-        const environment = getCurrentEnvironment();
+        const environment = isProduction() ? 'production' : 'staging';
         const hostname = brandConfig?.platform.auth2_url?.[environment];
         const clientId = process.env.CLIENT_ID || '32izC2lBT4MmiSNWuxq2l';
 
