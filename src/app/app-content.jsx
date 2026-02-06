@@ -12,8 +12,6 @@ import { useApiBase } from '@/hooks/useApiBase';
 import useDevMode from '@/hooks/useDevMode';
 import { useStore } from '@/hooks/useStore';
 import useThemeSwitcher from '@/hooks/useThemeSwitcher';
-import useTrackjs from '@/hooks/useTrackjs';
-import initDatadog from '@/utils/datadog';
 import { ThemeProvider } from '@deriv-com/quill-ui';
 import { setSmartChartsPublicPath } from '@deriv-com/smartcharts-champion';
 import { localize } from '@deriv-com/translations';
@@ -39,12 +37,9 @@ const AppContent = observer(() => {
     const msg_listener = React.useRef(null);
     const { connectionStatus } = useApiBase();
     console.log('connection status', connectionStatus);
-    const { initTrackJS } = useTrackjs();
 
     // Initialize dev mode keyboard shortcuts
     useDevMode();
-
-    initTrackJS(client.loginid);
 
     const livechat_client_information = {
         is_client_store_initialized: client?.is_logged_in ? true : !!client,
@@ -167,10 +162,6 @@ const AppContent = observer(() => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [is_api_initialized, client.loginid]);
-
-    useEffect(() => {
-        initDatadog(true);
-    }, []);
 
     if (common?.error) return null;
 

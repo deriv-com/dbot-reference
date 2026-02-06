@@ -5,8 +5,8 @@ import { toMoment } from '@/components/shared';
 import { FORM_ERROR_MESSAGES } from '@/components/shared/constants/form-error-messages';
 import { initFormErrorMessages } from '@/components/shared/utils/validation/declarative-validation-rules';
 import { api_base } from '@/external/bot-skeleton';
-import { useOauth2 } from '@/hooks/auth/useOauth2';
 import { useApiBase } from '@/hooks/useApiBase';
+import { useLogout } from '@/hooks/useLogout';
 import { useStore } from '@/hooks/useStore';
 import { TSocketResponseData } from '@/types/api-types';
 import { clearInvalidTokenParams } from '@/utils/url-utils';
@@ -34,7 +34,7 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
 
     const { currentLang } = useTranslations();
 
-    const { oAuthLogout } = useOauth2({ handleLogout: async () => client.logout(), client });
+    const handleLogout = useLogout();
 
     const activeAccount = useMemo(
         () => accountList?.find(account => account.loginid === activeLoginid),
@@ -112,6 +112,8 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
             const data = res.data as TSocketResponseData<'balance'>;
             const { msg_type, error } = data;
 
+            // Handle auth errors by calling client.logout() directly instead of useLogout hook
+            // This prevents redundant logout operations since useLogout internally calls client.logout()
             if (
                 error?.code === 'AuthorizationRequired' ||
                 error?.code === 'DisabledClient' ||
@@ -119,7 +121,8 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
             ) {
                 // Clear all URL query parameters for these auth errors
                 clearInvalidTokenParams();
-                await oAuthLogout();
+                // Call client store logout directly to avoid double logout
+                await client?.logout();
             }
 
             if (msg_type === 'balance' && data && !error) {
@@ -133,7 +136,7 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                 }
             }
         },
-        [client, oAuthLogout]
+        [client, handleLogout]
     );
 
     useEffect(() => {

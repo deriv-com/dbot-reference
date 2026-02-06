@@ -1,23 +1,45 @@
 import { useCallback } from 'react';
-import { useOauth2 } from '@/hooks/auth/useOauth2';
 import { useStore } from '@/hooks/useStore';
+import { ErrorLogger } from '@/utils/error-logger';
 
 /**
  * Custom hook to handle logout functionality
- * Provides a consistent logout method with error handling and retry logic
+ * Clears all session and local storage to reset the session
  * @returns {Function} handleLogout - Function to trigger the logout process
  */
 export const useLogout = () => {
     const { client } = useStore() ?? {};
-    const { oAuthLogout } = useOauth2({ handleLogout: async () => client?.logout(), client });
 
     return useCallback(async () => {
         try {
-            await oAuthLogout();
+            // Call the client store logout method which clears all storage
+            await client?.logout();
+            // Analytics.reset() removed - Analytics package has been removed from the project
+            // See migrate-docs/MONITORING_PACKAGES.md for re-enabling analytics if needed
         } catch (error) {
-            console.error('Logout failed:', error);
-            // Still try to logout even if there's an error
-            await oAuthLogout();
+            ErrorLogger.error('Logout', 'Logout failed', error);
+            // If logout fails, clear only auth-related storage keys
+            // This preserves user preferences (theme, language, etc.) while ensuring auth data is cleared
+            try {
+                // Clear auth-related sessionStorage items
+                sessionStorage.removeItem('auth_info');
+                
+                // Clear auth-related localStorage items
+                localStorage.removeItem('active_loginid');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('accountsList');
+                localStorage.removeItem('clientAccounts');
+                localStorage.removeItem('account_type');
+            } catch (storageError) {
+                ErrorLogger.error('Logout', 'Failed to clear auth storage', storageError);
+                // Last resort: if targeted clearing fails, clear all storage
+                try {
+                    sessionStorage.clear();
+                    localStorage.clear();
+                } catch (finalError) {
+                    ErrorLogger.error('Logout', 'Failed to clear all storage', finalError);
+                }
+            }
         }
-    }, [oAuthLogout]);
+    }, [client]);
 };

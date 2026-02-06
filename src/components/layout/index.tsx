@@ -17,7 +17,6 @@ const Layout = observer(() => {
     const is_quick_strategy_active = store?.quick_strategy?.is_open;
     const isCallbackPage = window.location.pathname === '/callback';
 
-    const isEndpointPage = window.location.pathname.includes('endpoint');
     const checkClientAccount = JSON.parse(localStorage.getItem('clientAccounts') ?? '{}');
     const getQueryParams = new URLSearchParams(window.location.search);
     const currency = getQueryParams.get('account') ?? '';
@@ -126,7 +125,7 @@ const Layout = observer(() => {
 
         // Authentication is now handled by the OAuth flow
         setIsAuthenticating(false);
-    }, [isClientAccountsPopulated, isEndpointPage, isCallbackPage, clientHasCurrency, currency]);
+    }, [isClientAccountsPopulated, isCallbackPage, clientHasCurrency, currency]);
 
     // Add a state to track if initial authentication check is complete
     const [isInitialAuthCheckComplete, setIsInitialAuthCheckComplete] = useState(false);
