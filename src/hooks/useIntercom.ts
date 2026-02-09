@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useScript } from 'usehooks-ts';
-import useRemoteConfig from './growthbook/useRemoteConfig';
+// Updated import path - Growthbook removed, using stub implementation
+import useRemoteConfig from './remote-config/useRemoteConfig';
 
 export const useIntercom = (token: string | null) => {
     const intercom_script = 'https://static.deriv.com/scripts/intercom/v1.0.2.js';
