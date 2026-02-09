@@ -6,8 +6,8 @@ import Tabs from '@/components/shared_ui/tabs';
 import { useStore } from '@/hooks/useStore';
 import { LabelPairedSearchCaptionRegularIcon } from '@deriv/quill-icons/LabelPaired';
 import { LegacyCloseCircle1pxBlackIcon } from '@deriv/quill-icons/Legacy';
-import { rudderStackSendSelectGuideEvent } from '../../analytics/rudderstack-tutorials';
-import { getAccountType, getDeviceType } from '../../analytics/utils';
+/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+/* [/AI] */
 import SearchInput from './common/search-input';
 import { TTutorialsTabItem } from './tutorials';
 
@@ -92,22 +92,8 @@ const TutorialsTabDesktop = observer(({ tutorial_tabs, prev_active_tutorials }: 
                 history={history}
                 onTabItemClick={(index: number) => {
                     setActiveTabTutorial(index);
-                    // Track select_guide event for Guide tab (index 0) and Quick strategy guides tab (index 2)
-                    if (index === 0) {
-                        rudderStackSendSelectGuideEvent({
-                            guide_tab_name: 'step_by_step_guides',
-                            guide_name: 'Get started on Deriv Bot',
-                            account_type: getAccountType(),
-                            device_type: getDeviceType(),
-                        });
-                    } else if (index === 2) {
-                        rudderStackSendSelectGuideEvent({
-                            guide_tab_name: 'step_by_step_guides',
-                            guide_name: 'Quick strategy guides',
-                            account_type: getAccountType(),
-                            device_type: getDeviceType(),
-                        });
-                    }
+                    /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+                    /* [/AI] */
                 }}
                 top
             >

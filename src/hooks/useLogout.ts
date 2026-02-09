@@ -23,7 +23,7 @@ export const useLogout = () => {
             try {
                 // Clear auth-related sessionStorage items
                 sessionStorage.removeItem('auth_info');
-                
+
                 // Clear auth-related localStorage items
                 localStorage.removeItem('active_loginid');
                 localStorage.removeItem('authToken');

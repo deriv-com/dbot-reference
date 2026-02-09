@@ -1,4 +1,6 @@
-import { isDemoAccount } from '@/analytics/utils';
+/* [AI] - Analytics removed - utility functions moved to @/utils/account-helpers */
+import { isDemoAccount } from '@/utils/account-helpers';
+/* [/AI] */
 import { getInitialLanguage } from '@deriv-com/translations';
 
 /**

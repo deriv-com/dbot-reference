@@ -1,20 +1,20 @@
 /**
  * Centralized Error Logging Utility
- * 
+ *
  * This utility provides a consistent interface for logging errors, warnings, and info messages
  * across the application. It can be easily extended to integrate with error reporting services
  * like Sentry, TrackJS, or other monitoring tools.
- * 
+ *
  * @example
  * ```typescript
  * import { ErrorLogger } from '@/utils/error-logger';
- * 
+ *
  * // Log an error
  * ErrorLogger.error('OAuth', 'Token exchange failed', error);
- * 
+ *
  * // Log a warning
  * ErrorLogger.warn('Storage', 'Failed to clear cache', { key: 'auth_info' });
- * 
+ *
  * // Log info
  * ErrorLogger.info('Auth', 'User logged in successfully', { loginid: 'CR123' });
  * ```
@@ -146,12 +146,7 @@ class ErrorLoggerClass {
     /**
      * Log to console
      */
-    private logToConsole(
-        level: LogLevel,
-        category: string,
-        message: string,
-        data?: unknown
-    ): void {
+    private logToConsole(level: LogLevel, category: string, message: string, data?: unknown): void {
         if (!this.config.enableConsole || !this.shouldLog(level)) {
             return;
         }
@@ -193,12 +188,7 @@ class ErrorLoggerClass {
     /**
      * Report to external error reporting service
      */
-    private reportToExternalService(
-        level: LogLevel,
-        category: string,
-        message: string,
-        data?: unknown
-    ): void {
+    private reportToExternalService(level: LogLevel, category: string, message: string, data?: unknown): void {
         if (!this.config.enableErrorReporting || !this.config.errorReportingService) {
             return;
         }
@@ -213,10 +203,7 @@ class ErrorLoggerClass {
             if (level === LogLevel.ERROR && data instanceof Error) {
                 this.config.errorReportingService.reportError(data, context);
             } else if (level === LogLevel.WARN) {
-                this.config.errorReportingService.reportWarning(
-                    this.formatMessage(category, message),
-                    context
-                );
+                this.config.errorReportingService.reportWarning(this.formatMessage(category, message), context);
             }
         } catch (reportingError) {
             // Fallback to console if external reporting fails
@@ -226,11 +213,11 @@ class ErrorLoggerClass {
 
     /**
      * Log an error message
-     * 
+     *
      * @param category - Category/module name (e.g., 'OAuth', 'Storage', 'API')
      * @param message - Error message
      * @param data - Optional error object or additional context
-     * 
+     *
      * @example
      * ErrorLogger.error('OAuth', 'Token exchange failed', error);
      * ErrorLogger.error('Storage', 'Failed to clear cache', { key: 'auth_info' });
@@ -242,11 +229,11 @@ class ErrorLoggerClass {
 
     /**
      * Log a warning message
-     * 
+     *
      * @param category - Category/module name
      * @param message - Warning message
      * @param data - Optional additional context
-     * 
+     *
      * @example
      * ErrorLogger.warn('API', 'Rate limit approaching', { remaining: 10 });
      */
@@ -257,11 +244,11 @@ class ErrorLoggerClass {
 
     /**
      * Log an info message
-     * 
+     *
      * @param category - Category/module name
      * @param message - Info message
      * @param data - Optional additional context
-     * 
+     *
      * @example
      * ErrorLogger.info('Auth', 'User logged in', { loginid: 'CR123' });
      */
@@ -271,11 +258,11 @@ class ErrorLoggerClass {
 
     /**
      * Log a debug message
-     * 
+     *
      * @param category - Category/module name
      * @param message - Debug message
      * @param data - Optional additional context
-     * 
+     *
      * @example
      * ErrorLogger.debug('WebSocket', 'Connection state changed', { state: 'open' });
      */
@@ -285,7 +272,7 @@ class ErrorLoggerClass {
 
     /**
      * Set user context for error reporting
-     * 
+     *
      * @param userId - User ID
      * @param email - Optional user email
      */

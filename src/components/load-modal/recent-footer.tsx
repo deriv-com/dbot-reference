@@ -1,4 +1,4 @@
-import React from 'react';
+// Removed unused React import - React 17+ JSX transform doesn't require it
 import { observer } from 'mobx-react-lite';
 import { NOTIFICATION_TYPE } from '@/components/bot-notification/bot-notification-utils';
 import { useStore } from '@/hooks/useStore';

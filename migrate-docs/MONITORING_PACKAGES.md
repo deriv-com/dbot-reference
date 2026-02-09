@@ -221,87 +221,53 @@ TRACKJS_TOKEN=your_trackjs_token
 
 ---
 
-## 3. Deriv Analytics (Rudderstack)
+## 3. Deriv Analytics (@deriv-com/analytics with Rudderstack)
 
 ### Purpose
 
 - User behavior tracking
 - Event analytics
+- Feature usage monitoring
 - Conversion tracking
 - Business intelligence
 
 ### Installation
 
 ```bash
-npm install @deriv-com/analytics@1.33.0
+npm install @deriv-com/analytics@^1.35.1
 ```
 
-### Configuration
+### Quick Start
 
-#### Step 1: Import Analytics in files where needed
+For a comprehensive implementation guide with detailed code examples, see:
 
-```typescript
-import { Analytics } from '@deriv-com/analytics';
-```
+**📚 [ANALYTICS_IMPLEMENTATION_GUIDE.md](./ANALYTICS_IMPLEMENTATION_GUIDE.md)**
 
-#### Step 2: Common Usage Patterns
+The detailed guide includes:
 
-**Track Events:**
+- Complete setup instructions
+- Full code examples for all analytics files
+- Component integration examples
+- Event tracking patterns
+- Testing procedures
+- Troubleshooting tips
 
-```typescript
-Analytics.trackEvent('event_name', {
-    action: 'user_action',
-    form_name: 'form_identifier',
-    // ... other properties
-});
-```
+### Summary
 
-**Reset Analytics (on logout):**
+1. **Initialize Analytics**: Create `src/utils/analytics/index.ts` and call it in `src/main.tsx`
+2. **Create Analytics Structure**: Set up `src/analytics/` directory with tracking files
+3. **Define Events**: Create event tracking functions for different features
+4. **Integrate in Components**: Add analytics calls where user actions occur
+5. **Test**: Verify events in Rudderstack dashboard
 
-```typescript
-Analytics.reset();
-```
-
-**Set User Attributes:**
-
-```typescript
-Analytics.setAttributes({
-    account_type: 'demo',
-    user_id: 'user_123',
-});
-```
-
-#### Step 3: Re-enable Analytics in Key Files
-
-The following files previously used Analytics and need to be updated:
-
-1. **`src/stores/client-store.ts`** - Add `Analytics.reset()` in logout method
-2. **`src/hooks/useLogout.ts`** - Add `Analytics.reset()` after logout
-3. **`src/analytics/rudderstack-*.ts`** - All analytics tracking files
-4. **`src/components/shared/services/performance-metrics-methods.ts`** - Performance tracking
-
-#### Step 4: Analytics Files Structure
-
-The analytics implementation is organized in:
-
-```
-src/analytics/
-├── constants.ts                      # Analytics constants
-├── rudderstack-bot-builder.ts        # Bot builder events
-├── rudderstack-chart.ts              # Chart interaction events
-├── rudderstack-common-events.ts      # Common events
-├── rudderstack-dashboard.ts          # Dashboard events
-├── rudderstack-quick-strategy.ts     # Quick strategy events
-└── rudderstack-tutorials.ts          # Tutorial events
-```
-
-#### Step 5: Environment Variables
+### Environment Variables
 
 Add to your `.env` file:
 
 ```bash
-RUDDERSTACK_KEY=your_rudderstack_key
-RUDDERSTACK_URL=https://your-dataplane-url.com
+RUDDERSTACK_KEY=your_rudderstack_write_key
+REMOTE_CONFIG_URL=https://your-remote-config-url.com
+APP_ENV=production
 ```
 
 ### Getting Rudderstack Credentials
@@ -309,6 +275,19 @@ RUDDERSTACK_URL=https://your-dataplane-url.com
 1. Sign up at [Rudderstack](https://www.rudderstack.com/)
 2. Create a new source (JavaScript)
 3. Copy the **Write Key** and **Data Plane URL**
+
+### Key Integration Points
+
+Components that commonly need analytics:
+
+- Dashboard cards and navigation
+- Bot builder actions (load, save, run)
+- Chart interactions (type changes, indicators)
+- Quick strategy form submissions
+- Tutorial navigation and searches
+- Modal opens/closes
+
+See the [detailed guide](./ANALYTICS_IMPLEMENTATION_GUIDE.md) for complete implementation examples.
 
 ---
 
@@ -414,5 +393,5 @@ For issues with:
 
 ---
 
-**Last Updated**: 2026-02-04
-**Version**: 1.0.0
+**Last Updated**: 2026-02-09
+**Version**: 2.0.0

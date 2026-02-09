@@ -25,16 +25,19 @@ The application uses WebSocket connections to communicate with the Deriv API. Th
 ### Connection URL Format
 
 **Public Connection:**
+
 ```
 wss://{server}/public
 ```
 
 **Authenticated Connection:**
+
 ```
 wss://{server}/{account_type}?account_id={loginid}
 ```
 
 Where:
+
 - `{server}`: WebSocket server URL (e.g., `frontend.binaryws.com`)
 - `{account_type}`: Either `real` or `demo` based on account type
 - `{loginid}`: User's login ID (e.g., `CR1234567`)
@@ -52,27 +55,28 @@ export const generateDerivApiInstance = () => {
     const cleanedServer = getSocketURL();
     const account_id = getAccountId();
     const account_type = getAccountType(account_id);
-    
+
     // Build WebSocket URL
     let socket_url = `wss://${cleanedServer}/${account_type}`;
-    
+
     // Add account_id query param for authenticated endpoints
     if (account_id) {
         socket_url += `?account_id=${account_id}`;
     }
-    
+
     // Create WebSocket connection
     const deriv_socket = new WebSocket(socket_url);
     const deriv_api = new DerivAPIBasic({
         connection: deriv_socket,
         middleware: new APIMiddleware({}),
     });
-    
+
     return deriv_api;
 };
 ```
 
 **Key Points:**
+
 - `getSocketURL()` retrieves the WebSocket server from configuration
 - `getAccountId()` checks localStorage for `active_loginid`
 - `getAccountType()` determines if account is `real`, `demo`, or `public`
@@ -85,11 +89,11 @@ export const generateDerivApiInstance = () => {
 ```typescript
 async init(force_create_connection = false) {
     this.toggleRunButton(true);
-    
+
     if (this.api) {
         this.unsubscribeAllSubscriptions();
     }
-    
+
     // Create new connection if needed
     if (!this.api || this.api?.connection.readyState !== 1 || force_create_connection) {
         if (this.api?.connection) {
@@ -99,20 +103,21 @@ async init(force_create_connection = false) {
             this.api.connection.removeEventListener('open', this.onsocketopen.bind(this));
             this.api.connection.removeEventListener('close', this.onsocketclose.bind(this));
         }
-        
+
         // Generate new API instance (creates new WebSocket)
         this.api = generateDerivApiInstance();
-        
+
         this.api?.connection.addEventListener('open', this.onsocketopen.bind(this));
         this.api?.connection.addEventListener('close', this.onsocketclose.bind(this));
     }
-    
+
     // Initialize chart API
     chart_api.init(force_create_connection);
 }
 ```
 
 **Key Points:**
+
 - `force_create_connection = true` forces a new WebSocket connection
 - Event listeners are attached for `open` and `close` events
 - Old connections are properly cleaned up before creating new ones
@@ -130,12 +135,12 @@ export const getAccountType = (loginid?: string): 'real' | 'demo' | 'public' => 
     if (!loginid) {
         return 'public';
     }
-    
+
     // Check if loginid starts with 'VRT' or 'VRTC' for demo accounts
     if (loginid.startsWith('VRT') || loginid.startsWith('VRTC')) {
         return 'demo';
     }
-    
+
     // Otherwise it's a real account
     return 'real';
 };
@@ -143,11 +148,11 @@ export const getAccountType = (loginid?: string): 'real' | 'demo' | 'public' => 
 
 ### Endpoint Switching Logic
 
-| Condition | Endpoint | Example URL |
-|-----------|----------|-------------|
-| No account_id in localStorage | Public | `wss://frontend.binaryws.com/public` |
-| account_id starts with 'VRT' | Demo | `wss://frontend.binaryws.com/demo?account_id=VRTC1234` |
-| account_id starts with 'CR', 'MF', etc. | Real | `wss://frontend.binaryws.com/real?account_id=CR1234567` |
+| Condition                               | Endpoint | Example URL                                             |
+| --------------------------------------- | -------- | ------------------------------------------------------- |
+| No account_id in localStorage           | Public   | `wss://frontend.binaryws.com/public`                    |
+| account_id starts with 'VRT'            | Demo     | `wss://frontend.binaryws.com/demo?account_id=VRTC1234`  |
+| account_id starts with 'CR', 'MF', etc. | Real     | `wss://frontend.binaryws.com/real?account_id=CR1234567` |
 
 ---
 
@@ -230,12 +235,12 @@ export const getAccountType = (loginid?: string): 'real' | 'demo' | 'public' => 
 onsocketopen() {
     setConnectionStatus(CONNECTION_STATUS.OPENED);
     this.reconnection_attempts = 0;
-    
+
     const currentClientStore = globalObserver.getState('client.store');
     if (currentClientStore) {
         currentClientStore.setIsAccountRegenerating(false);
     }
-    
+
     // Handle OAuth callback
     this.handleTokenExchangeIfNeeded();
 }
@@ -244,7 +249,7 @@ private async handleTokenExchangeIfNeeded() {
     const urlParams = new URLSearchParams(window.location.search);
     const account_id = urlParams.get('account_id');
     const accountType = urlParams.get('account_type');
-    
+
     // Store account information
     if (account_id) {
         localStorage.setItem('active_loginid', account_id);
@@ -254,7 +259,7 @@ private async handleTokenExchangeIfNeeded() {
         localStorage.setItem('account_type', accountType);
         removeUrlParameter('account_type');
     }
-    
+
     // Authorize if we have an account_id
     if (getAccountId()) {
         setIsAuthorizing(true);
@@ -281,7 +286,7 @@ private async handleTokenExchangeIfNeeded() {
     const urlParams = new URLSearchParams(window.location.search);
     const account_id = urlParams.get('account_id');
     const accountType = urlParams.get('account_type');
-    
+
     if (account_id) {
         localStorage.setItem('active_loginid', account_id);
         removeUrlParameter('account_id');
@@ -290,14 +295,14 @@ private async handleTokenExchangeIfNeeded() {
         localStorage.setItem('account_type', accountType);
         removeUrlParameter('account_type');
     }
-    
+
     // If we have an account_id, regenerate WebSocket with authenticated endpoint
     if (getAccountId()) {
         setIsAuthorizing(true);
-        
+
         // Force regenerate WebSocket connection with authenticated endpoint
         await this.init(true);
-        
+
         // Now authorize on the new authenticated connection
         await this.authorizeAndSubscribe();
     }
@@ -323,20 +328,20 @@ private async handleTokenExchangeIfNeeded() {
 ```typescript
 async regenerateWebSocket() {
     if (this.is_regenerating) return;
-    
+
     this.is_regenerating = true;
     this.setIsAccountRegenerating(true);
-    
+
     try {
         const active_login_id = getAccountId();
-        
+
         if (active_login_id && active_login_id !== this.ws_login_id) {
             // Clear existing data
             this.clearAccountData();
-            
+
             // Force create new connection with new account
             await api_base.init(true);
-            
+
             // Update tracked login ID
             this.setWebSocketLoginId(active_login_id);
         }
@@ -355,28 +360,28 @@ async regenerateWebSocket() {
 ```typescript
 reconnectIfNotConnected = () => {
     console.log('connection state: ', this.api?.connection?.readyState);
-    
+
     if (this.api?.connection?.readyState && this.api?.connection?.readyState > 1) {
         console.log('Info: Connection to the server was closed, trying to reconnect.');
-        
+
         this.reconnection_attempts += 1;
-        
+
         // After 5 failed attempts, reset session
         if (this.reconnection_attempts >= this.MAX_RECONNECTION_ATTEMPTS) {
             this.reconnection_attempts = 0;
-            
+
             // Clear auth data
             setIsAuthorized(false);
             setAccountList([]);
             setAuthData(null);
-            
+
             // Clear storage
             localStorage.removeItem('active_loginid');
             localStorage.removeItem('account_type');
             localStorage.removeItem('accountsList');
             localStorage.removeItem('clientAccounts');
         }
-        
+
         // Attempt reconnection
         this.init(true);
     }
@@ -389,29 +394,32 @@ reconnectIfNotConnected = () => {
 
 ### Core Files
 
-| File | Purpose |
-|------|---------|
-| `src/external/bot-skeleton/services/api/appId.js` | WebSocket connection creation |
-| `src/external/bot-skeleton/services/api/api-base.ts` | API initialization and management |
-| `src/services/oauth-token-exchange.service.ts` | OAuth token exchange |
-| `src/components/shared/utils/config/config.ts` | PKCE and OAuth URL generation |
-| `src/stores/client-store.ts` | Client state and WebSocket regeneration |
+| File                                                 | Purpose                                 |
+| ---------------------------------------------------- | --------------------------------------- |
+| `src/external/bot-skeleton/services/api/appId.js`    | WebSocket connection creation           |
+| `src/external/bot-skeleton/services/api/api-base.ts` | API initialization and management       |
+| `src/services/oauth-token-exchange.service.ts`       | OAuth token exchange                    |
+| `src/components/shared/utils/config/config.ts`       | PKCE and OAuth URL generation           |
+| `src/stores/client-store.ts`                         | Client state and WebSocket regeneration |
 
 ### Key Functions
 
 #### WebSocket Creation
+
 - `generateDerivApiInstance()` - Creates WebSocket connection
 - `getSocketURL()` - Gets WebSocket server URL
 - `getAccountId()` - Retrieves account_id from localStorage
 - `getAccountType()` - Determines account type (real/demo/public)
 
 #### Connection Management
+
 - `api_base.init(force_create_connection)` - Initialize/regenerate connection
 - `api_base.authorizeAndSubscribe()` - Authorize and subscribe to streams
 - `api_base.reconnectIfNotConnected()` - Handle reconnection
 - `client_store.regenerateWebSocket()` - Regenerate on account switch
 
 #### OAuth Integration
+
 - `generateOAuthURL()` - Generate OAuth URL with PKCE
 - `OAuthTokenExchangeService.exchangeCodeForToken()` - Exchange code for token
 - `handleTokenExchangeIfNeeded()` - Handle OAuth callback
@@ -424,10 +432,10 @@ reconnectIfNotConnected = () => {
 
 ```typescript
 const socket_state = {
-    [WebSocket.CONNECTING]: 'Connecting',  // 0
-    [WebSocket.OPEN]: 'Connected',         // 1
-    [WebSocket.CLOSING]: 'Closing',        // 2
-    [WebSocket.CLOSED]: 'Closed',          // 3
+    [WebSocket.CONNECTING]: 'Connecting', // 0
+    [WebSocket.OPEN]: 'Connected', // 1
+    [WebSocket.CLOSING]: 'Closing', // 2
+    [WebSocket.CLOSED]: 'Closed', // 3
 };
 ```
 
@@ -524,7 +532,7 @@ console.log('Auth Info:', sessionStorage.getItem('auth_info'));
 
 ```javascript
 // Add in api-base.ts for debugging
-this.api?.onMessage().subscribe((message) => {
+this.api?.onMessage().subscribe(message => {
     console.log('WS Message:', message);
 });
 ```

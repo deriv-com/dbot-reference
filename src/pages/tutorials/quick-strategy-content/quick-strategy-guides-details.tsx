@@ -5,8 +5,8 @@ import { isDbotRTL } from '@/external/bot-skeleton/utils/workspace';
 import { LabelPairedChevronLeftMdFillIcon, LabelPairedChevronRightMdFillIcon } from '@deriv/quill-icons/LabelPaired';
 import { Localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
-import { rudderStackSendOpenQuickStrategyGuideEvent } from '../../../analytics/rudderstack-tutorials';
-import { getAccountType, getDeviceType } from '../../../analytics/utils';
+/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+/* [/AI] */
 import { STRATEGIES } from '../../bot-builder/quick-strategy/config';
 import StrategyTabContent from '../../bot-builder/quick-strategy/form-wrappers/strategy-tab-content';
 
@@ -44,10 +44,8 @@ const QuickStrategyGuidesDetail = observer(
                                 key={type}
                                 onClick={() => {
                                     setTutorialSelectedStrategy(qs_name);
-                                    rudderStackSendOpenQuickStrategyGuideEvent({
-                                        account_type: getAccountType(),
-                                        device_type: getDeviceType(),
-                                    });
+                                    /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+                                    /* [/AI] */
                                     scrollToTop();
                                 }}
                                 tabIndex={index}

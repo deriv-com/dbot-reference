@@ -20,14 +20,14 @@ export const useInvalidTokenHandler = (): { unregisterHandler: () => void } => {
             localStorage.removeItem('authToken');
             localStorage.removeItem('accountsList');
             localStorage.removeItem('clientAccounts');
-            
+
             // Clear sessionStorage completely to remove any stale auth data
             sessionStorage.clear();
-            
+
             // Redirect to OAuth login instead of reload to get fresh authentication
             const { generateOAuthURL } = await import('@/components/shared');
             const oauthUrl = await generateOAuthURL();
-            
+
             if (oauthUrl) {
                 // Use replace to prevent back button from returning to invalid state
                 window.location.replace(oauthUrl);

@@ -1,4 +1,4 @@
-import React from 'react';
+// Removed unused React import - React 17+ JSX transform doesn't require it
 import Dialog from '@/components/shared_ui/dialog';
 import Text from '@/components/shared_ui/text';
 import { LabelPairedCheckCaptionFillIcon } from '@deriv/quill-icons';

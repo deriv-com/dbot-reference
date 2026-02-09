@@ -1,4 +1,6 @@
-import { getAccountId, getAccountType, isDemoAccount, removeUrlParameter } from '@/analytics/utils';
+/* [AI] - Analytics removed - utility functions moved to @/utils/account-helpers */
+import { getAccountId, getAccountType, isDemoAccount, removeUrlParameter } from '@/utils/account-helpers';
+/* [/AI] */
 import CommonStore from '@/stores/common-store';
 import { TAuthData } from '@/types/api-types';
 import { clearAuthData } from '@/utils/auth-utils';
@@ -124,11 +126,11 @@ class APIBase {
                         const accountId = accounts[0].account_id as string;
                         activeAccountId = accountId;
                         localStorage.setItem('active_loginid', accountId);
-                        
+
                         // Set account type based on account_id prefix
                         const isDemo = accountId.startsWith('VRT') || accountId.startsWith('VRTC');
                         localStorage.setItem('account_type', isDemo ? 'demo' : 'real');
-                        
+
                         console.log('[APIBase] Set active_loginid from sessionStorage:', accountId);
                     }
                 }

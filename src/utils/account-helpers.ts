@@ -1,65 +1,15 @@
-import { STRATEGIES } from '../pages/bot-builder/quick-strategy/config';
-import { ACCOUNT_TYPE_KEY, MAX_MOBILE_WIDTH, STORED_ITEM_NOT_FOUND, TFormStrategy } from './constants';
+// Account and device utility functions
+// Moved from src/analytics/utils.ts during analytics cleanup
 
-export const rudderstack_text_error = 'Rudderstack: unable to get dropdown text';
-
-export const getRsDropdownTextFromLocalStorage = () => {
-    try {
-        return JSON.parse(localStorage?.getItem('qs-analytics') ?? '{}');
-    } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(rudderstack_text_error);
-        return {};
-    }
-};
-
-const hasStoredText = (parameter: string) => parameter && parameter !== STORED_ITEM_NOT_FOUND;
-
-export const getRsStrategyType = (selected_strategy: string) => STRATEGIES()[selected_strategy]?.rs_strategy_name;
-
-export const getQsActiveTabString = (tab: string) => (tab === 'TRADE_PARAMETERS' ? 'trade parameters' : 'learn more');
-
-enum LOAD_MODAL_TABS_VALUE {
-    recent = 'recent',
-    local = 'local',
-    google_drive = 'google drive',
-}
-export const LOAD_MODAL_TABS = Object.values(LOAD_MODAL_TABS_VALUE);
-
-export const getTradeParameterData = ({ form_values }: TFormStrategy) => {
-    if (!form_values) return;
-
-    const { symbol, tradetype, type, stake } = form_values;
-    const stored_texts = getRsDropdownTextFromLocalStorage();
-
-    return {
-        asset_type: hasStoredText(stored_texts?.symbol) ? stored_texts.symbol : symbol,
-        trade_type: hasStoredText(stored_texts?.tradetype) ? stored_texts?.tradetype : tradetype,
-        purchase_condition: hasStoredText(stored_texts?.type) ? stored_texts?.type : type,
-        initial_stake: hasStoredText(stored_texts?.stake) ? stored_texts?.stake : stake,
-    };
-};
-
-export const getStrategyType = (block_string: string | ArrayBuffer) => {
-    try {
-        const xmlDoc = new DOMParser().parseFromString(block_string.toString(), 'application/xml');
-        if (xmlDoc.getElementsByTagName('xml').length) {
-            const root = xmlDoc.documentElement;
-            const isDbotValue = root.getAttribute('is_dbot');
-            return isDbotValue === 'true' ? 'new' : 'old';
-        }
-        return 'old';
-    } catch (e) {
-        return 'old';
-    }
-};
+export const MAX_MOBILE_WIDTH = 926;
+export const ACCOUNT_TYPE_KEY = 'account_type';
 
 /**
  * Check if a loginid represents a demo account
  * Demo accounts have specific prefixes:
  * - VRTC: Classic demo accounts
  * - VRW: Demo wallet accounts
- * -Starts with DEM: Demo accounts with DEM prefix
+ * - Starts with DEM: Demo accounts with DEM prefix
  *
  * @param loginid - The account loginid to check
  * @returns true if demo account, false otherwise
@@ -81,7 +31,7 @@ export const isDemoAccount = (loginid: string): boolean => {
  * Loginid is the primary source of truth when provided
  *
  * @param loginid - Optional loginid to check (if not provided, uses localStorage only)
- * @returns 'demo' or 'real' or public if cannot determine
+ * @returns 'demo' or 'real' or 'public' if cannot determine
  */
 export const getAccountType = (loginid?: string): string | undefined => {
     try {
@@ -109,7 +59,6 @@ export const getAccountId = (): string | null => {
 
     const tokenFromUrl = urlParams.get('token');
     // Remove token from URL if present
-    // Note: We don't return after removing token because it's not needed for further processing
     if (tokenFromUrl) {
         removeUrlParameter('token');
     }

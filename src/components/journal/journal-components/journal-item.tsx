@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// Removed unused React import - React 17+ JSX transform doesn't require it
+import { useState } from 'react';
 import classnames from 'classnames';
 import DOMPurify from 'dompurify';
 import { MessageTypes } from '@/external/bot-skeleton';

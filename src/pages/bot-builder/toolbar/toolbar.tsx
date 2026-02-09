@@ -4,7 +4,8 @@ import Dialog from '@/components/shared_ui/dialog';
 import { useStore } from '@/hooks/useStore';
 import { Localize, localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
-import { rudderStackSendOpenEvent } from '../../../analytics/rudderstack-common-events';
+/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+/* [/AI] */
 import ToolbarButton from './toolbar-button';
 import WorkspaceGroup from './workspace-group';
 
@@ -18,11 +19,8 @@ const Toolbar = observer(() => {
     const cancel_button_text = is_running ? localize('No') : localize('Cancel');
     const handleQuickStrategyOpen = () => {
         setFormVisibility(true);
-        rudderStackSendOpenEvent({
-            subpage_name: 'bot_builder',
-            subform_source: 'bot_builder',
-            subform_name: 'quick_strategy',
-        });
+        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+        /* [/AI] */
     };
     return (
         <React.Fragment>

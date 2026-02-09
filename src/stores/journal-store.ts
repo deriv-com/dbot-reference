@@ -1,6 +1,8 @@
 import { action, computed, makeObservable, observable, reaction, when } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
-import { isVirtualAccount } from '@/analytics/utils';
+/* [AI] - Analytics removed - utility functions moved to @/utils/account-helpers */
+import { isVirtualAccount } from '@/utils/account-helpers';
+/* [/AI] */
 import { formatDate } from '@/components/shared';
 import { run_panel } from '@/constants/run-panel';
 import { LogTypes, MessageTypes } from '@/external/bot-skeleton';

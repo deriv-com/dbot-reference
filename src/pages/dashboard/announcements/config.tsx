@@ -5,7 +5,9 @@ import Text from '@/components/shared_ui/text';
 import { DBOT_TABS } from '@/constants/bot-contents';
 import { localizeAccumulators } from '@/utils/conditional-localize';
 import { Localize, localize } from '@deriv-com/translations';
-import { rudderStackSendOpenEvent } from '../../../analytics/rudderstack-common-events';
+/* [AI] - Analytics removed - see migrate-docs/ANALYTICS_IMPLEMENTATION_GUIDE.md */
+// import { rudderStackSendOpenEvent } from '../../../analytics/rudderstack-common-events';
+/* [/AI] */
 import { handleOnConfirmAccumulator } from './utils/accumulator-helper-functions';
 import { IconAnnounce } from './announcement-components';
 
@@ -130,14 +132,16 @@ export const ANNOUNCEMENTS: Record<string, TAnnouncement> = {
         should_not_be_cancel: true,
         should_toggle_load_modal: true,
         switch_tab_on_confirm: DBOT_TABS.BOT_BUILDER,
-        onConfirm: () => {
-            rudderStackSendOpenEvent({
-                subpage_name: 'bot_builder',
-                subform_source: 'announcements',
-                subform_name: 'load_strategy',
-                load_strategy_tab: 'recent',
-            });
-        },
+        /* [AI] - Analytics removed - onConfirm only contained analytics tracking */
+        // onConfirm: () => {
+        //     rudderStackSendOpenEvent({
+        //         subpage_name: 'bot_builder',
+        //         subform_source: 'announcements',
+        //         subform_name: 'load_strategy',
+        //         load_strategy_tab: 'recent',
+        //     });
+        // },
+        /* [/AI] */
     },
 
     BLOCKLY_ANNOUNCE: {

@@ -1,4 +1,4 @@
-import React from 'react';
+// Removed unused React import - React 17+ JSX transform doesn't require it
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { getCurrencyDisplayCode } from '@/components/shared';

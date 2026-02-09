@@ -70,7 +70,10 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
 
     useEffect(() => {
         const updateServerTime = () => {
-            api_base.api
+            // Added null check for api_base.api and cast to any for time() method
+            // time() method exists on DerivAPIBasic but not in TApiBaseApi type definition
+            if (!api_base.api) return;
+            (api_base.api as any)
                 .time()
                 .then((res: TSocketResponseData<'time'>) => {
                     common.setServerTime(toMoment(res.time), false);
@@ -107,9 +110,10 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
     }, [client, common]);
 
     const handleMessages = useCallback(
-        async (res: Record<string, unknown>) => {
+        // Changed parameter type from Record<string, unknown> to unknown to match onMessage signature
+        async (res: unknown) => {
             if (!res) return;
-            const data = res.data as TSocketResponseData<'balance'>;
+            const data = (res as Record<string, unknown>).data as TSocketResponseData<'balance'>;
             const { msg_type, error } = data;
 
             // Handle auth errors by calling client.logout() directly instead of useLogout hook
@@ -142,7 +146,10 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
     useEffect(() => {
         if (!isAuthorizing && client) {
             const subscription = api_base?.api?.onMessage().subscribe(handleMessages);
-            msg_listener.current = { unsubscribe: subscription?.unsubscribe };
+            // Fixed unsubscribe type - only store if subscription exists
+            if (subscription) {
+                msg_listener.current = { unsubscribe: subscription.unsubscribe };
+            }
         }
 
         return () => {

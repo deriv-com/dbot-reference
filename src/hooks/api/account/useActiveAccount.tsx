@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
-import { isVirtualAccount } from '@/analytics/utils';
+/* [AI] - Analytics removed - utility functions moved to @/utils/account-helpers */
+import { isVirtualAccount } from '@/utils/account-helpers';
+/* [/AI] */
 import { CurrencyIcon } from '@/components/currency/currency-icon';
 import { addComma, getDecimalPlaces } from '@/components/shared';
 import { useApiBase } from '@/hooks/useApiBase';

@@ -1,5 +1,7 @@
 import { action, computed, makeObservable, observable } from 'mobx';
-import { getAccountId } from '@/analytics/utils';
+/* [AI] - Analytics removed - utility functions moved to @/utils/account-helpers */
+import { getAccountId } from '@/utils/account-helpers';
+/* [/AI] */
 import { isEmptyObject } from '@/components/shared';
 import { isMultipliersOnly, isOptionsBlocked } from '@/components/shared/common/utility';
 import { removeCookies } from '@/components/shared/utils/storage/storage';
@@ -58,7 +60,6 @@ export default class ClientStore {
             if (typeof data.current_account.balance === 'number') {
                 this.setBalance(data.current_account.balance.toString());
             }
-
         }
     };
 
@@ -200,7 +201,6 @@ export default class ClientStore {
             this.accounts[account.loginid] = account;
         });
         if (account_list) this.account_list = account_list;
-
     };
 
     setBalance = (balance: string) => {
@@ -271,10 +271,10 @@ export default class ClientStore {
             localStorage.removeItem('authToken');
             localStorage.removeItem('clientAccounts');
             localStorage.removeItem('account_type');
-            
+
             // Clear sessionStorage
             sessionStorage.clear();
-            
+
             // Clear cookies
             removeCookies('client_information');
 
@@ -370,9 +370,7 @@ export default class ClientStore {
 
             if (active_login_id) {
                 // Clear DerivAPI singleton instance to force new connection
-                const { clearDerivApiInstance } = await import(
-                    '@/external/bot-skeleton/services/api/appId'
-                );
+                const { clearDerivApiInstance } = await import('@/external/bot-skeleton/services/api/appId');
                 clearDerivApiInstance();
 
                 // Clear accounts cache but keep stored accounts for reuse

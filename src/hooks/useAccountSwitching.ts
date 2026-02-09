@@ -1,22 +1,21 @@
-// [AI]
 import { useEffect } from 'react';
 import { crypto_currencies_display_order, fiat_currencies_display_order } from '@/components/shared';
 import { TAuthData } from '@/types/api-types';
 
 /**
  * Custom hook to handle account switching via URL parameter
- * 
+ *
  * This hook:
  * 1. Reads 'account' parameter from URL
  * 2. Validates the currency against supported currencies
  * 3. Switches to the specified account (demo or real)
  * 4. Updates localStorage with the selected account's token and loginid
- * 
+ *
  * @example
  * ```tsx
  * // In your component
  * useAccountSwitching();
- * 
+ *
  * // URL: ?account=USD - switches to USD account
  * // URL: ?account=DEMO - switches to demo account
  * ```
@@ -74,4 +73,3 @@ export const useAccountSwitching = () => {
         }
     }, []); // Run only once on mount
 };
-// [/AI]

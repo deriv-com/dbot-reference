@@ -4,8 +4,8 @@ import { tabs_title } from '@/constants/load-modal';
 import { useStore } from '@/hooks/useStore';
 import { localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
-import { rudderStackSendSwitchLoadStrategyTabEvent } from '../../analytics/rudderstack-bot-builder';
-import { LOAD_MODAL_TABS } from '../../analytics/utils';
+/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+/* [/AI] */
 import MobileFullPageModal from '../shared_ui/mobile-full-page-modal';
 import Modal from '../shared_ui/modal';
 import Tabs from '../shared_ui/tabs';
@@ -33,10 +33,8 @@ const LoadModal: React.FC = observer(() => {
 
     const handleTabItemClick = (active_index: number) => {
         setActiveTabIndex(active_index);
-        rudderStackSendSwitchLoadStrategyTabEvent({
-            form_name: 'ce_bot_form_v2',
-            load_strategy_tab: LOAD_MODAL_TABS[active_index + (!isDesktop ? 1 : 0)],
-        });
+        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+        /* [/AI] */
     };
 
     if (!isDesktop) {
