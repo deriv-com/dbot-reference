@@ -3,7 +3,9 @@
 /*
     Constants
 */
-$FONT_STACK: 'IBM Plex Sans', sans-serif;
+// Font stack now uses CSS variable from brand.config.json
+// For white-labeling: update brand.config.json and run npm run generate:brand-css
+$FONT_STACK: var(--brand-font-primary);
 $BASE_FONT_SIZE: 10px;
 
 /*

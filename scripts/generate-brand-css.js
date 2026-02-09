@@ -17,8 +17,8 @@ const updateBrandColorsInThemes = () => {
     let themesContent = fs.readFileSync(themesPath, 'utf8');
     const originalContent = themesContent;
 
-    // Extract colors from brand config
-    const { colors } = brandConfig;
+    // Extract colors and typography from brand config
+    const { colors, typography } = brandConfig;
 
     // Generate brand color variables from config
     const brandColorLines = [
@@ -38,6 +38,15 @@ const updateBrandColorsInThemes = () => {
         `    --brand-info: ${colors.info};`,
         `    --brand-neutral: ${colors.neutral};`,
     ];
+
+    // Generate typography variables if available
+    if (typography && typography.font_family) {
+        brandColorLines.push('');
+        brandColorLines.push('    /* Brand typography - dynamically generated from brand.config.json */');
+        brandColorLines.push(`    --brand-font-primary: ${typography.font_family.primary};`);
+        brandColorLines.push(`    --brand-font-secondary: ${typography.font_family.secondary};`);
+        brandColorLines.push(`    --brand-font-monospace: ${typography.font_family.monospace};`);
+    }
 
     // Find and replace the brand colors section
     let insertionPoint = -1;
@@ -104,20 +113,27 @@ const updateBrandColorsInThemes = () => {
     const hasChanges = originalContent !== themesContent;
 
     if (hasChanges) {
-        console.log('✅ Brand colors updated successfully in _themes.scss!');
+        console.log('✅ Brand styling updated successfully in _themes.scss!');
         console.log(`📁 Updated: ${themesPath}`);
         console.log('📊 Changes made:');
-        console.log(`   • Brand White: ${colors.white}`);
-        console.log(`   • Brand Dark Grey: ${colors.black}`);
-        console.log(`   • Primary: ${colors.primary}`);
-        console.log(`   • Secondary: ${colors.secondary}`);
-        console.log(`   • Tertiary: ${colors.tertiary}`);
-        console.log(`   • Success: ${colors.success}`);
-        console.log(`   • Danger: ${colors.danger}`);
-        console.log(`   • Warning: ${colors.warning}`);
-        console.log(`   • Info: ${colors.info}`);
+        console.log('   Colors:');
+        console.log(`      • Brand White: ${colors.white}`);
+        console.log(`      • Brand Dark Grey: ${colors.black}`);
+        console.log(`      • Primary: ${colors.primary}`);
+        console.log(`      • Secondary: ${colors.secondary}`);
+        console.log(`      • Tertiary: ${colors.tertiary}`);
+        console.log(`      • Success: ${colors.success}`);
+        console.log(`      • Danger: ${colors.danger}`);
+        console.log(`      • Warning: ${colors.warning}`);
+        console.log(`      • Info: ${colors.info}`);
+        if (typography && typography.font_family) {
+            console.log('   Typography:');
+            console.log(`      • Primary Font: ${typography.font_family.primary.substring(0, 50)}...`);
+            console.log(`      • Secondary Font: ${typography.font_family.secondary}`);
+            console.log(`      • Monospace Font: ${typography.font_family.monospace}`);
+        }
     } else {
-        console.log('✓ No changes needed - brand colors already up to date');
+        console.log('✓ No changes needed - brand styling already up to date');
     }
 
     return hasChanges;
@@ -147,6 +163,20 @@ const validateBrandConfig = () => {
                 issues.push(`Missing required color: ${color}`);
             }
         });
+    }
+
+    // Optional typography validation (warnings only)
+    if (brandConfig.typography) {
+        if (!brandConfig.typography.font_family) {
+            console.warn('⚠️  Typography configuration found but font_family is missing');
+        } else {
+            const requiredFonts = ['primary', 'secondary', 'monospace'];
+            requiredFonts.forEach(font => {
+                if (!brandConfig.typography.font_family[font]) {
+                    console.warn(`⚠️  Missing recommended font: ${font}`);
+                }
+            });
+        }
     }
 
     if (issues.length > 0) {
