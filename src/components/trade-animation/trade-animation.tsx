@@ -8,7 +8,8 @@ import { useStore } from '@/hooks/useStore';
 import { LabelPairedPlayLgFillIcon, LabelPairedSquareLgFillIcon } from '@deriv/quill-icons/LabelPaired';
 import { Localize, localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
-import { rudderStackSendRunBotEvent } from '../../analytics/rudderstack-common-events';
+/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+/* [/AI] */
 import Button from '../shared_ui/button';
 import Tooltip from '../shared_ui/tooltip/tooltip';
 import CircularWrapper from './circular-wrapper';
@@ -204,14 +205,8 @@ const TradeAnimation = observer(({ className, should_show_overlay }: TTradeAnima
                             return;
                         }
                         onRunButtonClick();
-                        // Map tab index to proper subpage name
-                        const subpageMap: { [key: number]: 'dashboard' | 'bot_builder' | 'charts' | 'tutorials' } = {
-                            [DBOT_TABS.DASHBOARD]: 'dashboard',
-                            [DBOT_TABS.BOT_BUILDER]: 'bot_builder',
-                            [DBOT_TABS.CHART]: 'charts',
-                            [DBOT_TABS.TUTORIAL]: 'tutorials',
-                        };
-                        rudderStackSendRunBotEvent({ subpage_name: subpageMap[safeActiveTab] });
+                        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+                        /* [/AI] */
                     }}
                     has_effect
                     {...(is_stop_button_visible || !is_unavailable_for_payment_agent

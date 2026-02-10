@@ -116,12 +116,13 @@ export class OAuthTokenExchangeService {
 
             // Retrieve the PKCE code verifier from session storage
             const codeVerifier = getCodeVerifier();
-            
+
             if (!codeVerifier) {
                 ErrorLogger.error('OAuth', 'PKCE code verifier not found or expired');
                 return {
                     error: 'invalid_request',
-                    error_description: 'PKCE code verifier not found or expired. Please restart the authentication flow.',
+                    error_description:
+                        'PKCE code verifier not found or expired. Please restart the authentication flow.',
                 };
             }
             // Prepare the request body
@@ -193,27 +194,27 @@ export class OAuthTokenExchangeService {
                 // Immediately fetch accounts and initialize WebSocket after token exchange
                 try {
                     const { DerivWSAccountsService } = await import('./derivws-accounts.service');
-                    
+
                     // Fetch accounts and store in sessionStorage
                     const accounts = await DerivWSAccountsService.fetchAccountsList(data.access_token);
-                    
+
                     if (accounts && accounts.length > 0) {
                         // Store accounts
                         DerivWSAccountsService.storeAccounts(accounts);
-                        
+
                         // Set the first account as active in localStorage
                         const firstAccount = accounts[0];
                         localStorage.setItem('active_loginid', firstAccount.account_id);
-                        
+
                         // Set account type
-                        const isDemo = firstAccount.account_id.startsWith('VRT') ||
-                                      firstAccount.account_id.startsWith('VRTC');
+                        const isDemo =
+                            firstAccount.account_id.startsWith('VRT') || firstAccount.account_id.startsWith('VRTC');
                         localStorage.setItem('account_type', isDemo ? 'demo' : 'real');
-                        
+
                         ErrorLogger.info('OAuth', 'Accounts fetched and stored', {
                             loginid: firstAccount.account_id,
                         });
-                        
+
                         // Trigger WebSocket initialization by reloading or reinitializing api_base
                         // The api_base will pick up the active_loginid and authorize
                         const { api_base } = await import('@/external/bot-skeleton');
@@ -221,6 +222,8 @@ export class OAuthTokenExchangeService {
                     } else {
                         // No accounts returned - this is an error condition
                         ErrorLogger.error('OAuth', 'No accounts returned after token exchange');
+                        // Clear auth info when no accounts are available to prevent invalid state
+                        this.clearAuthInfo();
                         return {
                             error: 'no_accounts',
                             error_description: 'No accounts available after successful authentication',
@@ -228,10 +231,14 @@ export class OAuthTokenExchangeService {
                     }
                 } catch (error) {
                     ErrorLogger.error('OAuth', 'Error fetching accounts after token exchange', error);
+                    // Clear stored auth info to prevent user from being stuck in invalid auth state
+                    // This allows retry without manual sessionStorage clearing
+                    this.clearAuthInfo();
                     // Return error status to caller for UI feedback
                     return {
                         error: 'account_fetch_failed',
-                        error_description: error instanceof Error ? error.message : 'Failed to fetch accounts after authentication',
+                        error_description:
+                            error instanceof Error ? error.message : 'Failed to fetch accounts after authentication',
                     };
                 }
             }
@@ -284,7 +291,7 @@ export class OAuthTokenExchangeService {
                 };
             }
 
-            if (data.access_token) {                
+            if (data.access_token) {
                 // Update authentication info in sessionStorage
                 const authInfo: AuthInfo = {
                     access_token: data.access_token,

@@ -61,12 +61,12 @@ const router = createBrowserRouter(
 
 /**
  * Main App component
- * 
+ *
  * Responsibilities:
  * 1. OAuth callback handling (via useOAuthCallback hook)
  * 2. Account switching from URL (via useAccountSwitching hook)
  * 3. Router provider setup
- * 
+ *
  * All complex logic has been extracted into custom hooks for better maintainability
  */
 function App() {

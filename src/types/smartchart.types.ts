@@ -5,6 +5,12 @@
 
 import { ActiveSymbol } from '@deriv-com/smartcharts-champion';
 
+// Re-export ActiveSymbol from smartcharts-champion for adapter use
+export type { ActiveSymbol } from '@deriv-com/smartcharts-champion';
+
+// ActiveSymbols is an array of ActiveSymbol
+export type ActiveSymbols = ActiveSymbol[];
+
 // Core granularity type - 0 for ticks, >0 for candle intervals in seconds
 export type TGranularity = 0 | 60 | 120 | 180 | 300 | 600 | 900 | 1800 | 3600 | 7200 | 14400 | 28800 | 86400;
 

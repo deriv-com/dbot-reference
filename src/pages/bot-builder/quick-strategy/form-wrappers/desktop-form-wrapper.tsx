@@ -7,7 +7,8 @@ import ThemedScrollbars from '@/components/shared_ui/themed-scrollbars';
 import { useStore } from '@/hooks/useStore';
 import { LegacyClose1pxIcon } from '@deriv/quill-icons/Legacy';
 import { localize } from '@deriv-com/translations';
-import { rudderStackSendQsEditStrategyEvent } from '../../../../analytics/rudderstack-quick-strategy';
+/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+/* [/AI] */
 import { STRATEGIES } from '../config';
 import { TFormData, TFormValues } from '../types';
 import QSStepper from './qs-stepper';
@@ -89,10 +90,8 @@ const FormWrapper = observer(
             validateForm();
             submitForm().then((form_data: TFormData | void) => {
                 if (isValid && form_data) {
-                    rudderStackSendQsEditStrategyEvent({
-                        form_values: values,
-                        selected_strategy,
-                    });
+                    /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+                    /* [/AI] */
                     onSubmit(form_data); // true to load and run the bot
                 }
             });

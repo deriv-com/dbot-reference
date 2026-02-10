@@ -65,10 +65,7 @@ describe('useInvalidTokenHandler', () => {
         it('should register InvalidToken event handler on mount', () => {
             renderHook(() => useInvalidTokenHandler());
 
-            expect(globalObserver.register).toHaveBeenCalledWith(
-                'InvalidToken',
-                expect.any(Function)
-            );
+            expect(globalObserver.register).toHaveBeenCalledWith('InvalidToken', expect.any(Function));
         });
 
         it('should unregister InvalidToken event handler on unmount', () => {
@@ -76,10 +73,7 @@ describe('useInvalidTokenHandler', () => {
 
             unmount();
 
-            expect(globalObserver.unregister).toHaveBeenCalledWith(
-                'InvalidToken',
-                expect.any(Function)
-            );
+            expect(globalObserver.unregister).toHaveBeenCalledWith('InvalidToken', expect.any(Function));
         });
 
         it('should return unregisterHandler function', () => {
@@ -94,10 +88,7 @@ describe('useInvalidTokenHandler', () => {
 
             result.current.unregisterHandler();
 
-            expect(globalObserver.unregister).toHaveBeenCalledWith(
-                'InvalidToken',
-                expect.any(Function)
-            );
+            expect(globalObserver.unregister).toHaveBeenCalledWith('InvalidToken', expect.any(Function));
         });
     });
 
@@ -242,11 +233,7 @@ describe('useInvalidTokenHandler', () => {
             // Trigger the handler
             await handler();
 
-            expect(ErrorLogger.error).toHaveBeenCalledWith(
-                'InvalidToken',
-                'Error handling invalid token',
-                mockError
-            );
+            expect(ErrorLogger.error).toHaveBeenCalledWith('InvalidToken', 'Error handling invalid token', mockError);
             expect(mockWindowLocationReload).toHaveBeenCalled();
         });
 
@@ -349,11 +336,7 @@ describe('useInvalidTokenHandler', () => {
             // Trigger the handler
             await handler();
 
-            expect(ErrorLogger.error).toHaveBeenCalledWith(
-                'InvalidToken',
-                'Error handling invalid token',
-                mockError
-            );
+            expect(ErrorLogger.error).toHaveBeenCalledWith('InvalidToken', 'Error handling invalid token', mockError);
         });
     });
 

@@ -1,23 +1,22 @@
-// [AI]
 import { useEffect } from 'react';
 import { FILTERED_LANGUAGES } from '@/utils/languages';
 import { useTranslations } from '@deriv-com/translations';
 
 /**
  * Custom hook to handle language switching from URL parameter
- * 
+ *
  * This hook:
  * 1. Reads 'lang' parameter from URL
  * 2. Falls back to localStorage if no URL parameter
  * 3. Validates against supported languages
  * 4. Switches to the language and removes the parameter from URL
  * 5. Defaults to 'EN' for unsupported languages
- * 
+ *
  * @example
  * ```tsx
  * // In your component
  * useLanguageFromURL();
- * 
+ *
  * // URL: ?lang=es - switches to Spanish
  * // URL: ?lang=invalid - defaults to English
  * ```
@@ -78,4 +77,3 @@ export const useLanguageFromURL = () => {
         }
     }, [switchLanguage]);
 };
-// [/AI]

@@ -97,7 +97,7 @@ export const generateDerivApiInstance = async (forceNew = false) => {
                 console.log('[DerivAPI] WebSocket connection established');
             });
 
-            deriv_socket.addEventListener('error', (error) => {
+            deriv_socket.addEventListener('error', error => {
                 console.error('[DerivAPI] WebSocket connection error:', error);
             });
 

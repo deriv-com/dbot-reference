@@ -35,11 +35,28 @@
     --text-align-right: right;
     --text-align-center: center;
 
+
+
     /* Brand colors - dynamically generated from brand.config.json */
-    --brand-white: #fff;
-    --brand-dark-grey: #151717;
-    --brand-red-coral: #ff444f; /* legacy compatibility */
-    --brand-orange: #2a3052; /* legacy compatibility */
+    --brand-white: #ffffff;
+    --brand-dark-grey: #0f172a;
+    --brand-red-coral: #3b82f6; /* legacy compatibility */
+    --brand-orange: #8b5cf6; /* legacy compatibility */
+
+    /* Dynamic brand colors (set by brand configuration) */
+    --brand-primary: #3b82f6;
+    --brand-secondary: #64748b;
+    --brand-tertiary: #8b5cf6;
+    --brand-success: #10b981;
+    --brand-danger: #ef4444;
+    --brand-warning: #f59e0b;
+    --brand-info: #0ea5e9;
+    --brand-neutral: #6b7280;
+
+    /* Brand typography - dynamically generated from brand.config.json */
+    --brand-font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --brand-font-secondary: Georgia, 'Times New Roman', Times, serif;
+    --brand-font-monospace: 'Courier New', Courier, monospace;
 
     /* Dynamic brand colors (set by brand configuration) */
     --brand-primary: #ff444f;

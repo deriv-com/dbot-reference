@@ -3,9 +3,9 @@ import classNames from 'classnames';
 import { NavLink } from 'react-router-dom';
 import { useIsMounted } from 'usehooks-ts';
 import { useDebounce } from '@/hooks/useDebounce';
-import { TSource } from '../data-table/table-row';
 import { clickAndKeyEventHandler } from '../shared';
-import { TPassThrough, TRow } from '../types/common.types';
+// Fixed import path - TSource is now defined in common.types
+import { TPassThrough, TRow, TSource } from '../types/common.types';
 import { TColIndex, TDataListCell } from './data-list-cell';
 
 type TMobileRowRenderer = {

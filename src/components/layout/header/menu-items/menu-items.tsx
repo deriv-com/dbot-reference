@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react';
+// Removed unused React import - React 17+ JSX transform doesn't require it
+import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { isDemoAccount } from '@/analytics/utils';
+/* [/AI] */
 import { useFirebaseCountriesConfig } from '@/hooks/firebase/useFirebaseCountriesConfig';
 import { useStore } from '@/hooks/useStore';
+/* [AI] - Analytics removed - utility functions moved to @/utils/account-helpers */
+import { isDemoAccount } from '@/utils/account-helpers';
 import { handleTraderHubRedirect } from '@/utils/traders-hub-redirect';
 import { useTranslations } from '@deriv-com/translations';
 import { MenuItem, Text, useDevice } from '@deriv-com/ui';

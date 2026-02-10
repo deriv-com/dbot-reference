@@ -1,4 +1,5 @@
-import { Analytics } from '@deriv-com/analytics';
+// Removed Analytics import - analytics dependency removed
+// See migrate-docs/ANALYTICS_IMPLEMENTATION_GUIDE.md for re-implementation
 import { isMobile } from '../utils/screen';
 
 declare global {
@@ -49,12 +50,14 @@ export const setPerformanceValue = (action: keyof typeof global.Window.prototype
         const value = (Date.now() - window.performance_metrics[action]) / 1000;
         window.performance_metrics[action] = 0;
 
-        const event_name = 'ce_traders_hub_performance_metrics';
-        // @ts-expect-error types will be added in the next version of analytics package
-        Analytics.trackEvent(event_name, {
-            action,
-            value,
-            device: isMobile() ? 'mobile' : 'desktop',
-        });
+        // Analytics tracking removed - analytics dependency removed
+        // To re-implement, see migrate-docs/ANALYTICS_IMPLEMENTATION_GUIDE.md
+        // Uncomment and update the following code after installing @deriv-com/analytics:
+        // const event_name = 'ce_traders_hub_performance_metrics';
+        // Analytics.trackEvent(event_name, {
+        //     action,
+        //     value,
+        //     device: isMobile() ? 'mobile' : 'desktop',
+        // });
     }
 };

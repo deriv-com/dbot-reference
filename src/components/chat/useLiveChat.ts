@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import Cookies from 'js-cookie';
-import useRemoteConfig from '@/hooks/growthbook/useRemoteConfig';
+// Updated import path - Growthbook removed, using stub implementation
+import useRemoteConfig from '@/hooks/remote-config/useRemoteConfig';
 import { URLUtils } from '@deriv-com/utils';
 
 type TLiveChatClientInformation = {

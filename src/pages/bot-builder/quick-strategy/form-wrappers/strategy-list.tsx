@@ -1,4 +1,4 @@
-import React from 'react';
+// Removed unused React import - React 17+ JSX transform doesn't require it
 import Text from '@/components/shared_ui/text';
 import { localizeAccumulators } from '@/utils/conditional-localize';
 import { Link } from '@deriv-com/quill-ui';

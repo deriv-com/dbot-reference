@@ -68,9 +68,17 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
         }
     }, [currentLang, common]);
 
+    // Type-safe interface for API with time() method
+    interface ApiWithTime {
+        time(): Promise<TSocketResponseData<'time'>>;
+    }
+
     useEffect(() => {
         const updateServerTime = () => {
-            api_base.api
+            // Fixed type safety: replaced 'as any' with proper interface and runtime check
+            // Ensures time() method exists before calling it
+            if (!api_base.api || !('time' in api_base.api)) return;
+            (api_base.api as ApiWithTime)
                 .time()
                 .then((res: TSocketResponseData<'time'>) => {
                     common.setServerTime(toMoment(res.time), false);
@@ -107,9 +115,10 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
     }, [client, common]);
 
     const handleMessages = useCallback(
-        async (res: Record<string, unknown>) => {
+        // Changed parameter type from Record<string, unknown> to unknown to match onMessage signature
+        async (res: unknown) => {
             if (!res) return;
-            const data = res.data as TSocketResponseData<'balance'>;
+            const data = (res as Record<string, unknown>).data as TSocketResponseData<'balance'>;
             const { msg_type, error } = data;
 
             // Handle auth errors by calling client.logout() directly instead of useLogout hook
@@ -136,13 +145,18 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                 }
             }
         },
-        [client, handleLogout]
+        // Fixed memory leak: removed handleLogout from deps as it's not used in function body
+        // Only client is actually referenced (line 129), preventing unnecessary re-subscriptions
+        [client]
     );
 
     useEffect(() => {
         if (!isAuthorizing && client) {
             const subscription = api_base?.api?.onMessage().subscribe(handleMessages);
-            msg_listener.current = { unsubscribe: subscription?.unsubscribe };
+            // Fixed unsubscribe type - only store if subscription exists
+            if (subscription) {
+                msg_listener.current = { unsubscribe: subscription.unsubscribe };
+            }
         }
 
         return () => {

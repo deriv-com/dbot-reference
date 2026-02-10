@@ -8,8 +8,8 @@ import { removeKeyValue } from '@/utils/settings';
 import { LegacyPlay1pxIcon } from '@deriv/quill-icons/Legacy';
 import { Localize, localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
-import { rudderStackSendSelectGuideEvent } from '../../../analytics/rudderstack-tutorials';
-import { getAccountType, getDeviceType } from '../../../analytics/utils';
+/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+/* [/AI] */
 
 type TGuideList = {
     content?: string;
@@ -94,12 +94,8 @@ const GuideContent = ({ guide_tab_content, video_tab_content, is_dialog_open }: 
                                                 onClick={() => {
                                                     if (subtype) {
                                                         triggerTour(subtype);
-                                                        rudderStackSendSelectGuideEvent({
-                                                            guide_tab_name: 'step_by_step_guides',
-                                                            guide_name: content || 'Guide',
-                                                            account_type: getAccountType(),
-                                                            device_type: getDeviceType(),
-                                                        });
+                                                        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+                                                        /* [/AI] */
                                                     }
                                                 }}
                                                 onKeyDown={e => {
@@ -166,12 +162,8 @@ const GuideContent = ({ guide_tab_content, video_tab_content, is_dialog_open }: 
                                                                 type: 'url',
                                                                 url,
                                                             });
-                                                            rudderStackSendSelectGuideEvent({
-                                                                guide_tab_name: 'videos_on_dbot',
-                                                                guide_name: content || 'Video Guide',
-                                                                account_type: getAccountType(),
-                                                                device_type: getDeviceType(),
-                                                            });
+                                                            /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+                                                            /* [/AI] */
                                                         }}
                                                     />
                                                 </div>

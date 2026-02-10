@@ -155,11 +155,7 @@ describe('useLogout', () => {
             await handleLogout();
 
             await waitFor(() => {
-                expect(ErrorLogger.error).toHaveBeenCalledWith(
-                    'Logout',
-                    'Failed to clear auth storage',
-                    storageError
-                );
+                expect(ErrorLogger.error).toHaveBeenCalledWith('Logout', 'Failed to clear auth storage', storageError);
                 expect(sessionStorage.clear).toHaveBeenCalled();
                 expect(localStorage.clear).toHaveBeenCalled();
             });
@@ -185,11 +181,7 @@ describe('useLogout', () => {
             await handleLogout();
 
             await waitFor(() => {
-                expect(ErrorLogger.error).toHaveBeenCalledWith(
-                    'Logout',
-                    'Failed to clear all storage',
-                    finalError
-                );
+                expect(ErrorLogger.error).toHaveBeenCalledWith('Logout', 'Failed to clear all storage', finalError);
             });
         });
     });

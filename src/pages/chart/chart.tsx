@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import { rudderStackChartAnalyticsData, STATE_TYPES } from '@/analytics/rudderstack-chart';
+/* [AI] - Analytics removed - rudderstack event tracking removed */
+/* [/AI] */
 import ChunkLoader from '@/components/loader/chunk-loader';
 import chart_api from '@/external/bot-skeleton/services/api/chart-api';
 import { useSmartChartAdaptor } from '@/hooks/useSmartChartAdaptor';
@@ -72,11 +73,9 @@ const Chart = observer(({ show_digits_stats }: { show_digits_stats: boolean }) =
     const is_connection_opened = !!chart_api?.api;
 
     const handleStateChange: TStateChangeListener = (state, options) => {
-        // Type guard to validate state before passing to analytics
-        if (options !== undefined && state && state in STATE_TYPES) {
-            rudderStackChartAnalyticsData(state as keyof typeof STATE_TYPES, options);
-        }
+        /* [AI] - Analytics removed - rudderstack event call removed */
         // Handle state changes: INITIAL, READY, SCROLL_TO_LEFT
+        /* [/AI] */
         if (state === 'READY') {
             setChartStatus(true);
         }

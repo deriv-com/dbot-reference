@@ -19,25 +19,30 @@ This prevents attackers from intercepting the authorization code and exchanging 
 ### 1. PKCE Helper Functions (config.ts)
 
 #### `generateCodeVerifier()`
+
 - Generates a cryptographically secure random string (32 bytes)
 - Base64url-encoded (URL-safe, no padding)
 - Returns a 43-character string
 
 #### `generateCodeChallenge(verifier)`
+
 - Takes the code verifier as input
 - Computes SHA-256 hash of the verifier
 - Returns base64url-encoded hash
 
 #### `storeCodeVerifier(verifier)`
+
 - Stores the code verifier in sessionStorage
 - Adds timestamp for expiration tracking (10 minutes)
 
 #### `getCodeVerifier()`
+
 - Retrieves the stored code verifier
 - Validates it hasn't expired (10 minute timeout)
 - Returns null if missing or expired
 
 #### `clearCodeVerifier()`
+
 - Removes code verifier from sessionStorage after successful token exchange
 
 ### 2. OAuth URL Generation (config.ts)
@@ -47,22 +52,23 @@ The `generateOAuthURL()` function has been updated to:
 ```typescript
 export const generateOAuthURL = async () => {
     // ... existing code ...
-    
+
     // Generate PKCE parameters
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
-    
+
     // Store code verifier for token exchange
     storeCodeVerifier(codeVerifier);
-    
+
     // Build OAuth URL with PKCE parameters
     const oauthUrl = `${hostname}auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${csrfToken}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
-    
+
     return oauthUrl;
 };
 ```
 
 **Key Changes:**
+
 - Function is now `async` (returns Promise)
 - Generates code verifier and code challenge
 - Stores code verifier in sessionStorage
@@ -76,14 +82,14 @@ The `exchangeCodeForToken()` method has been updated to:
 static async exchangeCodeForToken(code: string): Promise<TokenExchangeResponse> {
     // Retrieve the PKCE code verifier from session storage
     const codeVerifier = getCodeVerifier();
-    
+
     if (!codeVerifier) {
         return {
             error: 'invalid_request',
             error_description: 'PKCE code verifier not found or expired.',
         };
     }
-    
+
     // Include code_verifier in token exchange request
     const requestBody = new URLSearchParams({
         grant_type: 'authorization_code',
@@ -92,9 +98,9 @@ static async exchangeCodeForToken(code: string): Promise<TokenExchangeResponse> 
         redirect_uri: redirectUrl,
         code_verifier: codeVerifier, // PKCE verification
     });
-    
+
     // ... make request ...
-    
+
     // Clear code verifier after successful exchange
     if (data.access_token) {
         clearCodeVerifier();
@@ -103,6 +109,7 @@ static async exchangeCodeForToken(code: string): Promise<TokenExchangeResponse> 
 ```
 
 **Key Changes:**
+
 - Retrieves code verifier from sessionStorage
 - Validates code verifier exists and hasn't expired
 - Includes `code_verifier` in token exchange request body
@@ -111,6 +118,7 @@ static async exchangeCodeForToken(code: string): Promise<TokenExchangeResponse> 
 ### 4. Component Updates
 
 #### header.tsx
+
 ```typescript
 const handleLogin = useCallback(async () => {
     setIsAuthorizing(true);
@@ -122,6 +130,7 @@ const handleLogin = useCallback(async () => {
 ```
 
 #### main.tsx
+
 ```typescript
 const handleLoginGeneration = async () => {
     const oauthUrl = await generateOAuthURL(); // Now async
@@ -196,15 +205,19 @@ Both PKCE code verifier and CSRF token expire after **10 minutes** (600,000 mill
 The `OAuthTokenExchangeService` class provides several helper methods:
 
 ### `getAuthInfo(): AuthInfo | null`
+
 Retrieves the stored authentication info from sessionStorage. Returns null if not found or expired.
 
 ### `clearAuthInfo(): void`
+
 Clears the authentication info from sessionStorage.
 
 ### `isAuthenticated(): boolean`
+
 Checks if the user is authenticated (has a valid, non-expired access token).
 
 ### `getAccessToken(): string | null`
+
 Returns the current access token or null if not authenticated.
 
 ## Testing
@@ -223,6 +236,7 @@ To test the PKCE implementation:
 ## Browser Compatibility
 
 PKCE implementation uses:
+
 - `crypto.getRandomValues()` - Supported in all modern browsers
 - `crypto.subtle.digest()` - Supported in all modern browsers (requires HTTPS in production)
 - `TextEncoder` - Supported in all modern browsers

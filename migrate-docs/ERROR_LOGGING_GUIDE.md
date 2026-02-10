@@ -34,6 +34,7 @@ console.error('WebSocket initialization failed:', initError);
 ```
 
 **Issues:**
+
 - ❌ Inconsistent message formatting
 - ❌ No centralized control over logging
 - ❌ Difficult to integrate with error reporting services
@@ -50,6 +51,7 @@ ErrorLogger.error('ClientStore', 'WebSocket initialization failed', initError);
 ```
 
 **Benefits:**
+
 - ✅ Consistent message formatting with category prefix
 - ✅ Centralized configuration and control
 - ✅ Easy integration with Sentry, TrackJS, etc.
@@ -71,10 +73,10 @@ ErrorLogger.error('ClientStore', 'WebSocket initialization failed', initError);
 
 ```typescript
 enum LogLevel {
-    ERROR = 'error',   // Critical errors
-    WARN = 'warn',     // Warnings
-    INFO = 'info',     // Informational messages
-    DEBUG = 'debug',   // Debug messages
+    ERROR = 'error', // Critical errors
+    WARN = 'warn', // Warnings
+    INFO = 'info', // Informational messages
+    DEBUG = 'debug', // Debug messages
 }
 ```
 
@@ -322,11 +324,13 @@ import { ErrorLogger } from '@/utils/error-logger';
 #### Step 2: Replace console.error calls
 
 **Before:**
+
 ```typescript
 console.error('[OAuth] Token exchange failed:', error);
 ```
 
 **After:**
+
 ```typescript
 ErrorLogger.error('OAuth', 'Token exchange failed', error);
 ```
@@ -334,11 +338,13 @@ ErrorLogger.error('OAuth', 'Token exchange failed', error);
 #### Step 3: Replace console.warn calls
 
 **Before:**
+
 ```typescript
 console.warn('Failed to clear cache');
 ```
 
 **After:**
+
 ```typescript
 ErrorLogger.warn('Storage', 'Failed to clear cache');
 ```
@@ -346,11 +352,13 @@ ErrorLogger.warn('Storage', 'Failed to clear cache');
 #### Step 4: Replace console.log calls (for important info)
 
 **Before:**
+
 ```typescript
 console.log('[OAuth] Accounts fetched and stored, active_loginid set:', firstAccount.account_id);
 ```
 
 **After:**
+
 ```typescript
 ErrorLogger.info('OAuth', 'Accounts fetched and stored', {
     loginid: firstAccount.account_id,
@@ -392,11 +400,11 @@ There are **136+ remaining console.error/warn/log calls** across the codebase th
 
 if (process.env.NODE_ENV === 'production') {
     ErrorLogger.configure({
-        enableConsole: false,  // Disable console in production
-        minLogLevel: LogLevel.WARN,  // Only log warnings and errors
+        enableConsole: false, // Disable console in production
+        minLogLevel: LogLevel.WARN, // Only log warnings and errors
         enableErrorReporting: true,
     });
-    
+
     // Set up Sentry or TrackJS
     ErrorLogger.setErrorReportingService(new SentryErrorReportingService());
 }
@@ -409,8 +417,8 @@ if (process.env.NODE_ENV === 'production') {
 if (process.env.NODE_ENV === 'development') {
     ErrorLogger.configure({
         enableConsole: true,
-        minLogLevel: LogLevel.DEBUG,  // Log everything
-        enableErrorReporting: false,  // Don't send to external service
+        minLogLevel: LogLevel.DEBUG, // Log everything
+        enableErrorReporting: false, // Don't send to external service
     });
 }
 ```
@@ -447,13 +455,13 @@ ErrorLogger.error('API', 'Request failed', error);
 
 ```typescript
 // ✅ Good - Correct log levels
-ErrorLogger.error('Auth', 'Login failed', error);  // Critical
-ErrorLogger.warn('Cache', 'Cache miss');  // Warning
-ErrorLogger.info('Auth', 'User logged in');  // Info
-ErrorLogger.debug('WebSocket', 'Ping sent');  // Debug
+ErrorLogger.error('Auth', 'Login failed', error); // Critical
+ErrorLogger.warn('Cache', 'Cache miss'); // Warning
+ErrorLogger.info('Auth', 'User logged in'); // Info
+ErrorLogger.debug('WebSocket', 'Ping sent'); // Debug
 
 // ❌ Bad - Everything as error
-ErrorLogger.error('Auth', 'User logged in');  // Should be info
+ErrorLogger.error('Auth', 'User logged in'); // Should be info
 ```
 
 ### 4. Don't Log Sensitive Data
@@ -461,13 +469,13 @@ ErrorLogger.error('Auth', 'User logged in');  // Should be info
 ```typescript
 // ✅ Good - No sensitive data
 ErrorLogger.error('Auth', 'Login failed', {
-    loginid: 'CR123***',  // Masked
+    loginid: 'CR123***', // Masked
 });
 
 // ❌ Bad - Logs sensitive data
 ErrorLogger.error('Auth', 'Login failed', {
-    password: 'user_password',  // Never log passwords!
-    token: 'a1-xxx',  // Don't log full tokens
+    password: 'user_password', // Never log passwords!
+    token: 'a1-xxx', // Don't log full tokens
 });
 ```
 
@@ -493,6 +501,7 @@ ErrorLogger.error('Auth', 'Login failed', {
 ## Changelog
 
 ### 2026-02-04 - Initial Implementation
+
 - Created centralized ErrorLogger utility
 - Migrated authentication-related files
 - Added support for external error reporting services

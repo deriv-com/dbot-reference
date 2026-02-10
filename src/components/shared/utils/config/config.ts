@@ -9,44 +9,17 @@ import brandConfig from '../../../../../brand.config.json';
 // Production app domains
 export const PRODUCTION_DOMAINS = {
     COM: brandConfig.platform.hostname.production.com,
-    BE: brandConfig.platform.hostname.production.be,
-    ME: brandConfig.platform.hostname.production.me,
 } as const;
 
 // Staging app domains
 export const STAGING_DOMAINS = {
     COM: brandConfig.platform.hostname.staging.com,
-    BE: brandConfig.platform.hostname.staging.be,
-    ME: brandConfig.platform.hostname.staging.me,
 } as const;
 
 // WebSocket server URLs
 export const WS_SERVERS = {
     STAGING: `${brandConfig.platform.derivws.url.staging}options/ws/public`,
     PRODUCTION: `${brandConfig.platform.derivws.url.production}options/ws/public`,
-} as const;
-// who am i  server URLs - Production
-export const WHO_AM_I_SERVERS = {
-    STAGING: brandConfig.platform.whoami_endpoint.staging,
-    PRODUCTION: brandConfig.platform.whoami_endpoint.production,
-} as const;
-
-// Logout  server URLs - Production
-export const LOGOUT_SERVERS = {
-    STAGING: brandConfig.platform.logout_endpoint.staging,
-    PRODUCTION: brandConfig.platform.logout_endpoint.production,
-} as const;
-
-// OAuth/Auth URLs
-export const AUTH_URLS = {
-    PRODUCTION: {
-        LOGIN: brandConfig.platform.auth_urls.production.login,
-        SIGNUP: brandConfig.platform.auth_urls.production.signup,
-    },
-    STAGING: {
-        LOGIN: brandConfig.platform.auth_urls.staging.login,
-        SIGNUP: brandConfig.platform.auth_urls.staging.signup,
-    },
 } as const;
 
 // =============================================================================
@@ -80,24 +53,6 @@ export const isProduction = () => {
 };
 
 export const isLocal = () => /localhost(:\d+)?$/i.test(window.location.hostname);
-
-/**
- * Gets the whoami endpoint URL
- * @param isProductionEnv - Whether the current environment is production
- * @returns Whoami endpoint URL (e.g., "https://auth.deriv.com/sessions/whoami")
- */
-export const getWhoAmIURL = (isProductionEnv: boolean): string => {
-    return isProductionEnv ? WHO_AM_I_SERVERS.PRODUCTION : WHO_AM_I_SERVERS.STAGING;
-};
-
-/**
- * Gets the logout endpoint URL
- * @param isProductionEnv - Whether the current environment is production
- * @returns Logout endpoint URL (e.g., "https://auth.deriv.com/self-service/logout/browser")
- */
-export const getLogoutURL = (isProductionEnv: boolean): string => {
-    return isProductionEnv ? LOGOUT_SERVERS.PRODUCTION : LOGOUT_SERVERS.STAGING;
-};
 
 const getDefaultServerURL = () => {
     const isProductionEnv = isProduction();
@@ -324,11 +279,7 @@ export const generateOAuthURL = async () => {
     }
 
     // Fallback to hardcoded URLs if brand config fails
-    const currentHost = window.location.host;
-    const redirectUrl = `${window.location.protocol}//${currentHost}`;
-
-    const loginUrl = currentHost.includes('staging') ? AUTH_URLS.STAGING.LOGIN : AUTH_URLS.PRODUCTION.LOGIN;
-    return `${loginUrl}?redirect=${redirectUrl}`;
+    return ``;
 };
 
 export const generateSignupURL = () => {
@@ -344,8 +295,5 @@ export const generateSignupURL = () => {
         console.error('Error accessing brand config:', error);
     }
 
-    // Fallback to hardcoded URLs if brand config fails
-    const currentHost = window.location.host; // includes port
-
-    return currentHost.includes('staging') ? AUTH_URLS.STAGING.SIGNUP : AUTH_URLS.PRODUCTION.SIGNUP;
+    return '';
 };

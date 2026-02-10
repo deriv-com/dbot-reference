@@ -7,6 +7,7 @@ This document describes the implementation of the authenticated WebSocket URL fl
 ## Architecture
 
 ### Service Layer
+
 The implementation follows a service-oriented architecture pattern:
 
 - **[`DerivWSAccountsService`](../src/services/derivws-accounts.service.ts)**: Centralized service for all DerivWS account and WebSocket URL operations
@@ -48,54 +49,58 @@ This service encapsulates all DerivWS-related functionality:
 ```typescript
 export class DerivWSAccountsService {
     // API Methods
-    static async fetchAccountsList(accessToken: string): Promise<DerivAccount[]>
-    static async fetchOTPWebSocketURL(accessToken: string, accountId: string): Promise<string>
-    static async getAuthenticatedWebSocketURL(accessToken: string): Promise<string>
-    
+    static async fetchAccountsList(accessToken: string): Promise<DerivAccount[]>;
+    static async fetchOTPWebSocketURL(accessToken: string, accountId: string): Promise<string>;
+    static async getAuthenticatedWebSocketURL(accessToken: string): Promise<string>;
+
     // Storage Methods
-    static storeAccounts(accounts: DerivAccount[]): void
-    static getStoredAccounts(): DerivAccount[] | null
-    static getDefaultAccount(): DerivAccount | null
-    static clearStoredAccounts(): void
+    static storeAccounts(accounts: DerivAccount[]): void;
+    static getStoredAccounts(): DerivAccount[] | null;
+    static getDefaultAccount(): DerivAccount | null;
+    static clearStoredAccounts(): void;
 }
 ```
 
 ### 2. API Endpoints
 
 #### Accounts List Endpoint
+
 - **URL**: `{baseURL}derivatives/accounts`
 - **Method**: GET
-- **Headers**: 
-  - `Authorization: Bearer {accessToken}`
-  - `Content-Type: application/json`
+- **Headers**:
+    - `Authorization: Bearer {accessToken}`
+    - `Content-Type: application/json`
 - **Response Format**:
+
 ```json
 {
-  "data": {
-    "data": [
-      {
-        "account_id": "VRTC12345",
-        "balance": "10000.00",
-        "currency": "USD",
-        "group": "demo",
-        "status": "active",
-        "account_type": "demo"
-      }
-    ]
-  }
+    "data": {
+        "data": [
+            {
+                "account_id": "VRTC12345",
+                "balance": "10000.00",
+                "currency": "USD",
+                "group": "demo",
+                "status": "active",
+                "account_type": "demo"
+            }
+        ]
+    }
 }
 ```
 
 #### OTP WebSocket URL Endpoint
+
 - **URL**: `{baseURL}options/accounts/{accountId}/otp`
 - **Method**: POST
-- **Headers**: 
-  - `Authorization: Bearer {accessToken}`
-  - `Content-Type: application/json`
+- **Headers**:
+    - `Authorization: Bearer {accessToken}`
+    - `Content-Type: application/json`
 - **Response Format** (nested JSON string):
+
 ```json
 {
-  "data": "{\"data\":{\"url\":\"wss://staging-api.derivws.com/trading/v1/options/ws/demo?otp=xxx\"},\"meta\":{...}}"
+    "data": "{\"data\":{\"url\":\"wss://staging-api.derivws.com/trading/v1/options/ws/demo?otp=xxx\"},\"meta\":{...}}"
 }
 ```
 
@@ -105,18 +110,18 @@ export class DerivWSAccountsService {
 
 ```json
 {
-  "platform": {
-    "derivws": {
-      "url": {
-        "staging": "https://staging-api.derivws.com/trading/v1/",
-        "production": "https://api.derivws.com/trading/v1/"
-      },
-      "directories": {
-        "options": "options/",
-        "derivatives": "derivatives/"
-      }
+    "platform": {
+        "derivws": {
+            "url": {
+                "staging": "https://staging-api.derivws.com/trading/v1/",
+                "production": "https://api.derivws.com/trading/v1/"
+            },
+            "directories": {
+                "options": "options/",
+                "derivatives": "derivatives/"
+            }
+        }
     }
-  }
 }
 ```
 
@@ -136,10 +141,8 @@ export const getSocketURL = async (): Promise<string> => {
         }
 
         // 2. Get authenticated WebSocket URL via service
-        const wsUrl = await DerivWSAccountsService.getAuthenticatedWebSocketURL(
-            authInfo.access_token
-        );
-        
+        const wsUrl = await DerivWSAccountsService.getAuthenticatedWebSocketURL(authInfo.access_token);
+
         return wsUrl;
     } catch (error) {
         console.error('[DerivWS] Error in getSocketURL:', error);
@@ -162,14 +165,14 @@ export const generateDerivApiInstance = async (useAuthenticatedFlow = true) => {
     } else {
         cleanedServer = getSocketURLSync(); // Fallback for legacy code
     }
-    
+
     const deriv_api = new DerivAPIBasic({
         endpoint: cleanedServer,
         app_id: getAppId(),
         lang: 'EN',
         brand: 'deriv',
     });
-    
+
     return deriv_api;
 };
 ```
@@ -179,30 +182,32 @@ export const generateDerivApiInstance = async (useAuthenticatedFlow = true) => {
 ### SessionStorage Keys
 
 1. **`auth_info`**: OAuth authentication information
-   ```typescript
-   {
-     access_token: string;
-     token_type: string;
-     expires_in: number;
-     expires_at: number;
-     scope?: string;
-     refresh_token?: string;
-   }
-   ```
+
+    ```typescript
+    {
+      access_token: string;
+      token_type: string;
+      expires_in: number;
+      expires_at: number;
+      scope?: string;
+      refresh_token?: string;
+    }
+    ```
 
 2. **`deriv_accounts`**: List of user's trading accounts
-   ```typescript
-   [
-     {
-       account_id: string;
-       balance: string;
-       currency: string;
-       group: string;
-       status: string;
-       account_type: 'demo' | 'real';
-     }
-   ]
-   ```
+
+    ```typescript
+    [
+      {
+        account_id: string;
+        balance: string;
+        currency: string;
+        group: string;
+        status: string;
+        account_type: 'demo' | 'real';
+      }
+    ]
+    ```
 
 3. **`cached_websocket_url`**: Cached WebSocket URL (for sync fallback)
 
@@ -262,16 +267,19 @@ const cleanURL = `${hostname}${pathname}`;
 ## Integration Points
 
 ### 1. OAuth Token Exchange
+
 - **Service**: [`OAuthTokenExchangeService`](../src/services/oauth-token-exchange.service.ts)
 - **Method**: [`exchangeCodeForToken()`](../src/services/oauth-token-exchange.service.ts:124)
 - **Storage**: Stores `auth_info` in sessionStorage with access_token
 
 ### 2. API Base Initialization
+
 - **File**: [`src/external/bot-skeleton/services/api/api-base.ts`](../src/external/bot-skeleton/services/api/api-base.ts)
 - **Method**: [`init()`](../src/external/bot-skeleton/services/api/api-base.ts:125)
 - **Flow**: Checks for auth_info → calls async [`generateDerivApiInstance()`](../src/external/bot-skeleton/services/api/appId.js:13)
 
 ### 3. Header Component
+
 - **File**: [`src/components/layout/header/header.tsx`](../src/components/layout/header/header.tsx)
 - **Method**: [`handleLogin()`](../src/components/layout/header/header.tsx:76)
 - **Flow**: Generates OAuth URL with PKCE → redirects to auth
@@ -299,6 +307,7 @@ The service automatically detects the environment and uses the appropriate base 
 - **Production**: `https://api.derivws.com/trading/v1/`
 
 Detection is based on:
+
 1. Current hostname (localhost → staging)
 2. Staging domain patterns
 3. Production domain patterns
@@ -322,20 +331,20 @@ Detection is based on:
 ### Common Issues
 
 1. **"No auth_info found"**
-   - User not authenticated
-   - Solution: Redirect to login
+    - User not authenticated
+    - Solution: Redirect to login
 
 2. **"No accounts found"**
-   - User has no trading accounts
-   - Solution: Fallback to default server
+    - User has no trading accounts
+    - Solution: Fallback to default server
 
 3. **"Failed to fetch OTP"**
-   - Invalid account ID or expired token
-   - Solution: Refresh token or re-authenticate
+    - Invalid account ID or expired token
+    - Solution: Refresh token or re-authenticate
 
 4. **WebSocket connection fails**
-   - Invalid URL format
-   - Solution: Check URL cleaning logic
+    - Invalid URL format
+    - Solution: Check URL cleaning logic
 
 ### Debug Logging
 

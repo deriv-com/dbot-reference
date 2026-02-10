@@ -1,33 +1,50 @@
 {
-    "brand_name": "Deriv",
-    "brand_domain": "deriv.com",
+    "brand_name": "YourBrand",
+    "brand_domain": "yourbrand.com",
     "brand_hostname": {
-        "staging": "staging-home.deriv.com/dashboard",
-        "production": "home.deriv.com/dashboard"
+        "staging": "staging.yourbrand.com/dashboard",
+        "production": "yourbrand.com/dashboard"
     },
-    "domain_name": "Deriv.com",
+    "domain_name": "YourBrand.com",
     "colors": {
-        "primary": "#ff444f",
-        "secondary": "#85acb0",
-        "tertiary": "#2a3052",
-        "success": "#4bb4b3",
-        "danger": "#cc2e3d",
-        "warning": "#ffad3a",
-        "info": "#377cfc",
-        "neutral": "#999999",
-        "black": "#151717",
+        "primary": "#3b82f6",
+        "secondary": "#64748b",
+        "tertiary": "#8b5cf6",
+        "success": "#10b981",
+        "danger": "#ef4444",
+        "warning": "#f59e0b",
+        "info": "#0ea5e9",
+        "neutral": "#6b7280",
+        "black": "#0f172a",
         "white": "#ffffff",
         "grey": {
-            "50": "#f2f3f4",
-            "100": "#e6e9e9",
-            "200": "#d6dadb",
-            "300": "#b0b3b3",
-            "400": "#999999",
-            "500": "#6e6e6e",
-            "600": "#5c5c5c",
-            "700": "#424242",
-            "800": "#2a2a2a",
-            "900": "#151717"
+            "50": "#f8fafc",
+            "100": "#f1f5f9",
+            "200": "#e2e8f0",
+            "300": "#cbd5e1",
+            "400": "#94a3b8",
+            "500": "#64748b",
+            "600": "#475569",
+            "700": "#334155",
+            "800": "#1e293b",
+            "900": "#0f172a"
+        }
+    },
+    "typography": {
+        "font_family": {
+            "primary": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+            "secondary": "Georgia, 'Times New Roman', Times, serif",
+            "monospace": "'Courier New', Courier, monospace"
+        },
+        "font_sizes": {
+            "xs": "0.75rem",
+            "sm": "0.875rem",
+            "base": "1rem",
+            "lg": "1.125rem",
+            "xl": "1.25rem",
+            "2xl": "1.5rem",
+            "3xl": "1.875rem",
+            "4xl": "2.25rem"
         }
     },
     "color_variants": {
@@ -41,40 +58,25 @@
         "css_variable_prefix": "--brand"
     },
     "platform": {
-        "name": "Deriv Bot",
-        "logo": "IcRebrandingDerivBot",
+        "name": "Trading Bot",
+        "logo": {
+            "type": "component",
+            "component_name": "BrandLogo",
+            "alt_text": "Trading Bot",
+            "link_url": "/",
+            "show_text": false,
+            "text": "Trading Bot"
+        },
+        "footer": {
+            "enable_language_settings": false,
+            "enable_theme_toggle": false
+        },
         "hostname": {
             "production": {
-                "com": "bot.deriv.com",
-                "be": "bot.deriv.be",
-                "me": "bot.deriv.me"
+                "com": "bot.yourbrand.com"
             },
             "staging": {
-                "com": "staging-bot.deriv.com",
-                "be": "staging-bot.deriv.be",
-                "me": "staging-bot.deriv.me"
-            }
-        },
-        "websocket_servers": {
-            "staging": "staging-api-core.deriv.com/options/v1/ws",
-            "production": "api-core.deriv.com/options/v1/ws"
-        },
-        "whoami_endpoint": {
-            "staging": "https://staging-auth.deriv.com/sessions/whoami",
-            "production": "https://auth.deriv.com/sessions/whoami"
-        },
-        "logout_endpoint": {
-            "staging": "https://staging-auth.deriv.com/self-service/logout/browser",
-            "production": "https://auth.deriv.com/self-service/logout/browser"
-        },
-        "auth_urls": {
-            "production": {
-                "login": "https://home.deriv.com/dashboard/login",
-                "signup": "https://home.deriv.com/dashboard/signup"
-            },
-            "staging": {
-                "login": "https://staging-home.deriv.com/dashboard/login",
-                "signup": "https://staging-home.deriv.com/dashboard/signup"
+                "com": "staging-bot.yourbrand.com"
             }
         },
         "auth2_url": {

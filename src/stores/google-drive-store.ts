@@ -3,12 +3,10 @@ import { botNotification } from '@/components/bot-notification/bot-notification'
 import { notification_message } from '@/components/bot-notification/bot-notification-utils';
 import { button_status } from '@/constants/button-status';
 import { config, importExternal } from '@/external/bot-skeleton';
+import { ErrorLogger } from '@/utils/error-logger';
 import { getInitialLanguage, localize } from '@deriv-com/translations';
-import {
-    rudderStackSendUploadStrategyCompletedEvent,
-    rudderStackSendUploadStrategyFailedEvent,
-} from '../analytics/rudderstack-common-events';
-import { getAccountType, getDeviceType, getRsStrategyType, getStrategyType } from '../analytics/utils';
+/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+/* [/AI] */
 import RootStore from './root-store';
 
 export type TErrorWithStatus = Error & { status?: number; result?: { error: { message: string } } };
@@ -311,6 +309,17 @@ export default class GoogleDriveStore {
     }
 
     onDriveConnect = async () => {
+        // Prevent crash if user clicks before client initializes (3 second delay)
+        if (!this.client) {
+            ErrorLogger.warn('GoogleDrive', 'Client not initialized yet');
+            botNotification(
+                localize('Google Drive is still loading. Please try again in a moment.'),
+                undefined,
+                { closeButton: true }
+            );
+            return;
+        }
+
         if (this.is_authorised) {
             this.signOut();
         } else {
@@ -364,67 +373,21 @@ export default class GoogleDriveStore {
                         }
 
                         resolve({ xml_doc: response.body, file_name });
-                        const upload_type = getStrategyType(response.body);
-                        // Get dynamic account type and device type
-                        const account_type = getAccountType();
-                        const device_type = getDeviceType();
-
-                        // Extract strategy name, asset, and trade type from workspace
-                        let strategy_name, asset, trade_type;
-                        try {
-                            // Extract strategy name from file name or use getRsStrategyType
-                            strategy_name = file_name || getRsStrategyType(file_name || '');
-
-                            // Extract asset/symbol from trade_definition_market block using derivWorkspace
-                            const workspace = window.Blockly?.derivWorkspace;
-                            const market_block = workspace
-                                ?.getAllBlocks?.()
-                                ?.find((block: any) => block.type === 'trade_definition_market');
-                            asset = market_block?.getFieldValue?.('SYMBOL_LIST');
-
-                            // Extract trade type from trade_definition_tradetype block
-                            const trade_type_block = workspace
-                                ?.getAllBlocks?.()
-                                ?.find((block: any) => block.type === 'trade_definition_tradetype');
-                            trade_type = trade_type_block?.getFieldValue?.('TRADETYPE_LIST');
-                        } catch (error) {
-                            // Fallback to undefined if extraction fails
-                            strategy_name = undefined;
-                            asset = undefined;
-                            trade_type = undefined;
-                        }
-
-                        const baseParams = {
-                            form_name: 'ce_bot_form_v2',
-                            upload_provider: 'google_drive',
-                            upload_type,
-                            upload_id: this.upload_id || '',
-                            strategy_name,
-                            asset,
-                            trade_type,
-                            device_type,
-                        };
-
-                        const eventParams = account_type ? { ...baseParams, account_type } : baseParams;
-
-                        rudderStackSendUploadStrategyCompletedEvent(eventParams);
+                        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+                        /* [/AI] */
                     } catch (downloadError: unknown) {
                         // Handle specific error cases
                         const error = downloadError as { message?: string; status?: number };
                         let errorMessage = error.message || 'Unknown error occurred';
-                        let errorCode = '500';
 
                         if (error.status === 403) {
                             errorMessage =
                                 'Access denied. The file may not be accessible with current permissions. Please check file sharing settings or re-authenticate with broader permissions.';
-                            errorCode = '403';
                         } else if (error.status === 404) {
                             errorMessage =
                                 'File not found. The file may have been deleted or you may not have permission to access it.';
-                            errorCode = '404';
                         } else if (error.status === 401) {
                             errorMessage = 'Authentication failed. Please sign out and sign in again.';
-                            errorCode = '401';
                             // Force sign out on 401 errors
                             this.signOut();
                         }
@@ -432,14 +395,8 @@ export default class GoogleDriveStore {
                         // Add user notification for file load errors
                         botNotification(errorMessage, undefined, { closeButton: true });
 
-                        rudderStackSendUploadStrategyFailedEvent({
-                            form_name: 'ce_bot_form_v2',
-                            upload_provider: 'google_drive',
-                            upload_id: this.upload_id || '',
-                            upload_type: 'download_failed',
-                            error_message: errorMessage,
-                            error_code: errorCode,
-                        });
+                        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
+                        /* [/AI] */
 
                         // Use reject instead of throw to properly reject the Promise
                         reject(new Error(errorMessage));

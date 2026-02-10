@@ -221,87 +221,72 @@ TRACKJS_TOKEN=your_trackjs_token
 
 ---
 
-## 3. Deriv Analytics (Rudderstack)
+## 3. Deriv Analytics (@deriv-com/analytics with Rudderstack & Growthbook)
 
 ### Purpose
 
-- User behavior tracking
+- User behavior tracking with Rudderstack
 - Event analytics
+- Feature flags and A/B testing with Growthbook
+- Feature usage monitoring
 - Conversion tracking
 - Business intelligence
+
+### What Was Removed
+
+The following have been completely removed from the codebase:
+
+1. **`@deriv-com/analytics` package** - Analytics initialization and event tracking
+2. **Growthbook integration** - Feature flags and A/B testing
+3. **`src/utils/analytics/` directory** - All analytics initialization code
+4. **`src/hooks/growthbook/` directory** - All Growthbook-related hooks
+5. **Analytics event tracking** - All event tracking calls throughout components
+
+### Stub Implementation
+
+A stub implementation of `useRemoteConfig` has been provided at `src/hooks/remote-config/useRemoteConfig.ts` that returns disabled feature flags by default. This allows the application to run without the analytics dependency while maintaining compatibility with existing code.
+
+**Files using the stub:**
+- `src/hooks/useIntercom.ts` - Chat availability check
+- `src/components/chat/useLiveChat.ts` - LiveChat integration
 
 ### Installation
 
 ```bash
-npm install @deriv-com/analytics@1.33.0
+npm install @deriv-com/analytics@^1.35.1
 ```
 
-### Configuration
+### Quick Start
 
-#### Step 1: Import Analytics in files where needed
+For a comprehensive implementation guide with detailed code examples, see:
 
-```typescript
-import { Analytics } from '@deriv-com/analytics';
-```
+**📚 [ANALYTICS_IMPLEMENTATION_GUIDE.md](./ANALYTICS_IMPLEMENTATION_GUIDE.md)**
 
-#### Step 2: Common Usage Patterns
+The detailed guide includes:
 
-**Track Events:**
+- Complete setup instructions
+- Full code examples for all analytics files
+- Component integration examples
+- Event tracking patterns
+- Testing procedures
+- Troubleshooting tips
 
-```typescript
-Analytics.trackEvent('event_name', {
-    action: 'user_action',
-    form_name: 'form_identifier',
-    // ... other properties
-});
-```
+### Summary
 
-**Reset Analytics (on logout):**
+1. **Initialize Analytics**: Create `src/utils/analytics/index.ts` and call it in `src/main.tsx`
+2. **Create Analytics Structure**: Set up `src/analytics/` directory with tracking files
+3. **Define Events**: Create event tracking functions for different features
+4. **Integrate in Components**: Add analytics calls where user actions occur
+5. **Test**: Verify events in Rudderstack dashboard
 
-```typescript
-Analytics.reset();
-```
-
-**Set User Attributes:**
-
-```typescript
-Analytics.setAttributes({
-    account_type: 'demo',
-    user_id: 'user_123',
-});
-```
-
-#### Step 3: Re-enable Analytics in Key Files
-
-The following files previously used Analytics and need to be updated:
-
-1. **`src/stores/client-store.ts`** - Add `Analytics.reset()` in logout method
-2. **`src/hooks/useLogout.ts`** - Add `Analytics.reset()` after logout
-3. **`src/analytics/rudderstack-*.ts`** - All analytics tracking files
-4. **`src/components/shared/services/performance-metrics-methods.ts`** - Performance tracking
-
-#### Step 4: Analytics Files Structure
-
-The analytics implementation is organized in:
-
-```
-src/analytics/
-├── constants.ts                      # Analytics constants
-├── rudderstack-bot-builder.ts        # Bot builder events
-├── rudderstack-chart.ts              # Chart interaction events
-├── rudderstack-common-events.ts      # Common events
-├── rudderstack-dashboard.ts          # Dashboard events
-├── rudderstack-quick-strategy.ts     # Quick strategy events
-└── rudderstack-tutorials.ts          # Tutorial events
-```
-
-#### Step 5: Environment Variables
+### Environment Variables
 
 Add to your `.env` file:
 
 ```bash
-RUDDERSTACK_KEY=your_rudderstack_key
-RUDDERSTACK_URL=https://your-dataplane-url.com
+RUDDERSTACK_KEY=your_rudderstack_write_key
+REMOTE_CONFIG_URL=https://your-remote-config-url.com
+APP_ENV=production
 ```
 
 ### Getting Rudderstack Credentials
@@ -309,6 +294,39 @@ RUDDERSTACK_URL=https://your-dataplane-url.com
 1. Sign up at [Rudderstack](https://www.rudderstack.com/)
 2. Create a new source (JavaScript)
 3. Copy the **Write Key** and **Data Plane URL**
+
+### Key Integration Points
+
+Components that commonly need analytics:
+
+- Dashboard cards and navigation
+- Bot builder actions (load, save, run)
+- Chart interactions (type changes, indicators)
+- Quick strategy form submissions
+- Tutorial navigation and searches
+- Modal opens/closes
+
+See the [detailed guide](./ANALYTICS_IMPLEMENTATION_GUIDE.md) for complete implementation examples.
+
+### Recreating Growthbook Feature Flags
+
+If you need feature flags functionality:
+
+1. **Install the Analytics package** (includes Growthbook):
+   ```bash
+   npm install @deriv-com/analytics
+   ```
+
+2. **Replace stub with real implementation**: Delete `src/hooks/remote-config/useRemoteConfig.ts` and recreate the original Growthbook hooks in `src/hooks/growthbook/`:
+   - `useRemoteConfig.ts` - Fetches remote configuration
+   - `useGrowthbookGetFeatureValue.ts` - Gets feature flag values
+   - `useIsGrowthbookLoaded.ts` - Checks if Growthbook is loaded
+
+3. **Update imports**: Change all imports from `@/hooks/remote-config/useRemoteConfig` back to `@/hooks/growthbook/useRemoteConfig`
+
+4. **Re-enable initialization**: Uncomment the `AnalyticsInitializer()` call in `src/main.tsx` and recreate `src/utils/analytics/index.ts` with proper Growthbook configuration.
+
+See the Analytics Implementation Guide for complete setup instructions.
 
 ---
 
@@ -396,11 +414,28 @@ Consider your budget and monitoring needs before enabling these services.
 
 ## Removed Files Reference
 
-The following files were removed and can be recreated using the code above:
+The following files and directories were removed and can be recreated using the guides above:
 
-- `src/utils/datadog.ts` - Datadog initialization
-- `src/hooks/useTrackjs.ts` - TrackJS hook
-- Analytics imports in various files (see Step 3 of Analytics section)
+### Monitoring Tools
+- `src/utils/datadog.ts` - Datadog RUM initialization
+- `src/hooks/useTrackjs.ts` - TrackJS error tracking hook
+
+### Analytics & Growthbook (Completely Removed)
+- `src/utils/analytics/` - **Entire directory removed**
+  - `index.ts` - Analytics initialization with Rudderstack and Growthbook
+- `src/hooks/growthbook/` - **Entire directory removed**
+  - `useRemoteConfig.ts` - Remote config fetching
+  - `useGrowthbookGetFeatureValue.ts` - Feature flag value getter
+  - `useIsGrowthbookLoaded.ts` - Growthbook loading state checker
+  - `remote_config.json` - Default remote config values
+- Analytics event tracking removed from:
+  - All component files throughout the codebase
+  - `src/components/shared/services/performance-metrics-methods.ts`
+  - `src/pages/dashboard/announcements/config.tsx`
+  - And many other files (see git history for full list)
+
+### Stub Implementations (Added for Compatibility)
+- `src/hooks/remote-config/useRemoteConfig.ts` - Stub that returns disabled feature flags
 
 ---
 
@@ -414,5 +449,5 @@ For issues with:
 
 ---
 
-**Last Updated**: 2026-02-04
-**Version**: 1.0.0
+**Last Updated**: 2026-02-09
+**Version**: 2.0.0
