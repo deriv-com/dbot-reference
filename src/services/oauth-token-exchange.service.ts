@@ -222,6 +222,8 @@ export class OAuthTokenExchangeService {
                     } else {
                         // No accounts returned - this is an error condition
                         ErrorLogger.error('OAuth', 'No accounts returned after token exchange');
+                        // Clear auth info when no accounts are available to prevent invalid state
+                        this.clearAuthInfo();
                         return {
                             error: 'no_accounts',
                             error_description: 'No accounts available after successful authentication',
@@ -229,6 +231,9 @@ export class OAuthTokenExchangeService {
                     }
                 } catch (error) {
                     ErrorLogger.error('OAuth', 'Error fetching accounts after token exchange', error);
+                    // Clear stored auth info to prevent user from being stuck in invalid auth state
+                    // This allows retry without manual sessionStorage clearing
+                    this.clearAuthInfo();
                     // Return error status to caller for UI feedback
                     return {
                         error: 'account_fetch_failed',

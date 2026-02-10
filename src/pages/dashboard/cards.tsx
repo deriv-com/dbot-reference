@@ -1,4 +1,5 @@
-//kept sometihings commented beacuse of mobx to integrate popup functionality here
+// TODO: Complete MobX integration for popup functionality
+// Some code is kept commented out pending popup integration
 import React from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';

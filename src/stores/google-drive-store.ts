@@ -3,6 +3,7 @@ import { botNotification } from '@/components/bot-notification/bot-notification'
 import { notification_message } from '@/components/bot-notification/bot-notification-utils';
 import { button_status } from '@/constants/button-status';
 import { config, importExternal } from '@/external/bot-skeleton';
+import { ErrorLogger } from '@/utils/error-logger';
 import { getInitialLanguage, localize } from '@deriv-com/translations';
 /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
 /* [/AI] */
@@ -308,6 +309,17 @@ export default class GoogleDriveStore {
     }
 
     onDriveConnect = async () => {
+        // Prevent crash if user clicks before client initializes (3 second delay)
+        if (!this.client) {
+            ErrorLogger.warn('GoogleDrive', 'Client not initialized yet');
+            botNotification(
+                localize('Google Drive is still loading. Please try again in a moment.'),
+                undefined,
+                { closeButton: true }
+            );
+            return;
+        }
+
         if (this.is_authorised) {
             this.signOut();
         } else {

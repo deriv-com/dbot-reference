@@ -68,12 +68,17 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
         }
     }, [currentLang, common]);
 
+    // Type-safe interface for API with time() method
+    interface ApiWithTime {
+        time(): Promise<TSocketResponseData<'time'>>;
+    }
+
     useEffect(() => {
         const updateServerTime = () => {
-            // Added null check for api_base.api and cast to any for time() method
-            // time() method exists on DerivAPIBasic but not in TApiBaseApi type definition
-            if (!api_base.api) return;
-            (api_base.api as any)
+            // Fixed type safety: replaced 'as any' with proper interface and runtime check
+            // Ensures time() method exists before calling it
+            if (!api_base.api || !('time' in api_base.api)) return;
+            (api_base.api as ApiWithTime)
                 .time()
                 .then((res: TSocketResponseData<'time'>) => {
                     common.setServerTime(toMoment(res.time), false);
@@ -140,7 +145,9 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                 }
             }
         },
-        [client, handleLogout]
+        // Fixed memory leak: removed handleLogout from deps as it's not used in function body
+        // Only client is actually referenced (line 129), preventing unnecessary re-subscriptions
+        [client]
     );
 
     useEffect(() => {
