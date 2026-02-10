@@ -37,9 +37,7 @@
 
 #  matin-deriv
 #  nijil-deriv
-#  prince-deriv
-#  rupato-deriv
-#  jim-deriv
+#  ahmed-deriv
 
 ######################################################################################################
 #
@@ -59,5 +57,4 @@
 # (in case no pattern matches a path in a PR - this should be treated as a bug and result in adding the path to CODEOWNERS)
 # ==============================================================
 
-*  @matin-deriv @nijil-deriv @prince-deriv @rupato-deriv
-*  @jim-deriv
+*  @matin-deriv @nijil-deriv @ahmed-deriv

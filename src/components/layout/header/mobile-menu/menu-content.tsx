@@ -6,15 +6,17 @@ import { MenuItem, Text, useDevice } from '@deriv-com/ui';
 import useMobileMenuConfig from './use-mobile-menu-config';
 
 type TMenuContentProps = {
+    enableThemeToggle?: boolean;
     onOpenSubmenu?: (submenu: string) => void;
     onLogout?: () => void;
 };
 
-const MenuContent = observer(({ onOpenSubmenu, onLogout }: TMenuContentProps) => {
+const MenuContent = observer(({ enableThemeToggle = true, onOpenSubmenu, onLogout }: TMenuContentProps) => {
     const { isDesktop } = useDevice();
     const { client } = useStore();
     const textSize = isDesktop ? 'sm' : 'md';
-    const { config } = useMobileMenuConfig(client, onLogout);
+    // Pass enableThemeToggle to control theme toggle visibility
+    const { config } = useMobileMenuConfig(client, onLogout, enableThemeToggle);
 
     return (
         <div className='mobile-menu__content'>

@@ -1,4 +1,6 @@
+// Updated to show brand logo instead of "Menu" text
 import { ComponentProps } from 'react';
+import { BrandLogo } from '@/components/layout/app-logo/BrandLogo';
 import { LabelPairedGlobeSmRegularIcon } from '@deriv/quill-icons';
 import { useTranslations } from '@deriv-com/translations';
 import { Text, useDevice } from '@deriv-com/ui';
@@ -16,9 +18,9 @@ const MenuHeader = ({ hideLanguageSetting, openLanguageSetting }: TMenuHeader) =
 
     return (
         <div className='mobile-menu__header'>
-            <Text size={isDesktop ? 'md' : 'lg'} weight='bold'>
-                {localize('Menu')}
-            </Text>
+            {/* [AI] Show brand logo instead of "Menu" text */}
+            <BrandLogo width={100} height={28} fill='var(--text-general)' />
+            {/* [/AI] */}
 
             {!hideLanguageSetting && (
                 <button

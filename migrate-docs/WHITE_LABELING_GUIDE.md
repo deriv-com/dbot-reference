@@ -1,472 +1,192 @@
-<!-- Comprehensive white-labeling guide for third-party developers -->
+<!-- Comprehensive white-labeling guide with process, best practices, and troubleshooting -->
 
 # White Labeling Guide
 
-This guide explains how to customize the Trading Bot platform with your own branding.
+Comprehensive guide for customizing the Trading Bot platform with your own branding.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Configuration Options](#configuration-options)
+- [Customization Workflow](#customization-workflow)
+- [Best Practices](#best-practices)
+- [Testing Your Branding](#testing-your-branding)
+- [Troubleshooting](#troubleshooting)
+- [Migration from Existing Brand](#migration-from-existing-brand)
+- [Examples](#examples)
+
+---
 
 ## Overview
 
-The platform uses a centralized `brand.config.json` file for all branding configurations. This allows you to easily customize:
+The Trading Bot platform is designed for complete white-labeling through a centralized configuration system. You can customize:
 
-- Brand colors (primary, secondary, accent colors)
-- Typography (font families)
-- Platform metadata (name, domain, logo)
-- API endpoints and authentication URLs
+- 🎨 **Visual Identity**: Colors, typography, logos
+- 🔧 **Platform Settings**: Name, domain, endpoints
+- 🌐 **API Configuration**: Authentication, WebSocket URLs
+- 📱 **UI Components**: Menu items, footer elements, theme behavior
+
+### Key Files
+
+| File                                                                  | Purpose                                  | Documentation                                                                            |
+| --------------------------------------------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `brand.config.json`                                                   | Central configuration file               | [BRAND_CONFIG_GUIDE.md](./BRAND_CONFIG_GUIDE.md)                                         |
+| `src/components/layout/app-logo/BrandLogo.tsx`                        | Logo component                           | [LOGO_CUSTOMIZATION_QUICK_START.md](./LOGO_CUSTOMIZATION_QUICK_START.md)                 |
+| `src/components/layout/header/header-config.tsx`                      | Desktop menu items                       | [BRAND_CONFIG_GUIDE.md - Menu Configuration](./BRAND_CONFIG_GUIDE.md#menu-configuration) |
+| `src/components/layout/header/mobile-menu/use-mobile-menu-config.tsx` | Mobile menu items                        | [BRAND_CONFIG_GUIDE.md - Menu Configuration](./BRAND_CONFIG_GUIDE.md#menu-configuration) |
+| `src/styles/_themes.scss`                                             | Generated CSS variables (auto-generated) | -                                                                                        |
+
+---
 
 ## Quick Start
 
 ### 1. Update Brand Configuration
 
-Edit the [`brand.config.json`](brand.config.json) file in the project root:
+Edit [`brand.config.json`](../brand.config.json) in the project root:
 
 ```json
 {
     "brand_name": "YourBrand",
     "brand_domain": "yourbrand.com",
+    "domain_name": "YourBrand.com",
     "colors": {
-        "primary": "#your-color",
-        "secondary": "#your-color"
+        "primary": "#your-primary-color",
+        "secondary": "#your-secondary-color"
         // ... more colors
     },
     "typography": {
         "font_family": {
-            "primary": "Your Font Family"
-            // ... more fonts
+            "primary": "Your Font Stack"
         }
-    }
-}
-```
-
-### 2. Generate CSS Variables
-
-Run the brand CSS generator to update your styles:
-
-```bash
-npm run generate:brand-css
-```
-
-This automatically:
-
-- ✅ Updates CSS custom properties in `_themes.scss`
-- ✅ Validates your color configuration
-- ✅ Generates typography variables
-- ✅ Maintains backward compatibility
-
-### 3. Restart Development Server
-
-```bash
-npm start
-```
-
-Your new branding will be applied throughout the application!
-
----
-
-## Brand Configuration Reference
-
-### Colors
-
-The color system uses a predefined palette structure:
-
-```json
-{
-    "colors": {
-        "primary": "#3b82f6", // Main brand color (buttons, links, highlights)
-        "secondary": "#64748b", // Secondary UI elements
-        "tertiary": "#8b5cf6", // Accent color
-        "success": "#10b981", // Success states (green)
-        "danger": "#ef4444", // Error states (red)
-        "warning": "#f59e0b", // Warning states (orange)
-        "info": "#0ea5e9", // Informational states (blue)
-        "neutral": "#6b7280", // Neutral UI elements
-        "black": "#0f172a", // Dark text/backgrounds
-        "white": "#ffffff", // Light text/backgrounds
-        "grey": {
-            // Grey scale palette
-            "50": "#f8fafc",
-            "100": "#f1f5f9"
-            // ... more shades
-        }
-    }
-}
-```
-
-**CSS Variables Generated:**
-
-- `--brand-primary`
-- `--brand-secondary`
-- `--brand-tertiary`
-- `--brand-success`
-- `--brand-danger`
-- `--brand-warning`
-- `--brand-info`
-- `--brand-neutral`
-- `--brand-white`
-- `--brand-dark-grey` (alias for black)
-
-**Legacy Compatibility:**
-
-- `--brand-red-coral` → maps to `primary`
-- `--brand-orange` → maps to `tertiary`
-
-### Typography
-
-Configure font families for different text types:
-
-```json
-{
-    "typography": {
-        "font_family": {
-            "primary": "Your Primary Font Stack",
-            "secondary": "Your Secondary Font",
-            "monospace": "Your Monospace Font"
-        },
-        "font_sizes": {
-            "xs": "0.75rem",
-            "sm": "0.875rem",
-            "base": "1rem",
-            "lg": "1.125rem"
-            // ... more sizes
-        }
-    }
-}
-```
-
-**CSS Variables Generated:**
-
-- `--brand-font-primary` - Main UI font
-- `--brand-font-secondary` - Headings or special text
-- `--brand-font-monospace` - Code blocks, technical data
-
-**Example Font Stacks:**
-
-**System Fonts (Recommended):**
-
-```
--apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif
-```
-
-**Google Fonts:**
-
-```
-'Inter', -apple-system, BlinkMacSystemFont, sans-serif
-```
-
-_Note: Import the font in your HTML/CSS first_
-
-**Custom Fonts:**
-
-```
-'Your Custom Font', 'Fallback Font', sans-serif
-```
-
-### Loading Custom Fonts
-
-If you want to use custom fonts (like Google Fonts or self-hosted fonts):
-
-#### Option 1: Google Fonts
-
-Add the import to `src/styles/index.scss`:
-
-```scss
-@use 'components/shared/styles/themes' as *;
-
-// Add your Google Font import
-@import 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';
-
-body {
-    font-family: var(--brand-font-primary);
-    background: var(--general-main-1);
-}
-```
-
-Then update `brand.config.json`:
-
-```json
-{
-    "typography": {
-        "font_family": {
-            "primary": "'Inter', -apple-system, sans-serif"
-        }
-    }
-}
-```
-
-#### Option 2: Self-Hosted Fonts
-
-1. Place font files in `public/fonts/`
-2. Add `@font-face` in `src/styles/index.scss`:
-
-```scss
-@font-face {
-    font-family: 'YourFont';
-    src: url('/fonts/YourFont-Regular.woff2') format('woff2');
-    font-weight: 400;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'YourFont';
-    src: url('/fonts/YourFont-Bold.woff2') format('woff2');
-    font-weight: 700;
-    font-style: normal;
-}
-```
-
-3. Update `brand.config.json`:
-
-```json
-{
-    "typography": {
-        "font_family": {
-            "primary": "'YourFont', -apple-system, sans-serif"
-        }
-    }
-}
-```
-
-4. Run `npm run generate:brand-css`
-
-#### Option 3: Keep System Fonts (Recommended)
-
-The default system font stack provides:
-
-- ✅ Zero latency (no font loading)
-- ✅ Native look on each platform
-- ✅ Excellent performance
-- ✅ No licensing concerns
-
-If branding allows it, system fonts are the best choice!
-
-### Logo Configuration
-
-Customize your brand logo:
-
-```json
-{
+    },
     "platform": {
+        "name": "Your Trading Platform",
         "logo": {
-            "type": "component", // "component" or "image"
-            "component_name": "BrandLogo", // Component name (if type is "component")
-            "alt_text": "Trading Bot", // Alt text for accessibility
-            "link_url": "/", // Where logo links to
-            "show_text": false, // Show text next to logo
-            "text": "Trading Bot" // Text to display (if show_text is true)
+            "type": "component",
+            "component_name": "BrandLogo",
+            "alt_text": "Your Brand"
         }
     }
 }
 ```
 
-#### Option 1: Using the Default SVG Component (Recommended)
+**See**: [BRAND_CONFIG_GUIDE.md](./BRAND_CONFIG_GUIDE.md) for complete configuration reference
 
-The default `BrandLogo` component is located at `src/components/layout/app-logo/BrandLogo.tsx`.
+### 2. Customize Logo
 
-**To customize**:
-
-1. Edit `BrandLogo.tsx` and replace the SVG paths with your logo
-2. Or create a new logo component and update `component_name` in config
-
-**Example - Replace SVG in BrandLogo.tsx**:
+Edit `src/components/layout/app-logo/BrandLogo.tsx` and replace the SVG with your brand logo:
 
 ```tsx
 export const BrandLogo = ({ width = 120, height = 32, fill = 'currentColor' }) => {
     return (
         <svg width={width} height={height} viewBox='0 0 120 32' fill='none'>
-            {/* Replace these paths with your brand's SVG */}
-            <path d='M10 5L20 25L30 5' fill={fill} />
-            {/* ... more SVG paths ... */}
+            {/* Replace with your brand's SVG paths */}
+            <path d='YOUR_SVG_PATH_DATA' fill={fill} />
         </svg>
     );
 };
 ```
 
-#### Option 2: Using an Image File
+**See**: [LOGO_CUSTOMIZATION_QUICK_START.md](./LOGO_CUSTOMIZATION_QUICK_START.md) for detailed logo customization
 
-To use a PNG/SVG image file instead:
+### 3. Generate CSS Variables
 
-1. Place your logo in `public/logo.svg` (or `public/logo.png`)
-2. Update `BrandLogo.tsx`:
+Run the brand CSS generator to update styles:
 
-```tsx
-export const BrandLogo = ({ width = 120, height = 32, className = '' }) => {
-    return <img src='/logo.svg' alt='Brand Logo' width={width} height={height} className={className} />;
-};
+```bash
+npm run generate:brand-css
 ```
 
-3. Update `brand.config.json`:
+This command:
 
-```json
-{
-    "platform": {
-        "logo": {
-            "type": "image",
-            "alt_text": "Your Brand Name",
-            "link_url": "/"
-        }
-    }
-}
+- ✅ Validates your color configuration
+- ✅ Generates CSS custom properties in `_themes.scss`
+- ✅ Creates color variants for light/dark themes
+- ✅ Maintains backward compatibility
+
+### 4. Add Custom Menu Items (Optional)
+
+**Desktop Menu**: Edit `src/components/layout/header/header-config.tsx`
+**Mobile Menu**: Edit `src/components/layout/header/mobile-menu/use-mobile-menu-config.tsx`
+
+**See**: [BRAND_CONFIG_GUIDE.md - Menu Customization](./BRAND_CONFIG_GUIDE.md#menu-customization) for implementation examples
+
+### 5. Restart Development Server
+
+```bash
+npm start
 ```
 
-#### Logo Best Practices
-
-- **Format**: SVG is preferred for scalability
-- **Size**: Optimize for ~120x32px at 1x resolution
-- **Color**: Use `currentColor` or `fill` prop to match theme
-- **Accessibility**: Always provide meaningful `alt_text`
-- **Retina**: For PNG, provide @2x version (240x64px)
-
-### Footer Configuration
-
-Customize footer elements visibility:
-
-```json
-{
-    "platform": {
-        "footer": {
-            "enable_language_settings": true, // Show/hide language selector in footer
-            "enable_theme_toggle": true // Show/hide theme toggle button in footer
-        }
-    }
-}
-```
-
-**Configuration Options:**
-
-| Property                   | Type      | Default | Description                                          |
-| -------------------------- | --------- | ------- | ---------------------------------------------------- |
-| `enable_language_settings` | `boolean` | `true`  | Show language selector (globe icon) in footer        |
-| `enable_theme_toggle`      | `boolean` | `true`  | Show theme toggle button (light/dark mode) in footer |
-
-**Use Cases:**
-
-- **Disable for single-language apps**: Set `enable_language_settings` to `false` if your platform only supports one language
-- **Custom language selector**: Disable footer language settings if you implement a custom language switcher elsewhere
-- **Force single theme**: Set `enable_theme_toggle` to `false` to lock users into light or dark mode only
-- **Custom theme switcher**: Disable footer theme toggle if you implement a custom theme switcher elsewhere
-- **Simplified UI**: Remove language settings and/or theme toggle for a cleaner footer layout
-
-**Example - Minimal Footer (No Language or Theme Settings):**
-
-```json
-{
-    "platform": {
-        "footer": {
-            "enable_language_settings": false,
-            "enable_theme_toggle": false
-        }
-    }
-}
-```
-
-**Example - Single Language with Theme Toggle:**
-
-```json
-{
-    "platform": {
-        "footer": {
-            "enable_language_settings": false,
-            "enable_theme_toggle": true
-        }
-    }
-}
-```
-
-**What Gets Hidden:**
-
-- When `enable_language_settings` is `false`: Language selector (globe icon with current language code) and language selection modal will not appear
-- When `enable_theme_toggle` is `false`: Theme toggle button (sun/moon icon for light/dark mode) will not appear
-
-### Platform Configuration
-
-Update platform-specific settings:
-
-```json
-{
-    "platform": {
-        "name": "Trading Bot", // Display name
-        "logo": "YourBrandLogo", // Logo component name
-        "hostname": {
-            "production": { "com": "bot.yourbrand.com" },
-            "staging": { "com": "staging-bot.yourbrand.com" }
-        },
-        "websocket_servers": {
-            "staging": "staging-api.yourbrand.com/ws",
-            "production": "api.yourbrand.com/ws"
-        },
-        "whoami_endpoint": {
-            "staging": "https://staging-auth.yourbrand.com/sessions/whoami",
-            "production": "https://auth.yourbrand.com/sessions/whoami"
-        },
-        "logout_endpoint": {
-            "staging": "https://staging-auth.yourbrand.com/logout",
-            "production": "https://auth.yourbrand.com/logout"
-        },
-        "auth_urls": {
-            "production": {
-                "login": "https://yourbrand.com/login",
-                "signup": "https://yourbrand.com/signup"
-            },
-            "staging": {
-                /* ... */
-            }
-        }
-    }
-}
-```
+Your branding is now live! Visit `https://localhost:8443` to see your customized platform.
 
 ---
 
-## Advanced Customization
+## Configuration Options
 
-### Custom Color Variants
+For detailed documentation of all configuration options, see [BRAND_CONFIG_GUIDE.md](./BRAND_CONFIG_GUIDE.md).
 
-The grey scale can be extended with custom shades:
+### Quick Reference
 
-```json
-{
-    "colors": {
-        "grey": {
-            "50": "#fafafa", // Lightest
-            "100": "#f5f5f5",
-            "200": "#e5e5e5",
-            "300": "#d4d4d4",
-            "400": "#a3a3a3",
-            "500": "#737373", // Mid-tone
-            "600": "#525252",
-            "700": "#404040",
-            "800": "#262626",
-            "900": "#171717" // Darkest
-        }
-    }
-}
+| Section            | What It Controls                                | Documentation Link                                                                   |
+| ------------------ | ----------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Brand Identity** | Brand name, domain, hostname                    | [Brand Identity](./BRAND_CONFIG_GUIDE.md#brand-identity)                             |
+| **Color System**   | Primary, secondary, semantic colors, grey scale | [Color System](./BRAND_CONFIG_GUIDE.md#color-system)                                 |
+| **Typography**     | Font families, font sizes                       | [Typography](./BRAND_CONFIG_GUIDE.md#typography)                                     |
+| **Logo**           | Logo display, type, alt text                    | [Logo Configuration](./BRAND_CONFIG_GUIDE.md#logo-configuration)                     |
+| **Footer**         | Language settings, theme toggle visibility      | [Footer Configuration](./BRAND_CONFIG_GUIDE.md#footer-configuration)                 |
+| **Menu**           | Custom navigation items (desktop & mobile)      | [Menu Configuration](./BRAND_CONFIG_GUIDE.md#menu-configuration)                     |
+| **Authentication** | OAuth endpoints                                 | [Authentication Configuration](./BRAND_CONFIG_GUIDE.md#authentication-configuration) |
+| **WebSocket**      | Trading API endpoints                           | [WebSocket Configuration](./BRAND_CONFIG_GUIDE.md#websocket-configuration)           |
+
+---
+
+## Customization Workflow
+
+### Step-by-Step Process
+
+```
+1. Plan Your Branding
+   ├─ Define color palette
+   ├─ Choose typography
+   ├─ Prepare logo assets
+   └─ Document requirements
+
+2. Update Configuration
+   ├─ Edit brand.config.json
+   ├─ Validate configuration
+   └─ Generate CSS
+
+3. Customize Components
+   ├─ Update logo component
+   ├─ Add custom menu items (optional)
+   └─ Adjust UI elements (optional)
+
+4. Test Implementation
+   ├─ Visual testing
+   ├─ Browser compatibility
+   ├─ Responsive design
+   └─ Accessibility
+
+5. Deploy
+   ├─ Production build
+   ├─ Environment configuration
+   └─ Go live!
 ```
 
-### Theme Configuration
+### Configuration Validation
 
-Control theme generation behavior:
+Always validate your configuration after making changes:
 
-```json
-{
-    "theme_config": {
-        "enable_dynamic_themes": true,
-        "auto_generate_variants": true,
-        "css_variable_prefix": "--brand"
-    }
-}
-```
+```bash
+# Generate CSS (includes validation)
+npm run generate:brand-css
 
-### Color Variants
+# Run linting
+npm run test:lint
 
-Define how light/dark variants are generated:
-
-```json
-{
-    "color_variants": {
-        "light_variants": [100, 200, 300, 400, 500],
-        "dark_variants": [600, 700, 800, 900],
-        "opacity_variants": [10, 20, 30, 40, 50, 60, 70, 80, 90]
-    }
-}
+# Build test
+npm run build
 ```
 
 ---
@@ -475,41 +195,107 @@ Define how light/dark variants are generated:
 
 ### 1. Color Accessibility
 
-Ensure sufficient contrast ratios:
+Ensure your color choices meet WCAG 2.1 accessibility standards.
 
-- **Normal text**: 4.5:1 minimum
-- **Large text**: 3:1 minimum
-- **UI components**: 3:1 minimum
+**Contrast Requirements:**
 
-Test with tools like:
+- **Normal text**: 4.5:1 minimum contrast ratio
+- **Large text** (18px+ or 14px+ bold): 3:1 minimum
+- **UI components**: 3:1 minimum for interactive elements
+
+**Tools for Testing:**
 
 - [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
-- [Accessible Colors](https://accessible-colors.com/)
+- Chrome DevTools > Lighthouse > Accessibility audit
+- [WCAG Color Contrast Checker](https://colora11y.com/)
+
+**Example**: Test your primary color against white/black backgrounds
+
+```
+Primary: #3b82f6 on White: #ffffff → 4.5:1 ✅ Pass
+Primary: #3b82f6 on Black: #0f172a → 12.4:1 ✅ Pass
+```
 
 ### 2. Font Selection
 
-Choose fonts that:
+**System Fonts (Recommended)**
 
-- ✅ Are web-safe or properly licensed
-- ✅ Have good readability at small sizes
-- ✅ Include necessary character sets (internationalization)
-- ✅ Provide sufficient font weights (400, 500, 600, 700)
+Advantages:
+
+- ✅ Zero latency (no font loading)
+- ✅ Native appearance on each platform
+- ✅ Excellent performance
+- ✅ No licensing concerns
+- ✅ Better privacy (no external requests)
+
+```json
+{
+    "font_family": {
+        "primary": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+    }
+}
+```
+
+**Custom Fonts**
+
+If brand guidelines require custom fonts:
+
+- Use WOFF2 format for best compression
+- Implement `font-display: swap` to prevent layout shift
+- Subset fonts to include only needed characters
+- Preload critical font files
+- Always include system font fallbacks
+
+**See**: [BRAND_CONFIG_GUIDE.md - Typography](./BRAND_CONFIG_GUIDE.md#typography) for font loading options
 
 ### 3. Branding Consistency
 
-Maintain consistency with your existing brand:
+**Color Usage:**
 
-- Use exact hex codes from your brand guidelines
-- Match typography to your marketing materials
-- Test across light and dark themes
+- Use `primary` for main actions (CTAs, links, buttons)
+- Use `secondary` for secondary actions and borders
+- Use semantic colors consistently (`success` for profit, `danger` for loss, `warning` for alerts)
+- Use grey scale for backgrounds and subtle UI elements
+
+**Typography:**
+
+- Maintain consistent font sizing across similar elements
+- Use `primary` font family for UI and body text
+- Use `monospace` for numeric data, code, and tables
+
+**Logo:**
+
+- Ensure logo works in both light and dark themes
+- Test logo at different sizes (mobile, desktop, favicon)
+- Use `fill='currentColor'` or dynamic fill for theme support
 
 ### 4. Performance
 
-Consider performance implications:
+**Optimize Images:**
 
-- System fonts load instantly
-- Custom fonts add HTTP requests
-- Limit font variants to reduce bundle size
+- Use SVG for logos and icons (better scalability and size)
+- Compress PNG/JPG assets (use tools like TinyPNG)
+- Provide retina (@2x) versions for raster images
+- Use WebP format where supported
+
+**Font Loading:**
+
+- Limit number of font weights (4 max: 400, 500, 600, 700)
+- Use system fonts to eliminate font loading entirely
+- Implement `font-display: swap` for custom fonts
+- Preload critical fonts in HTML head
+
+**CSS Generation:**
+
+- Run `npm run generate:brand-css` only when changing brand config
+- Generated CSS is cached and optimized
+- No runtime color calculations
+
+**Bundle Size:**
+
+- Remove unused colors from `brand.config.json`
+- Minimize custom CSS overrides
+- Use built-in components instead of custom implementations
 
 ---
 
@@ -517,41 +303,111 @@ Consider performance implications:
 
 ### 1. Visual Testing
 
-Check your branding across all pages:
+**Desktop Testing:**
 
 ```bash
 npm start
 ```
 
-Navigate to:
+Check these areas:
 
-- `/` - Dashboard
-- `/bot` - Bot Builder
-- `/chart` - Trading Chart
-- `/tutorials` - Tutorial Pages
+- [ ] Header with logo
+- [ ] Navigation menu items
+- [ ] Button colors (primary, secondary, tertiary)
+- [ ] Form elements (inputs, dropdowns, checkboxes)
+- [ ] Success/error messages
+- [ ] Dashboard cards and widgets
+- [ ] Footer with network status and time
+- [ ] Theme toggle (light/dark mode)
+- [ ] Language selector (if enabled)
+
+**Mobile Testing:**
+
+Use browser dev tools or real devices to test:
+
+- [ ] Mobile menu (hamburger icon)
+- [ ] Logo in mobile header
+- [ ] Responsive layout
+- [ ] Touch targets (minimum 44x44px)
+- [ ] Mobile menu items
+- [ ] Theme toggle in mobile menu
+
+**Theme Testing:**
+
+Test both light and dark modes:
+
+```
+1. Toggle theme using footer button
+2. Verify all colors adapt properly
+3. Check logo visibility in both themes
+4. Verify text contrast in both themes
+```
 
 ### 2. Validate Configuration
 
-The generator validates your configuration automatically:
+**Color Validation:**
 
 ```bash
 npm run generate:brand-css
 ```
 
-Look for:
+Look for errors in output:
 
-- ✅ "Brand configuration is valid"
-- ⚠️ Warnings about missing optional fields
-- ❌ Errors about required fields
+- Invalid color format
+- Missing required colors
+- Incomplete grey scale
+
+**Build Validation:**
+
+```bash
+npm run build
+```
+
+Ensures no TypeScript or configuration errors.
+
+**Linting:**
+
+```bash
+npm run test:lint
+```
 
 ### 3. Browser Testing
 
-Test in multiple browsers:
+Test in major browsers:
 
-- Chrome/Edge (Chromium)
-- Firefox
-- Safari
-- Mobile browsers (iOS Safari, Chrome Mobile)
+- ✅ Chrome/Edge (Chromium)
+- ✅ Firefox
+- ✅ Safari (macOS/iOS)
+
+Check for:
+
+- Color rendering consistency
+- Font loading and display
+- Logo display
+- Responsive behavior
+- Theme switching
+
+### 4. Accessibility Testing
+
+**Automated Testing:**
+
+```bash
+npm test
+```
+
+**Manual Testing:**
+
+- [ ] Screen reader navigation (NVDA, JAWS, VoiceOver)
+- [ ] Keyboard navigation (Tab, Enter, Escape)
+- [ ] Color contrast (use browser dev tools)
+- [ ] Alt text on logo and images
+- [ ] Focus indicators visible
+
+**Tools:**
+
+- Chrome DevTools > Lighthouse > Accessibility
+- [axe DevTools Extension](https://www.deque.com/axe/devtools/)
+- [WAVE Browser Extension](https://wave.webaim.org/extension/)
 
 ---
 
@@ -559,136 +415,520 @@ Test in multiple browsers:
 
 ### Colors Not Updating
 
-**Problem**: New colors don't appear after running the script.
+**Problem**: Changed colors in `brand.config.json` but UI doesn't reflect changes.
 
-**Solutions**:
+**Solution**:
 
-1. Clear browser cache (Cmd/Ctrl + Shift + R)
-2. Restart the development server
-3. Check browser DevTools → Elements → `:root` to verify CSS variables
-4. Ensure `_themes.scss` was modified (check git diff)
+1. Regenerate CSS variables:
+
+    ```bash
+    npm run generate:brand-css
+    ```
+
+2. Restart development server:
+
+    ```bash
+    npm start
+    ```
+
+3. Hard refresh browser (Ctrl+Shift+R / Cmd+Shift+R)
+
+4. Check console for errors during CSS generation
+
+**Common Causes**:
+
+- Forgot to run `generate:brand-css`
+- Invalid color format (must be hex: `#RRGGBB`)
+- Typo in color property name
+- Browser cache (try incognito mode)
 
 ### Fonts Not Loading
 
-**Problem**: Custom fonts show fallback fonts instead.
+**Problem**: Custom fonts don't appear, fallback to system fonts.
 
-**Solutions**:
+**Solution**:
 
-1. Verify font files are in `public/fonts/` or linked via CDN
-2. Add `@font-face` declarations in your CSS
-3. Check browser Network tab for font loading errors
-4. Ensure font format is supported (WOFF2 recommended)
+**For Google Fonts:**
 
-### Script Fails to Run
+1. Verify font import in `public/index.html`:
+
+    ```html
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+    ```
+
+2. Check font name matches exactly:
+
+    ```json
+    {
+        "font_family": {
+            "primary": "'Inter', -apple-system, sans-serif"
+        }
+    }
+    ```
+
+3. Check browser network tab for font loading errors
+
+**For Self-Hosted Fonts:**
+
+1. Verify font files are in `public/fonts/`
+2. Check `@font-face` declaration in `src/styles/_fonts.scss`
+3. Verify font file paths are correct
+4. Check console for 404 errors
+
+### CSS Generation Script Fails
 
 **Problem**: `npm run generate:brand-css` throws errors.
 
-**Solutions**:
+**Solution**:
 
-1. Check JSON syntax in `brand.config.json` (use [JSONLint](https://jsonlint.com/))
-2. Ensure all required color fields are present
-3. Verify file permissions on `_themes.scss`
-4. Check Node.js version (requires Node 20+)
+1. **Validate JSON syntax**:
+
+    ```bash
+    node -e "JSON.parse(require('fs').readFileSync('brand.config.json', 'utf8'))"
+    ```
+
+2. **Common JSON errors**:
+    - Missing comma between properties
+    - Trailing comma at end of object/array
+    - Unquoted property names
+    - Comments (JSON doesn't support comments)
+
+3. **Check required fields**:
+    ```json
+    {
+        "brand_name": "required",
+        "brand_domain": "required",
+        "colors": {
+            "primary": "required",
+            "secondary": "required",
+            "grey": {
+                "50": "required",
+                "100": "required",
+                ...
+                "900": "required"
+            }
+        }
+    }
+    ```
 
 ### Invalid Color Format
 
-**Problem**: Script accepts invalid hex codes.
+**Problem**: Error says color format is invalid.
 
-**Solutions**:
+**Solution**:
 
-- Use valid 6-digit hex codes: `#3b82f6` ✅
-- Avoid 3-digit shorthand: `#38f` ❌ (expand to 6 digits)
-- Always include `#` prefix: `3b82f6` ❌
+1. **Use only hexadecimal colors**:
+
+    ```json
+    // ✅ Correct
+    "primary": "#3b82f6"
+
+    // ❌ Incorrect
+    "primary": "rgb(59, 130, 246)"
+    "primary": "blue"
+    "primary": "hsl(217, 91%, 60%)"
+    ```
+
+2. **Use 6-digit hex** (lowercase preferred):
+
+    ```json
+    // ✅ Correct
+    "primary": "#3b82f6"
+
+    // ⚠️ Works but not preferred
+    "primary": "#38f"
+    "primary": "#3B82F6"
+    ```
+
+3. **Include hash symbol**:
+
+    ```json
+    // ✅ Correct
+    "primary": "#3b82f6"
+
+    // ❌ Incorrect
+    "primary": "3b82f6"
+    ```
+
+### Logo Not Displaying
+
+**Problem**: Logo doesn't appear in header.
+
+**Solution**:
+
+1. **Check component export**:
+
+    ```tsx
+    // src/components/layout/app-logo/BrandLogo.tsx
+    export const BrandLogo = ({ width, height, fill }) => { ... };
+    ```
+
+2. **Verify index export**:
+
+    ```tsx
+    // src/components/layout/app-logo/index.tsx
+    export { BrandLogo } from './BrandLogo';
+    ```
+
+3. **Check brand.config.json**:
+
+    ```json
+    {
+        "platform": {
+            "logo": {
+                "type": "component",
+                "component_name": "BrandLogo", // Must match component name
+                "alt_text": "Your Brand"
+            }
+        }
+    }
+    ```
+
+4. **Check browser console** for import errors
+
+### Mobile Menu Not Showing
+
+**Problem**: Hamburger menu icon doesn't appear on mobile.
+
+**Solution**:
+
+This is by design! Mobile menu auto-hides when empty. It will show when:
+
+- Custom menu items are added, OR
+- Theme toggle is enabled (`enable_theme_toggle: true`), OR
+- User is logged in (logout button available)
+
+**To always show mobile menu**, add at least one menu item or enable theme toggle:
+
+```json
+{
+    "platform": {
+        "footer": {
+            "enable_theme_toggle": true
+        }
+    }
+}
+```
+
+**See**: [BRAND_CONFIG_GUIDE.md - Mobile Menu Auto-Hide](./BRAND_CONFIG_GUIDE.md#mobile-menu-auto-hide-behavior)
 
 ---
 
 ## Migration from Existing Brand
 
-If migrating from another branded version:
-
 ### 1. Extract Current Colors
 
-Use browser DevTools to find current CSS variables:
+If migrating from an existing platform:
 
-```javascript
-// Run in browser console
-const root = document.querySelector(':root');
-const styles = getComputedStyle(root);
-console.log('Primary:', styles.getPropertyValue('--brand-primary'));
-console.log('Secondary:', styles.getPropertyValue('--brand-secondary'));
-```
+1. **Use browser dev tools**:
+    - Inspect elements
+    - Copy computed colors from CSS
+
+2. **Extract from existing CSS**:
+
+    ```bash
+    grep -r "color:" src/styles/ | sort | uniq
+    ```
+
+3. **Document brand guidelines**:
+    - Primary brand color
+    - Secondary colors
+    - Success/error/warning colors
+    - Grey scale palette
 
 ### 2. Document Current Values
 
-Create a backup of current branding:
+Create a mapping document:
 
-```bash
-cp brand.config.json brand.config.json.backup
+```markdown
+# Brand Color Mapping
+
+## Old System → New System
+
+Primary Button: #1a8cff → brand.config.json "primary"
+Secondary Button: #64748b → brand.config.json "secondary"
+Success State: #00c851 → brand.config.json "success"
+Error State: #ff4444 → brand.config.json "danger"
+Warning State: #ff8800 → brand.config.json "warning"
+
+## Fonts
+
+Primary Font: 'Roboto' → "font_family.primary"
+Code Font: 'Roboto Mono' → "font_family.monospace"
 ```
 
 ### 3. Update Incrementally
 
-Change one section at a time:
+Don't change everything at once:
 
-1. Colors first
-2. Typography second
-3. Platform configuration last
+**Phase 1: Colors**
 
-Test after each change.
+1. Update primary, secondary, tertiary colors
+2. Generate CSS and test
+3. Verify no visual regressions
+
+**Phase 2: Typography**
+
+1. Update font families
+2. Ensure font loading works
+3. Test across devices
+
+**Phase 3: Logo**
+
+1. Replace logo component
+2. Test in both themes
+3. Verify responsive sizes
+
+**Phase 4: Customization**
+
+1. Add custom menu items
+2. Configure footer settings
+3. Final testing
 
 ---
 
 ## Examples
 
-### Example 1: Blue Theme
+### Example 1: Financial Tech Brand
+
+**Profile**: Professional trading platform with blue color scheme
 
 ```json
 {
+    "brand_name": "FinTech Pro",
+    "brand_domain": "fintechpro.com",
+    "domain_name": "FinTechPro.com",
+    "colors": {
+        "primary": "#0066cc",
+        "secondary": "#333333",
+        "tertiary": "#00cc99",
+        "success": "#00cc66",
+        "danger": "#cc0000",
+        "warning": "#ff9900",
+        "info": "#0099cc",
+        "neutral": "#666666",
+        "black": "#000000",
+        "white": "#ffffff",
+        "grey": {
+            "50": "#f7f7f7",
+            "100": "#e8e8e8",
+            "200": "#d1d1d1",
+            "300": "#b3b3b3",
+            "400": "#8c8c8c",
+            "500": "#666666",
+            "600": "#4d4d4d",
+            "700": "#333333",
+            "800": "#1a1a1a",
+            "900": "#000000"
+        }
+    },
+    "typography": {
+        "font_family": {
+            "primary": "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+            "monospace": "'Fira Code', monospace"
+        }
+    },
+    "platform": {
+        "name": "FinTech Pro Trading",
+        "logo": {
+            "type": "component",
+            "component_name": "BrandLogo",
+            "alt_text": "FinTech Pro"
+        },
+        "footer": {
+            "enable_language_settings": true,
+            "enable_theme_toggle": true
+        }
+    }
+}
+```
+
+**Characteristics**:
+
+- Professional blue (#0066cc) primary color
+- Clean grey scale for business context
+- Inter font for modern, readable UI
+- Fira Code for technical data display
+- Full footer features enabled
+
+---
+
+### Example 2: Dark Premium Theme
+
+**Profile**: Exclusive trading platform with purple/pink accents
+
+```json
+{
+    "brand_name": "EliteTrader",
+    "brand_domain": "elitetrader.io",
+    "domain_name": "EliteTrader.io",
+    "colors": {
+        "primary": "#9333ea",
+        "secondary": "#1e1b4b",
+        "tertiary": "#ec4899",
+        "success": "#10b981",
+        "danger": "#ef4444",
+        "warning": "#f59e0b",
+        "info": "#3b82f6",
+        "neutral": "#6b7280",
+        "black": "#0f0f23",
+        "white": "#ffffff",
+        "grey": {
+            "50": "#f9fafb",
+            "100": "#f3f4f6",
+            "200": "#e5e7eb",
+            "300": "#d1d5db",
+            "400": "#9ca3af",
+            "500": "#6b7280",
+            "600": "#4b5563",
+            "700": "#374151",
+            "800": "#1f2937",
+            "900": "#111827"
+        }
+    },
+    "typography": {
+        "font_family": {
+            "primary": "'Poppins', -apple-system, sans-serif",
+            "monospace": "'JetBrains Mono', monospace"
+        }
+    },
+    "platform": {
+        "name": "EliteTrader",
+        "logo": {
+            "type": "component",
+            "component_name": "BrandLogo",
+            "alt_text": "EliteTrader"
+        },
+        "footer": {
+            "enable_language_settings": false,
+            "enable_theme_toggle": true
+        }
+    }
+}
+```
+
+**Characteristics**:
+
+- Bold purple (#9333ea) with pink accent (#ec4899)
+- Dark-focused design (deep blacks)
+- Poppins for modern, stylish appearance
+- Single language (language selector disabled)
+- Theme toggle enabled for light/dark switching
+
+---
+
+### Example 3: Minimal Setup
+
+**Profile**: Simple trading platform, single language, locked theme
+
+```json
+{
+    "brand_name": "SimpleTrade",
+    "brand_domain": "simpletrade.com",
+    "domain_name": "SimpleTrade.com",
     "colors": {
         "primary": "#2563eb",
         "secondary": "#64748b",
-        "tertiary": "#7c3aed"
+        "tertiary": "#8b5cf6",
+        "success": "#10b981",
+        "danger": "#ef4444",
+        "warning": "#f59e0b",
+        "info": "#0ea5e9",
+        "neutral": "#6b7280",
+        "black": "#0f172a",
+        "white": "#ffffff",
+        "grey": {
+            "50": "#f8fafc",
+            "100": "#f1f5f9",
+            "200": "#e2e8f0",
+            "300": "#cbd5e1",
+            "400": "#94a3b8",
+            "500": "#64748b",
+            "600": "#475569",
+            "700": "#334155",
+            "800": "#1e293b",
+            "900": "#0f172a"
+        }
+    },
+    "typography": {
+        "font_family": {
+            "primary": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        }
+    },
+    "platform": {
+        "name": "SimpleTrade",
+        "logo": {
+            "type": "image",
+            "image_url": "/images/logo.svg",
+            "alt_text": "SimpleTrade"
+        },
+        "footer": {
+            "enable_language_settings": false,
+            "enable_theme_toggle": false
+        }
     }
 }
 ```
 
-### Example 2: Green Finance Theme
+**Characteristics**:
 
-```json
-{
-    "colors": {
-        "primary": "#059669",
-        "secondary": "#0891b2",
-        "tertiary": "#06b6d4"
-    }
-}
-```
+- Clean blue primary color
+- System fonts (no custom font loading)
+- Image-based logo (simpler setup)
+- Both footer options disabled (minimal UI)
+- Mobile menu auto-hides when user not logged in
+- Fastest loading performance (no custom fonts)
 
-### Example 3: Dark Premium Theme
+---
 
-```json
-{
-    "colors": {
-        "primary": "#f59e0b",
-        "secondary": "#fbbf24",
-        "tertiary": "#fb923c",
-        "black": "#000000",
-        "white": "#ffffff"
-    }
-}
-```
+## Related Documentation
+
+- **[BRAND_CONFIG_GUIDE.md](./BRAND_CONFIG_GUIDE.md)** - Complete brand.config.json reference
+- **[LOGO_CUSTOMIZATION_QUICK_START.md](./LOGO_CUSTOMIZATION_QUICK_START.md)** - Logo implementation guide
+- **[AUTHENTICATION_FLOW.md](./AUTHENTICATION_FLOW.md)** - OAuth authentication setup
+- **[WEBSOCKET_CONNECTION_FLOW.md](./WEBSOCKET_CONNECTION_FLOW.md)** - WebSocket API integration
+- **[ERROR_LOGGING_GUIDE.md](./ERROR_LOGGING_GUIDE.md)** - Error handling and logging
 
 ---
 
 ## Support
 
-For issues or questions:
+### Getting Help
 
-1. Check [GitHub Issues](https://github.com/your-repo/issues)
-2. Review [Documentation](./README.md)
-3. Contact support team
+1. **Check Documentation**: Review this guide and [BRAND_CONFIG_GUIDE.md](./BRAND_CONFIG_GUIDE.md)
+2. **Validate Configuration**: Run `npm run generate:brand-css`
+3. **Check Console**: Browser console may show configuration warnings
+4. **Review Examples**: See example configurations above
+5. **Troubleshooting**: Check [Troubleshooting](#troubleshooting) section
+
+### Common Resources
+
+- [WCAG Contrast Checker](https://webaim.org/resources/contrastchecker/)
+- [Google Fonts](https://fonts.google.com/)
+- [SVG Optimizer](https://jakearchibald.github.io/svgomg/)
+- [TinyPNG Image Compression](https://tinypng.com/)
 
 ---
 
-**Last Updated**: 2026-02-09
-**Version**: 1.0.0
+## Summary Checklist
+
+Before going live with your white-labeled platform:
+
+- [ ] Updated `brand.config.json` with your brand details
+- [ ] Customized logo in `BrandLogo.tsx`
+- [ ] Generated CSS variables (`npm run generate:brand-css`)
+- [ ] Added custom menu items (if needed)
+- [ ] Configured footer settings
+- [ ] Tested in light and dark themes
+- [ ] Verified colors meet accessibility standards (4.5:1 contrast)
+- [ ] Tested on mobile devices
+- [ ] Tested in major browsers (Chrome, Firefox, Safari)
+- [ ] Validated keyboard navigation and screen reader support
+- [ ] Updated authentication URLs for your domain
+- [ ] Updated WebSocket URLs for your API
+- [ ] Tested end-to-end user flows
+- [ ] Created production build (`npm run build`)
+- [ ] Deployed to staging environment
+- [ ] Performed final QA testing
+
+**Ready to launch!** 🚀

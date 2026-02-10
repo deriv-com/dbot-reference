@@ -1,7 +1,5 @@
 import { ReactNode } from 'react';
 import { standalone_routes } from '@/components/shared';
-import { generateUrlWithRedirect } from '@/utils/url-redirect-utils';
-import { LabelPairedFileMdRegularIcon } from '@deriv/quill-icons/LabelPaired';
 import { LegacyHomeNewIcon as TradershubLogo } from '@deriv/quill-icons/Legacy';
 import {
     DerivProductBrandLightDerivBotLogoWordmarkIcon as DerivBotLogo,
@@ -72,11 +70,21 @@ export const TRADERS_HUB_LINK_CONFIG = {
     label: 'Home',
 };
 
-export const MenuItems: MenuItemsConfig[] = [
-    {
-        as: 'a',
-        href: generateUrlWithRedirect(standalone_routes.positions),
-        icon: <LabelPairedFileMdRegularIcon />,
-        label: localize('Reports'),
-    },
-];
+// ========================================
+// MENU ITEMS CONFIGURATION PLACEHOLDER
+// ========================================
+//
+// Add your custom menu items here for the desktop header.
+//
+// EXAMPLE:
+// export const MenuItems: MenuItemsConfig[] = [
+//     {
+//         as: 'a',
+//         href: '/your-page',
+//         icon: <YourIcon />,
+//         label: localize('Your Menu Item'),
+//     },
+// ];
+//
+// Empty by default for white-labeling
+export const MenuItems: MenuItemsConfig[] = [];
