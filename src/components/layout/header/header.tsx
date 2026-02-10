@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
-import { generateOAuthURL, standalone_routes } from '@/components/shared';
+import { generateOAuthURL } from '@/components/shared';
 import Button from '@/components/shared_ui/button';
 import useActiveAccount from '@/hooks/api/account/useActiveAccount';
 import { useApiBase } from '@/hooks/useApiBase';
 import { useLogout } from '@/hooks/useLogout';
 import { useStore } from '@/hooks/useStore';
 import { navigateToTransfer } from '@/utils/transfer-utils';
-import { Localize, useTranslations } from '@deriv-com/translations';
+import { Localize } from '@deriv-com/translations';
 import { Header, useDevice, Wrapper } from '@deriv-com/ui';
 import { AppLogo } from '../app-logo';
 import AccountsInfoLoader from './account-info-loader';
@@ -17,13 +17,9 @@ import MenuItems from './menu-items';
 import MobileMenu from './mobile-menu';
 import './header.scss';
 
-type TAppHeaderProps = {
-    isAuthenticating?: boolean;
-};
-
-const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
+const AppHeader = observer(() => {
     const { isDesktop } = useDevice();
-    const { isAuthorizing, isAuthorized, activeLoginid, setIsAuthorizing, authData } = useApiBase();
+    const { isAuthorizing, activeLoginid, setIsAuthorizing, authData } = useApiBase();
     const { client } = useStore() ?? {};
     const [authTimeout, setAuthTimeout] = useState(false);
     const is_account_regenerating = client?.is_account_regenerating || false;
@@ -32,11 +28,6 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
         allBalanceData: client?.all_accounts_balance,
         directBalance: client?.balance,
     });
-    const { is_virtual } = client ?? {};
-
-    // Get currency from API base instead of client store
-    const currency = authData?.currency || '';
-    const { localize } = useTranslations();
 
     const handleLogout = useLogout();
 
@@ -154,18 +145,11 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
             return null;
         },
         [
-            isAuthenticating,
             isAuthorizing,
             isDesktop,
             activeLoginid,
-            isAuthorized,
-            standalone_routes,
             client,
-            currency,
-            localize,
             activeAccount,
-            is_virtual,
-            handleLogout,
             authTimeout,
             is_account_regenerating,
             authData,

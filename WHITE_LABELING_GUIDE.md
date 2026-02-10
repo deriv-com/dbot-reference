@@ -1,3 +1,5 @@
+<!-- Comprehensive white-labeling guide for third-party developers -->
+
 # White Labeling Guide
 
 This guide explains how to customize the Trading Bot platform with your own branding.
@@ -19,19 +21,19 @@ Edit the [`brand.config.json`](brand.config.json) file in the project root:
 
 ```json
 {
-  "brand_name": "YourBrand",
-  "brand_domain": "yourbrand.com",
-  "colors": {
-    "primary": "#your-color",
-    "secondary": "#your-color",
-    // ... more colors
-  },
-  "typography": {
-    "font_family": {
-      "primary": "Your Font Family",
-      // ... more fonts
+    "brand_name": "YourBrand",
+    "brand_domain": "yourbrand.com",
+    "colors": {
+        "primary": "#your-color",
+        "secondary": "#your-color"
+        // ... more colors
+    },
+    "typography": {
+        "font_family": {
+            "primary": "Your Font Family"
+            // ... more fonts
+        }
     }
-  }
 }
 ```
 
@@ -44,6 +46,7 @@ npm run generate:brand-css
 ```
 
 This automatically:
+
 - ✅ Updates CSS custom properties in `_themes.scss`
 - ✅ Validates your color configuration
 - ✅ Generates typography variables
@@ -67,27 +70,29 @@ The color system uses a predefined palette structure:
 
 ```json
 {
-  "colors": {
-    "primary": "#3b82f6",      // Main brand color (buttons, links, highlights)
-    "secondary": "#64748b",    // Secondary UI elements
-    "tertiary": "#8b5cf6",     // Accent color
-    "success": "#10b981",      // Success states (green)
-    "danger": "#ef4444",       // Error states (red)
-    "warning": "#f59e0b",      // Warning states (orange)
-    "info": "#0ea5e9",         // Informational states (blue)
-    "neutral": "#6b7280",      // Neutral UI elements
-    "black": "#0f172a",        // Dark text/backgrounds
-    "white": "#ffffff",        // Light text/backgrounds
-    "grey": {                  // Grey scale palette
-      "50": "#f8fafc",
-      "100": "#f1f5f9",
-      // ... more shades
+    "colors": {
+        "primary": "#3b82f6", // Main brand color (buttons, links, highlights)
+        "secondary": "#64748b", // Secondary UI elements
+        "tertiary": "#8b5cf6", // Accent color
+        "success": "#10b981", // Success states (green)
+        "danger": "#ef4444", // Error states (red)
+        "warning": "#f59e0b", // Warning states (orange)
+        "info": "#0ea5e9", // Informational states (blue)
+        "neutral": "#6b7280", // Neutral UI elements
+        "black": "#0f172a", // Dark text/backgrounds
+        "white": "#ffffff", // Light text/backgrounds
+        "grey": {
+            // Grey scale palette
+            "50": "#f8fafc",
+            "100": "#f1f5f9"
+            // ... more shades
+        }
     }
-  }
 }
 ```
 
 **CSS Variables Generated:**
+
 - `--brand-primary`
 - `--brand-secondary`
 - `--brand-tertiary`
@@ -100,6 +105,7 @@ The color system uses a predefined palette structure:
 - `--brand-dark-grey` (alias for black)
 
 **Legacy Compatibility:**
+
 - `--brand-red-coral` → maps to `primary`
 - `--brand-orange` → maps to `tertiary`
 
@@ -109,24 +115,25 @@ Configure font families for different text types:
 
 ```json
 {
-  "typography": {
-    "font_family": {
-      "primary": "Your Primary Font Stack",
-      "secondary": "Your Secondary Font",
-      "monospace": "Your Monospace Font"
-    },
-    "font_sizes": {
-      "xs": "0.75rem",
-      "sm": "0.875rem",
-      "base": "1rem",
-      "lg": "1.125rem",
-      // ... more sizes
+    "typography": {
+        "font_family": {
+            "primary": "Your Primary Font Stack",
+            "secondary": "Your Secondary Font",
+            "monospace": "Your Monospace Font"
+        },
+        "font_sizes": {
+            "xs": "0.75rem",
+            "sm": "0.875rem",
+            "base": "1rem",
+            "lg": "1.125rem"
+            // ... more sizes
+        }
     }
-  }
 }
 ```
 
 **CSS Variables Generated:**
+
 - `--brand-font-primary` - Main UI font
 - `--brand-font-secondary` - Headings or special text
 - `--brand-font-monospace` - Code blocks, technical data
@@ -134,17 +141,21 @@ Configure font families for different text types:
 **Example Font Stacks:**
 
 **System Fonts (Recommended):**
+
 ```
 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif
 ```
 
 **Google Fonts:**
+
 ```
 'Inter', -apple-system, BlinkMacSystemFont, sans-serif
 ```
-*Note: Import the font in your HTML/CSS first*
+
+_Note: Import the font in your HTML/CSS first_
 
 **Custom Fonts:**
+
 ```
 'Your Custom Font', 'Fallback Font', sans-serif
 ```
@@ -173,11 +184,11 @@ Then update `brand.config.json`:
 
 ```json
 {
-  "typography": {
-    "font_family": {
-      "primary": "'Inter', -apple-system, sans-serif"
+    "typography": {
+        "font_family": {
+            "primary": "'Inter', -apple-system, sans-serif"
+        }
     }
-  }
 }
 ```
 
@@ -206,11 +217,11 @@ Then update `brand.config.json`:
 
 ```json
 {
-  "typography": {
-    "font_family": {
-      "primary": "'YourFont', -apple-system, sans-serif"
+    "typography": {
+        "font_family": {
+            "primary": "'YourFont', -apple-system, sans-serif"
+        }
     }
-  }
 }
 ```
 
@@ -219,6 +230,7 @@ Then update `brand.config.json`:
 #### Option 3: Keep System Fonts (Recommended)
 
 The default system font stack provides:
+
 - ✅ Zero latency (no font loading)
 - ✅ Native look on each platform
 - ✅ Excellent performance
@@ -226,39 +238,179 @@ The default system font stack provides:
 
 If branding allows it, system fonts are the best choice!
 
+### Logo Configuration
+
+Customize your brand logo:
+
+```json
+{
+    "platform": {
+        "logo": {
+            "type": "component", // "component" or "image"
+            "component_name": "BrandLogo", // Component name (if type is "component")
+            "alt_text": "Trading Bot", // Alt text for accessibility
+            "link_url": "/", // Where logo links to
+            "show_text": false, // Show text next to logo
+            "text": "Trading Bot" // Text to display (if show_text is true)
+        }
+    }
+}
+```
+
+#### Option 1: Using the Default SVG Component (Recommended)
+
+The default `BrandLogo` component is located at `src/components/layout/app-logo/BrandLogo.tsx`.
+
+**To customize**:
+
+1. Edit `BrandLogo.tsx` and replace the SVG paths with your logo
+2. Or create a new logo component and update `component_name` in config
+
+**Example - Replace SVG in BrandLogo.tsx**:
+
+```tsx
+export const BrandLogo = ({ width = 120, height = 32, fill = 'currentColor' }) => {
+    return (
+        <svg width={width} height={height} viewBox='0 0 120 32' fill='none'>
+            {/* Replace these paths with your brand's SVG */}
+            <path d='M10 5L20 25L30 5' fill={fill} />
+            {/* ... more SVG paths ... */}
+        </svg>
+    );
+};
+```
+
+#### Option 2: Using an Image File
+
+To use a PNG/SVG image file instead:
+
+1. Place your logo in `public/logo.svg` (or `public/logo.png`)
+2. Update `BrandLogo.tsx`:
+
+```tsx
+export const BrandLogo = ({ width = 120, height = 32, className = '' }) => {
+    return <img src='/logo.svg' alt='Brand Logo' width={width} height={height} className={className} />;
+};
+```
+
+3. Update `brand.config.json`:
+
+```json
+{
+    "platform": {
+        "logo": {
+            "type": "image",
+            "alt_text": "Your Brand Name",
+            "link_url": "/"
+        }
+    }
+}
+```
+
+#### Logo Best Practices
+
+- **Format**: SVG is preferred for scalability
+- **Size**: Optimize for ~120x32px at 1x resolution
+- **Color**: Use `currentColor` or `fill` prop to match theme
+- **Accessibility**: Always provide meaningful `alt_text`
+- **Retina**: For PNG, provide @2x version (240x64px)
+
+### Footer Configuration
+
+Customize footer elements visibility:
+
+```json
+{
+    "platform": {
+        "footer": {
+            "enable_language_settings": true, // Show/hide language selector in footer
+            "enable_theme_toggle": true // Show/hide theme toggle button in footer
+        }
+    }
+}
+```
+
+**Configuration Options:**
+
+| Property                   | Type      | Default | Description                                          |
+| -------------------------- | --------- | ------- | ---------------------------------------------------- |
+| `enable_language_settings` | `boolean` | `true`  | Show language selector (globe icon) in footer        |
+| `enable_theme_toggle`      | `boolean` | `true`  | Show theme toggle button (light/dark mode) in footer |
+
+**Use Cases:**
+
+- **Disable for single-language apps**: Set `enable_language_settings` to `false` if your platform only supports one language
+- **Custom language selector**: Disable footer language settings if you implement a custom language switcher elsewhere
+- **Force single theme**: Set `enable_theme_toggle` to `false` to lock users into light or dark mode only
+- **Custom theme switcher**: Disable footer theme toggle if you implement a custom theme switcher elsewhere
+- **Simplified UI**: Remove language settings and/or theme toggle for a cleaner footer layout
+
+**Example - Minimal Footer (No Language or Theme Settings):**
+
+```json
+{
+    "platform": {
+        "footer": {
+            "enable_language_settings": false,
+            "enable_theme_toggle": false
+        }
+    }
+}
+```
+
+**Example - Single Language with Theme Toggle:**
+
+```json
+{
+    "platform": {
+        "footer": {
+            "enable_language_settings": false,
+            "enable_theme_toggle": true
+        }
+    }
+}
+```
+
+**What Gets Hidden:**
+
+- When `enable_language_settings` is `false`: Language selector (globe icon with current language code) and language selection modal will not appear
+- When `enable_theme_toggle` is `false`: Theme toggle button (sun/moon icon for light/dark mode) will not appear
+
 ### Platform Configuration
 
 Update platform-specific settings:
 
 ```json
 {
-  "platform": {
-    "name": "Trading Bot",           // Display name
-    "logo": "YourBrandLogo",         // Logo component name
-    "hostname": {
-      "production": { "com": "bot.yourbrand.com" },
-      "staging": { "com": "staging-bot.yourbrand.com" }
-    },
-    "websocket_servers": {
-      "staging": "staging-api.yourbrand.com/ws",
-      "production": "api.yourbrand.com/ws"
-    },
-    "whoami_endpoint": {
-      "staging": "https://staging-auth.yourbrand.com/sessions/whoami",
-      "production": "https://auth.yourbrand.com/sessions/whoami"
-    },
-    "logout_endpoint": {
-      "staging": "https://staging-auth.yourbrand.com/logout",
-      "production": "https://auth.yourbrand.com/logout"
-    },
-    "auth_urls": {
-      "production": {
-        "login": "https://yourbrand.com/login",
-        "signup": "https://yourbrand.com/signup"
-      },
-      "staging": { /* ... */ }
+    "platform": {
+        "name": "Trading Bot", // Display name
+        "logo": "YourBrandLogo", // Logo component name
+        "hostname": {
+            "production": { "com": "bot.yourbrand.com" },
+            "staging": { "com": "staging-bot.yourbrand.com" }
+        },
+        "websocket_servers": {
+            "staging": "staging-api.yourbrand.com/ws",
+            "production": "api.yourbrand.com/ws"
+        },
+        "whoami_endpoint": {
+            "staging": "https://staging-auth.yourbrand.com/sessions/whoami",
+            "production": "https://auth.yourbrand.com/sessions/whoami"
+        },
+        "logout_endpoint": {
+            "staging": "https://staging-auth.yourbrand.com/logout",
+            "production": "https://auth.yourbrand.com/logout"
+        },
+        "auth_urls": {
+            "production": {
+                "login": "https://yourbrand.com/login",
+                "signup": "https://yourbrand.com/signup"
+            },
+            "staging": {
+                /* ... */
+            }
+        }
     }
-  }
 }
 ```
 
@@ -272,20 +424,20 @@ The grey scale can be extended with custom shades:
 
 ```json
 {
-  "colors": {
-    "grey": {
-      "50": "#fafafa",   // Lightest
-      "100": "#f5f5f5",
-      "200": "#e5e5e5",
-      "300": "#d4d4d4",
-      "400": "#a3a3a3",
-      "500": "#737373",  // Mid-tone
-      "600": "#525252",
-      "700": "#404040",
-      "800": "#262626",
-      "900": "#171717"   // Darkest
+    "colors": {
+        "grey": {
+            "50": "#fafafa", // Lightest
+            "100": "#f5f5f5",
+            "200": "#e5e5e5",
+            "300": "#d4d4d4",
+            "400": "#a3a3a3",
+            "500": "#737373", // Mid-tone
+            "600": "#525252",
+            "700": "#404040",
+            "800": "#262626",
+            "900": "#171717" // Darkest
+        }
     }
-  }
 }
 ```
 
@@ -295,11 +447,11 @@ Control theme generation behavior:
 
 ```json
 {
-  "theme_config": {
-    "enable_dynamic_themes": true,
-    "auto_generate_variants": true,
-    "css_variable_prefix": "--brand"
-  }
+    "theme_config": {
+        "enable_dynamic_themes": true,
+        "auto_generate_variants": true,
+        "css_variable_prefix": "--brand"
+    }
 }
 ```
 
@@ -309,11 +461,11 @@ Define how light/dark variants are generated:
 
 ```json
 {
-  "color_variants": {
-    "light_variants": [100, 200, 300, 400, 500],
-    "dark_variants": [600, 700, 800, 900],
-    "opacity_variants": [10, 20, 30, 40, 50, 60, 70, 80, 90]
-  }
+    "color_variants": {
+        "light_variants": [100, 200, 300, 400, 500],
+        "dark_variants": [600, 700, 800, 900],
+        "opacity_variants": [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    }
 }
 ```
 
@@ -324,17 +476,20 @@ Define how light/dark variants are generated:
 ### 1. Color Accessibility
 
 Ensure sufficient contrast ratios:
+
 - **Normal text**: 4.5:1 minimum
 - **Large text**: 3:1 minimum
 - **UI components**: 3:1 minimum
 
 Test with tools like:
+
 - [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
 - [Accessible Colors](https://accessible-colors.com/)
 
 ### 2. Font Selection
 
 Choose fonts that:
+
 - ✅ Are web-safe or properly licensed
 - ✅ Have good readability at small sizes
 - ✅ Include necessary character sets (internationalization)
@@ -343,6 +498,7 @@ Choose fonts that:
 ### 3. Branding Consistency
 
 Maintain consistency with your existing brand:
+
 - Use exact hex codes from your brand guidelines
 - Match typography to your marketing materials
 - Test across light and dark themes
@@ -350,6 +506,7 @@ Maintain consistency with your existing brand:
 ### 4. Performance
 
 Consider performance implications:
+
 - System fonts load instantly
 - Custom fonts add HTTP requests
 - Limit font variants to reduce bundle size
@@ -367,6 +524,7 @@ npm start
 ```
 
 Navigate to:
+
 - `/` - Dashboard
 - `/bot` - Bot Builder
 - `/chart` - Trading Chart
@@ -381,6 +539,7 @@ npm run generate:brand-css
 ```
 
 Look for:
+
 - ✅ "Brand configuration is valid"
 - ⚠️ Warnings about missing optional fields
 - ❌ Errors about required fields
@@ -388,6 +547,7 @@ Look for:
 ### 3. Browser Testing
 
 Test in multiple browsers:
+
 - Chrome/Edge (Chromium)
 - Firefox
 - Safari
@@ -402,6 +562,7 @@ Test in multiple browsers:
 **Problem**: New colors don't appear after running the script.
 
 **Solutions**:
+
 1. Clear browser cache (Cmd/Ctrl + Shift + R)
 2. Restart the development server
 3. Check browser DevTools → Elements → `:root` to verify CSS variables
@@ -412,6 +573,7 @@ Test in multiple browsers:
 **Problem**: Custom fonts show fallback fonts instead.
 
 **Solutions**:
+
 1. Verify font files are in `public/fonts/` or linked via CDN
 2. Add `@font-face` declarations in your CSS
 3. Check browser Network tab for font loading errors
@@ -422,6 +584,7 @@ Test in multiple browsers:
 **Problem**: `npm run generate:brand-css` throws errors.
 
 **Solutions**:
+
 1. Check JSON syntax in `brand.config.json` (use [JSONLint](https://jsonlint.com/))
 2. Ensure all required color fields are present
 3. Verify file permissions on `_themes.scss`
@@ -432,6 +595,7 @@ Test in multiple browsers:
 **Problem**: Script accepts invalid hex codes.
 
 **Solutions**:
+
 - Use valid 6-digit hex codes: `#3b82f6` ✅
 - Avoid 3-digit shorthand: `#38f` ❌ (expand to 6 digits)
 - Always include `#` prefix: `3b82f6` ❌
@@ -465,6 +629,7 @@ cp brand.config.json brand.config.json.backup
 ### 3. Update Incrementally
 
 Change one section at a time:
+
 1. Colors first
 2. Typography second
 3. Platform configuration last
@@ -479,11 +644,11 @@ Test after each change.
 
 ```json
 {
-  "colors": {
-    "primary": "#2563eb",
-    "secondary": "#64748b",
-    "tertiary": "#7c3aed"
-  }
+    "colors": {
+        "primary": "#2563eb",
+        "secondary": "#64748b",
+        "tertiary": "#7c3aed"
+    }
 }
 ```
 
@@ -491,11 +656,11 @@ Test after each change.
 
 ```json
 {
-  "colors": {
-    "primary": "#059669",
-    "secondary": "#0891b2",
-    "tertiary": "#06b6d4"
-  }
+    "colors": {
+        "primary": "#059669",
+        "secondary": "#0891b2",
+        "tertiary": "#06b6d4"
+    }
 }
 ```
 
@@ -503,13 +668,13 @@ Test after each change.
 
 ```json
 {
-  "colors": {
-    "primary": "#f59e0b",
-    "secondary": "#fbbf24",
-    "tertiary": "#fb923c",
-    "black": "#000000",
-    "white": "#ffffff"
-  }
+    "colors": {
+        "primary": "#f59e0b",
+        "secondary": "#fbbf24",
+        "tertiary": "#fb923c",
+        "black": "#000000",
+        "white": "#ffffff"
+    }
 }
 ```
 

@@ -59,7 +59,18 @@
     },
     "platform": {
         "name": "Trading Bot",
-        "logo": "YourBrandLogo",
+        "logo": {
+            "type": "component",
+            "component_name": "BrandLogo",
+            "alt_text": "Trading Bot",
+            "link_url": "/",
+            "show_text": false,
+            "text": "Trading Bot"
+        },
+        "footer": {
+            "enable_language_settings": false,
+            "enable_theme_toggle": false
+        },
         "hostname": {
             "production": {
                 "com": "bot.yourbrand.com"
