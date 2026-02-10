@@ -1,5 +1,11 @@
+// Updated to use brand configuration for mobile menu elements visibility
+// Controls language settings and theme toggle via brand.config.json
 import { useState } from 'react';
+import brandConfig from '@/../brand.config.json';
 import useModalManager from '@/hooks/useModalManager';
+// [AI] Import useStore to check if menu has items
+import { useStore } from '@/hooks/useStore';
+// [/AI]
 import { getActiveTabUrl } from '@/utils/getActiveTabUrl';
 import { FILTERED_LANGUAGES } from '@/utils/languages';
 import { useTranslations } from '@deriv-com/translations';
@@ -11,6 +17,9 @@ import MenuContent from './menu-content';
 import MenuHeader from './menu-header';
 import ReportsSubmenu from './reports-submenu';
 import ToggleButton from './toggle-button';
+// [AI] Import hook to check if menu has items
+import useMobileMenuConfig from './use-mobile-menu-config';
+// [/AI]
 import './mobile-menu.scss';
 
 type TMobileMenuProps = {
@@ -23,6 +32,16 @@ const MobileMenu = ({ onLogout }: TMobileMenuProps) => {
     const { currentLang = 'EN', localize, switchLanguage } = useTranslations();
     const { hideModal, isModalOpenFor, showModal } = useModalManager();
     const { isDesktop } = useDevice();
+    // [AI] Get client from store to check menu items
+    const { client } = useStore() ?? {};
+    // [/AI]
+
+    // Get mobile menu configuration from brand.config.json
+    const enableLanguageSettings = brandConfig.platform.footer?.enable_language_settings ?? true;
+    const enableThemeToggle = brandConfig.platform.footer?.enable_theme_toggle ?? true;
+
+    // Check if menu has any items to determine if mobile menu should be shown
+    const { hasMenuItems } = useMobileMenuConfig(client, onLogout, enableThemeToggle);
 
     const openDrawer = () => setIsDrawerOpen(true);
     const closeDrawer = () => {
@@ -36,6 +55,9 @@ const MobileMenu = ({ onLogout }: TMobileMenuProps) => {
     const isLanguageSettingVisible = Boolean(isModalOpenFor('MobileLanguagesDrawer'));
 
     if (isDesktop) return null;
+    // [AI] Hide mobile menu if there are no menu items to display
+    if (!hasMenuItems) return null;
+    // [/AI]
     return (
         <div className='mobile-menu'>
             <div className='mobile-menu__toggle'>
@@ -44,14 +66,17 @@ const MobileMenu = ({ onLogout }: TMobileMenuProps) => {
 
             <Drawer isOpen={isDrawerOpen} onCloseDrawer={closeDrawer} width='29.5rem'>
                 <Drawer.Header onCloseDrawer={closeDrawer}>
+                    {/* [AI] Conditionally render language settings in header based on brand config */}
                     <MenuHeader
-                        hideLanguageSetting={isLanguageSettingVisible}
+                        hideLanguageSetting={!enableLanguageSettings || isLanguageSettingVisible}
                         openLanguageSetting={openLanguageSetting}
                     />
+                    {/* [/AI] */}
                 </Drawer.Header>
 
                 <Drawer.Content>
-                    {isLanguageSettingVisible ? (
+                    {/* [AI] Conditionally render language drawer based on brand config */}
+                    {enableLanguageSettings && isLanguageSettingVisible ? (
                         <>
                             <div className='mobile-menu__back-btn'>
                                 <BackButton buttonText={localize('Language')} onClick={hideModal} />
@@ -87,6 +112,7 @@ const MobileMenu = ({ onLogout }: TMobileMenuProps) => {
                         </>
                     ) : (
                         <MenuContent
+                            enableThemeToggle={enableThemeToggle}
                             onOpenSubmenu={openSubmenu}
                             onLogout={() => {
                                 closeDrawer();
@@ -94,6 +120,7 @@ const MobileMenu = ({ onLogout }: TMobileMenuProps) => {
                             }}
                         />
                     )}
+                    {/* [/AI] */}
                 </Drawer.Content>
 
                 <Drawer.Footer className='mobile-menu__footer'>
