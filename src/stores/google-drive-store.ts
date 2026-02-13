@@ -5,8 +5,6 @@ import { button_status } from '@/constants/button-status';
 import { config, importExternal } from '@/external/bot-skeleton';
 import { ErrorLogger } from '@/utils/error-logger';
 import { getInitialLanguage, localize } from '@deriv-com/translations';
-/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-/* [/AI] */
 import RootStore from './root-store';
 
 export type TErrorWithStatus = Error & { status?: number; result?: { error: { message: string } } };
@@ -58,7 +56,7 @@ export default class GoogleDriveStore {
         });
 
         this.root_store = root_store;
-        this.bot_folder_name = `Binary Bot - ${localize('Strategies')}`;
+        this.bot_folder_name = `Bot - ${localize('Strategies')}`;
         this.setKey();
         this.client = null;
         this.access_token = localStorage.getItem('google_access_token') ?? '';
@@ -211,7 +209,7 @@ export default class GoogleDriveStore {
 
         const xml_doc = await this.createLoadFilePicker(
             'text/xml,application/xml',
-            localize('Select a Deriv Bot Strategy')
+            localize('Select a Strategy')
         );
 
         return xml_doc;
@@ -373,8 +371,6 @@ export default class GoogleDriveStore {
                         }
 
                         resolve({ xml_doc: response.body, file_name });
-                        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-                        /* [/AI] */
                     } catch (downloadError: unknown) {
                         // Handle specific error cases
                         const error = downloadError as { message?: string; status?: number };
@@ -394,9 +390,6 @@ export default class GoogleDriveStore {
 
                         // Add user notification for file load errors
                         botNotification(errorMessage, undefined, { closeButton: true });
-
-                        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-                        /* [/AI] */
 
                         // Use reject instead of throw to properly reject the Promise
                         reject(new Error(errorMessage));

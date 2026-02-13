@@ -95,7 +95,6 @@ export default class AppStore {
         window.removeEventListener('click', this.onClickOutsideBlockly);
 
         // Ensure account switch is re-enabled.
-        // TODO: fix
         const { ui } = this.core;
 
         ui.setAccountSwitcherDisabledMessage();

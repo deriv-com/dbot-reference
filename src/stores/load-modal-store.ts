@@ -12,9 +12,7 @@ import { inject_workspace_options, updateXmlValues } from '@/external/bot-skelet
 import { isDbotRTL } from '@/external/bot-skeleton/utils/workspace';
 import { TStores } from '@deriv/stores/types';
 import { localize } from '@deriv-com/translations';
-import { TStrategy } from 'Types';
-/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-/* [/AI] */
+import { ExtendedBlocklyWorkspace, TStrategy } from 'Types';
 import { tabs_title } from '../constants/load-modal';
 import { waitForDomElement } from '../utils/dom-observer';
 import RootStore from './root-store';
@@ -98,9 +96,9 @@ export default class LoadModalStore {
         );
     }
 
-    recent_workspace: window.Blockly.WorkspaceSvg | null = null;
-    local_workspace: window.Blockly.WorkspaceSvg | null = null;
-    drop_zone: unknown;
+    recent_workspace: ExtendedBlocklyWorkspace | null = null;
+    local_workspace: ExtendedBlocklyWorkspace | null = null;
+    drop_zone: HTMLElement | null = null;
 
     active_index = 0;
     is_load_modal_open = false;
@@ -117,7 +115,7 @@ export default class LoadModalStore {
     current_workspace_id = '';
     upload_id = '';
 
-    get preview_workspace(): window.Blockly.WorkspaceSvg | null {
+    get preview_workspace(): ExtendedBlocklyWorkspace | null {
         if (this.tab_name === tabs_title.TAB_LOCAL) return this.local_workspace;
         if (this.tab_name === tabs_title.TAB_RECENT) return this.recent_workspace;
         return null;
@@ -171,14 +169,11 @@ export default class LoadModalStore {
             google_drive.upload_id = uuidv4();
         }
 
-        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-        /* [/AI] */
-
         const { loadFile } = this.root_store.google_drive;
-        const load_file = await loadFile();
+        const load_file = await loadFile() as { xml_doc?: string; file_name?: string } | null;
         if (!load_file) return;
-        const xml_doc = load_file?.xml_doc;
-        const file_name = load_file?.file_name;
+        const xml_doc = load_file.xml_doc;
+        const file_name = load_file.file_name;
         await load({
             block_string: xml_doc,
             file_name,
@@ -281,9 +276,11 @@ export default class LoadModalStore {
     resetBotBuilderStrategy = () => {
         const workspace = window.Blockly.derivWorkspace;
         if (workspace) {
-            window.Blockly.derivWorkspace.asyncClear();
-            window.Blockly.Xml.domToWorkspace(window.Blockly.utils.xml.textToDom(workspace.cached_xml.main), workspace);
-            window.Blockly.derivWorkspace.strategy_to_load = workspace.cached_xml.main;
+            workspace.asyncClear();
+            if (workspace.cached_xml) {
+                window.Blockly.Xml.domToWorkspace(window.Blockly.utils.xml.textToDom(workspace.cached_xml.main), workspace);
+                workspace.strategy_to_load = workspace.cached_xml.main;
+            }
         }
     };
 
@@ -299,7 +296,9 @@ export default class LoadModalStore {
                 showIncompatibleStrategyDialog: false,
                 show_snackbar: is_show_notification,
             });
-            window.Blockly.derivWorkspace.strategy_to_load = strategy.xml;
+            if (window.Blockly.derivWorkspace) {
+                window.Blockly.derivWorkspace.strategy_to_load = strategy.xml;
+            }
         }
     };
 
@@ -321,12 +320,15 @@ export default class LoadModalStore {
 
     loadFileFromRecent = async () => {
         this.is_open_button_loading = true;
+        const derivWorkspace = window.Blockly.derivWorkspace;
         if (!this.selected_strategy) {
-            window.Blockly.derivWorkspace.asyncClear();
-            window.Blockly.Xml.domToWorkspace(
-                window.Blockly.utils.xml.textToDom(window.Blockly.derivWorkspace.strategy_to_load),
-                window.Blockly.derivWorkspace
-            );
+            if (derivWorkspace) {
+                derivWorkspace.asyncClear();
+                window.Blockly.Xml.domToWorkspace(
+                    window.Blockly.utils.xml.textToDom(derivWorkspace.strategy_to_load ?? ''),
+                    derivWorkspace
+                );
+            }
             this.is_open_button_loading = false;
             return;
         }
@@ -336,7 +338,7 @@ export default class LoadModalStore {
             block_string: this.selected_strategy?.xml,
             strategy_id: this.selected_strategy.id,
             file_name: this.selected_strategy.name,
-            workspace: window.Blockly.derivWorkspace,
+            workspace: derivWorkspace,
             from: this.selected_strategy.save_type,
             drop_event: {},
             showIncompatibleStrategyDialog: false,
@@ -344,8 +346,8 @@ export default class LoadModalStore {
         const recent_files = await getSavedWorkspaces();
         recent_files.map((strategy: TStrategy) => {
             const { xml, id } = strategy;
-            if (this.selected_strategy.id === id) {
-                window.Blockly.derivWorkspace.strategy_to_load = xml;
+            if (this.selected_strategy.id === id && derivWorkspace) {
+                derivWorkspace.strategy_to_load = xml;
             }
         });
         this.is_open_button_loading = false;
@@ -377,7 +379,7 @@ export default class LoadModalStore {
                 this.drop_zone = document.querySelector('load-strategy__local-dropzone-area');
 
                 if (this.drop_zone) {
-                    this.drop_zone.addEventListener('drop', event => this.handleFileChange(event, false));
+                    this.drop_zone.addEventListener('drop', (event: Event) => this.handleFileChange(event as DragEvent, false));
                 }
             }
         }
@@ -393,7 +395,7 @@ export default class LoadModalStore {
 
         // Forget about drop zone when not on Local tab.
         if (this.tab_name !== tabs_title.TAB_LOCAL && this.drop_zone) {
-            this.drop_zone.removeEventListener('drop', event => this.handleFileChange(event, false));
+            this.drop_zone.removeEventListener('drop', (event: Event) => this.handleFileChange(event as DragEvent, false));
         }
         this.setOpenButtonDisabled(false);
     };
@@ -404,16 +406,17 @@ export default class LoadModalStore {
     ): boolean => {
         this.imported_strategy_type = 'pending';
         this.upload_id = uuidv4();
-        let files;
+        let files: FileList | undefined;
         if (event.type === 'drop') {
             event.stopPropagation();
             event.preventDefault();
-            ({ files } = event.dataTransfer as DragEvent);
+            files = (event as DragEvent).dataTransfer?.files;
         } else {
-            ({ files } = event.target);
+            files = (event.target as HTMLInputElement)?.files ?? undefined;
         }
 
-        const [file] = files;
+        if (!files || files.length === 0) return false;
+        const file = files[0];
 
         if (!is_body) {
             if (file.name.includes('xml')) {
@@ -428,7 +431,7 @@ export default class LoadModalStore {
         return true;
     };
 
-    readFile = (is_preview: boolean, drop_event: DragEvent, file: File): void => {
+    readFile = (_is_preview: boolean, drop_event: DragEvent, file: File): void => {
         const reader = new FileReader();
         const file_name = file?.name.replace(/\.[^/.]+$/, '') || '';
 
@@ -457,7 +460,7 @@ export default class LoadModalStore {
         const { save_modal } = this.root_store;
         const { updateBotName } = save_modal;
         const { convertedDom, from, file_name } = window.Blockly.xmlValues;
-        updateBotName(file_name);
+        updateBotName(file_name ?? '');
         await saveWorkspaceToRecent(convertedDom, from);
         const recent_files = await getSavedWorkspaces();
         if (recent_files?.length > 0) this.setSelectedStrategyId(recent_files[0]?.id);
@@ -467,17 +470,14 @@ export default class LoadModalStore {
         const {
             strategy_id = window.Blockly.utils.idGenerator.genUid(),
             convertedDom,
-            block_string,
         } = window.Blockly.xmlValues;
         const derivWorkspace = window.Blockly.derivWorkspace;
+        if (!derivWorkspace) return;
 
         window.Blockly.Xml.clearWorkspaceAndLoadFromXml(convertedDom, derivWorkspace);
         derivWorkspace.cleanUp();
         derivWorkspace.clearUndo();
         derivWorkspace.current_strategy_id = strategy_id;
-
-        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-        /* [/AI] */
     };
 
     updateXmlValuesOnStrategySelection = () => {
@@ -490,7 +490,7 @@ export default class LoadModalStore {
         });
     };
 
-    loadStrategyOnModalRecentPreview = async workspace_id => {
+    loadStrategyOnModalRecentPreview = async (workspace_id: string) => {
         this.setOpenButtonDisabled(true);
         if (this.recent_strategies.length === 0 || this.tab_name !== tabs_title.TAB_RECENT) return;
 
@@ -518,7 +518,8 @@ export default class LoadModalStore {
         this.setOpenButtonDisabled(false);
     };
 
-    loadStrategyOnModalLocalPreview = async load_options => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    loadStrategyOnModalLocalPreview = async (load_options: any) => {
         this.setOpenButtonDisabled(true);
         const injectWorkspace = { ...inject_workspace_options, theme: window?.Blockly?.Themes?.zelos_renderer };
 
@@ -532,11 +533,6 @@ export default class LoadModalStore {
             (load_options.workspace as any).RTL = isDbotRTL();
         }
 
-        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-        /* [/AI] */
-
-        const result = await load({ ...load_options, show_snackbar: false });
-        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-        /* [/AI] */
+        await load({ ...load_options, show_snackbar: false });
     };
 }

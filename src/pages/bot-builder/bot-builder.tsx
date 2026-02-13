@@ -25,9 +25,6 @@ const BotBuilder = observer(() => {
     const { onMount, onUnmount } = app;
     const el_ref = React.useRef<HTMLInputElement | null>(null);
 
-    // TODO: fix
-    // const isMounted = useIsMounted();
-    // const { data: remote_config_data } = useRemoteConfig(isMounted());
     let deleted_block_id: null | string = null;
 
     React.useEffect(() => {

@@ -4,8 +4,6 @@ import Dialog from '@/components/shared_ui/dialog';
 import { useStore } from '@/hooks/useStore';
 import { Localize, localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
-/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-/* [/AI] */
 import ToolbarButton from './toolbar-button';
 import WorkspaceGroup from './workspace-group';
 
@@ -19,8 +17,6 @@ const Toolbar = observer(() => {
     const cancel_button_text = is_running ? localize('No') : localize('Cancel');
     const handleQuickStrategyOpen = () => {
         setFormVisibility(true);
-        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-        /* [/AI] */
     };
     return (
         <React.Fragment>
@@ -28,7 +24,7 @@ const Toolbar = observer(() => {
                 <div className='toolbar__section'>
                     {!isDesktop && (
                         <ToolbarButton
-                            popover_message={localize('Click here to start building your Deriv Bot.')}
+                            popover_message={localize('Click here to start building your bot.')}
                             button_id='db-toolbar__get-started-button'
                             button_classname='toolbar__btn toolbar__btn--icon toolbar__btn--start'
                             buttonOnClick={handleQuickStrategyOpen}

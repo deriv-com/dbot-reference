@@ -5,7 +5,7 @@ import { TDescriptionItem } from '../../pages/bot-builder/quick-strategy/types';
 export const OSCARS_GRIND = (): TDescriptionItem[] => [
     {
         type: 'subtitle',
-        content: [`${localize('Exploring the')} Oscar's Grind ${localize('strategy in Deriv Bot')}`],
+        content: [`${localize('Exploring the')} Oscar's Grind ${localize('strategy in the bot')}`],
         expanded: true,
         no_collapsible: false,
     },
@@ -24,7 +24,7 @@ export const OSCARS_GRIND = (): TDescriptionItem[] => [
     {
         type: 'text',
         content: [
-            `${localize('These are the trade parameters used for')} Oscar's Grind ${localize('strategy in Deriv Bot.')}`,
+            `${localize('These are the trade parameters used for')} Oscar's Grind ${localize('strategy in the bot.')}`,
         ],
     },
     {
@@ -128,7 +128,7 @@ export const OSCARS_GRIND = (): TDescriptionItem[] => [
         type: 'text',
         content: [
             localize(
-                'With Deriv Bot, traders can set the profit and loss thresholds to secure potential profits and limit potential losses. This means that the trading bot will automatically stop when either the profit or loss threshold is reached. This is a form of risk management that can potentially boost successful trades whilst limiting the impact of loss. For example, if a trader sets the profit threshold at 100 USD and the strategy exceeds 100 USD of profit from all trades, then the bot will stop running.'
+                'With the bot, traders can set the profit and loss thresholds to secure potential profits and limit potential losses. This means that the trading bot will automatically stop when either the profit or loss threshold is reached. This is a form of risk management that can potentially boost successful trades whilst limiting the impact of loss. For example, if a trader sets the profit threshold at 100 USD and the strategy exceeds 100 USD of profit from all trades, then the bot will stop running.'
             ),
         ],
     },
@@ -140,7 +140,7 @@ export const OSCARS_GRIND = (): TDescriptionItem[] => [
         type: 'text',
         content: [
             localize(
-                `${localize('The')} Oscar's Grind ${localize('strategy provides a disciplined approach for incremental gains through systematic stake progression. When integrated into Deriv Bot with proper risk management like profit or loss thresholds, it offers traders a potentially powerful automated trading technique. However, traders should first thoroughly assess their risk tolerance and first try trading on a demo account in order to familiarise with the strategy before trading with real funds.')}`
+                `${localize('The')} Oscar's Grind ${localize('strategy provides a disciplined approach for incremental gains through systematic stake progression. When integrated into the bot with proper risk management like profit or loss thresholds, it offers traders a potentially powerful automated trading technique. However, traders should first thoroughly assess their risk tolerance and first try trading on a demo account in order to familiarise with the strategy before trading with real funds.')}`
             ),
         ],
     },

@@ -43,7 +43,7 @@ export const notification_message = () => ({
     invalid_xml: localize('Your import failed due to an invalid file. Upload a complete file in XML format.'),
     [NOTIFICATION_TYPE.BOT_IMPORT]: localize('You’ve successfully imported a bot.'),
     [NOTIFICATION_TYPE.BOT_DELETE]: localize('You’ve successfully deleted a bot.'),
-    strategy_conversion: localize('Save this strategy as an XML file from Deriv Bot for faster re-imports.'),
+    strategy_conversion: localize('Save this strategy as an XML file from the bot for faster re-imports.'),
     google_drive_error: localize('Your session has expired. Please sign in again.'),
     xml_import_error: localize('Unsupported file format. Please import a valid XML file.'),
 });

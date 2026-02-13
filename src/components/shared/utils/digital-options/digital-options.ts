@@ -29,7 +29,7 @@ export const showDigitalOptionsUnavailableError = (
         redirect_label: link,
         redirectOnClick,
         should_show_refresh: false,
-        redirect_to: '/appstore/traders-hub',
+        redirect_to: '/',
         should_clear_error_on_click,
         should_redirect,
     });

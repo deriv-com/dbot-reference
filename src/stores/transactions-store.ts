@@ -260,8 +260,6 @@ export default class TransactionsStore {
     }
 
     async recoverPendingContractsById(contract_id: number, contract: ProposalOpenContract | null = null) {
-        // TODO: need to fix as the portfolio is not available now
-        // const positions = this.core.portfolio.positions;
         const positions: unknown[] = [];
 
         if (contract) {

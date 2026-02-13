@@ -5,7 +5,7 @@ import { TDescriptionItem } from '../../pages/bot-builder/quick-strategy/types';
 export const REVERSE_D_ALEMBERT = (): TDescriptionItem[] => [
     {
         type: 'subtitle',
-        content: [localize('Exploring the Reverse D’Alembert strategy in Deriv Bot')],
+        content: [localize('Exploring the Reverse D’Alembert strategy in the bot')],
         expanded: true,
         no_collapsible: false,
     },
@@ -23,7 +23,7 @@ export const REVERSE_D_ALEMBERT = (): TDescriptionItem[] => [
     },
     {
         type: 'text',
-        content: [localize('These are the trade parameters used in Deriv Bot with Reverse D’Alembert strategy.')],
+        content: [localize('These are the trade parameters used in the bot with Reverse D’Alembert strategy.')],
     },
     {
         type: 'text',
@@ -68,7 +68,7 @@ export const REVERSE_D_ALEMBERT = (): TDescriptionItem[] => [
             localize('1. Start with the initial stake. Let’s say 1 USD.'),
             localize('2. Select your unit. In this example, it is 2 units or 2 USD.'),
             localize(
-                '3. For trades that result in a profit, the stake for the next trade will be increased by 2 USD. Deriv Bot will continue to add 2 USD for every successful trade. See A1.'
+                '3. For trades that result in a profit, the stake for the next trade will be increased by 2 USD. The bot will continue to add 2 USD for every successful trade. See A1.'
             ),
             localize(
                 '4. For trades that result in a loss, there are two outcomes.  If it was traded at the initial stake, the next trade will remain at the same amount as the strategy trades minimally at the initial stake, see A2. If it was traded with a higher amount, the stake for the next trade would be reduced by 2 USD, see A3.'
@@ -83,7 +83,7 @@ export const REVERSE_D_ALEMBERT = (): TDescriptionItem[] => [
         type: 'text',
         content: [
             localize(
-                'With Deriv Bot, traders can set the profit and loss thresholds to secure potential profits and limit potential losses. This means that the trading bot will automatically stop when either the profit or loss threshold is reached. This is a form of risk management that can potentially boost successful trades whilst limiting the impact of loss. For example, if a trader sets the profit threshold at 100 USD and the strategy exceeds 100 USD of profit from all trades, then the bot will stop running.'
+                'With the bot, traders can set the profit and loss thresholds to secure potential profits and limit potential losses. This means that the trading bot will automatically stop when either the profit or loss threshold is reached. This is a form of risk management that can potentially boost successful trades whilst limiting the impact of loss. For example, if a trader sets the profit threshold at 100 USD and the strategy exceeds 100 USD of profit from all trades, then the bot will stop running.'
             ),
         ],
     },
@@ -95,7 +95,7 @@ export const REVERSE_D_ALEMBERT = (): TDescriptionItem[] => [
         type: 'text',
         content: [
             localize(
-                "Effective trading with the D'Alembert system requires careful consideration of its stake progression and risk management. Traders can automate this approach using Deriv Bot, setting profit and loss thresholds to ensure balanced and controlled trading. However, it is crucial for traders to assess their risk appetite, test strategies on a demo account, and align with their own trading style before transitioning to real money trading. This optimization process helps strike a balance between potential gains and losses while managing risk prudently."
+                "Effective trading with the D'Alembert system requires careful consideration of its stake progression and risk management. Traders can automate this approach using the bot, setting profit and loss thresholds to ensure balanced and controlled trading. However, it is crucial for traders to assess their risk appetite, test strategies on a demo account, and align with their own trading style before transitioning to real money trading. This optimization process helps strike a balance between potential gains and losses while managing risk prudently."
             ),
         ],
     },

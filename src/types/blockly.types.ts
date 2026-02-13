@@ -19,6 +19,11 @@ export interface BlocklyWorkspace {
     addChangeListener: (listener: (event: BlocklyEvent) => void) => void;
     removeChangeListener: (listener: (event: BlocklyEvent) => void) => void;
     render: () => void;
+    dispose: () => void;
+    zoomCenter: (type: number) => void;
+    cleanUp: () => void;
+    clearUndo: () => void;
+    RTL?: boolean;
 }
 
 export interface BlocklyEvent {
@@ -76,10 +81,19 @@ export interface BlocklyUtils {
     };
 }
 
+export interface BlocklyXmlValues {
+    strategy_id?: string;
+    convertedDom: Element | Document;
+    block_string?: string;
+    file_name?: string;
+    from?: string;
+}
+
 export interface ExtendedBlocklyWorkspace extends BlocklyWorkspace {
     addBlockNode: (blockNode: Element | null) => void;
     strategy_to_load?: string;
     current_strategy_id?: string;
+    asyncClear: () => Promise<any> | void;
     cached_xml?: {
         main: string;
     };
@@ -97,6 +111,10 @@ declare global {
                 LIMIT: number;
             };
             WorkspaceSvg?: any;
+            Themes?: Record<string, unknown>;
+            xmlValues: BlocklyXmlValues;
+            inject: (container: Element | null, options: Record<string, unknown>) => ExtendedBlocklyWorkspace;
+            getMainWorkspace: () => ExtendedBlocklyWorkspace;
         };
     }
 }

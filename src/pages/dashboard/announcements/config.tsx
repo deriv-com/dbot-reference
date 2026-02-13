@@ -1,13 +1,9 @@
 import React from 'react';
 import { getUrlBase } from '@/components/shared';
-import OpenLiveChatLink from '@/components/shared_ui/open-livechat-link';
 import Text from '@/components/shared_ui/text';
 import { DBOT_TABS } from '@/constants/bot-contents';
 import { localizeAccumulators } from '@/utils/conditional-localize';
 import { Localize, localize } from '@deriv-com/translations';
-/* [AI] - Analytics removed - see migrate-docs/ANALYTICS_IMPLEMENTATION_GUIDE.md */
-// import { rudderStackSendOpenEvent } from '../../../analytics/rudderstack-common-events';
-/* [/AI] */
 import { handleOnConfirmAccumulator } from './utils/accumulator-helper-functions';
 import { IconAnnounce } from './announcement-components';
 
@@ -94,7 +90,7 @@ export const ANNOUNCEMENTS: Record<string, TAnnouncement> = {
     MOVING_STRATEGIES_ANNOUNCE: {
         announcement: {
             id: 'MOVING_STRATEGIES_ANNOUNCE',
-            main_title: localize('Moving strategies to Deriv Bot'),
+            main_title: localize('Moving strategies to the bot'),
             confirm_button_text: localize('Import strategy'),
             base_classname: 'announcement-dialog',
             title: (
@@ -106,7 +102,7 @@ export const ANNOUNCEMENTS: Record<string, TAnnouncement> = {
             numbered_content: [
                 {
                     id: 0,
-                    text: localize('Download your strategy in XML format and import it to Deriv Bot.'),
+                    text: localize('Download your strategy in XML format and import it to the bot.'),
                 },
                 {
                     id: 1,
@@ -122,8 +118,8 @@ export const ANNOUNCEMENTS: Record<string, TAnnouncement> = {
                     id: 0,
                     text: (
                         <Localize
-                            i18n_default_text='<0>Note</0>: Uploading complex strategies may take some time. Saving them from Deriv Bot ensures quicker access later. If you have questions, contact us via <1/>.'
-                            components={[<strong key={0} />, <OpenLiveChatLink className='' key={1} />]}
+                            i18n_default_text='<0>Note</0>: Uploading complex strategies may take some time. Saving them ensures quicker access later.'
+                            components={[<strong key={0} />]}
                         />
                     ),
                 },
@@ -132,16 +128,6 @@ export const ANNOUNCEMENTS: Record<string, TAnnouncement> = {
         should_not_be_cancel: true,
         should_toggle_load_modal: true,
         switch_tab_on_confirm: DBOT_TABS.BOT_BUILDER,
-        /* [AI] - Analytics removed - onConfirm only contained analytics tracking */
-        // onConfirm: () => {
-        //     rudderStackSendOpenEvent({
-        //         subpage_name: 'bot_builder',
-        //         subform_source: 'announcements',
-        //         subform_name: 'load_strategy',
-        //         load_strategy_tab: 'recent',
-        //     });
-        // },
-        /* [/AI] */
     },
 
     BLOCKLY_ANNOUNCE: {
@@ -151,7 +137,7 @@ export const ANNOUNCEMENTS: Record<string, TAnnouncement> = {
             base_classname: 'announcement-dialog',
             title: (
                 <Localize
-                    i18n_default_text='We have updated our Blockly system in Deriv Bot from <0>version 3 to version 10</0>. This brings:'
+                    i18n_default_text='We have updated our Blockly system in the bot from <0>version 3 to version 10</0>. This brings:'
                     components={[<strong key={0} />]}
                 />
             ),
@@ -174,8 +160,8 @@ export const ANNOUNCEMENTS: Record<string, TAnnouncement> = {
                     id: 0,
                     text: (
                         <Localize
-                            i18n_default_text='<0>Note</0>: Some complex strategies might face issues in the Bot Builder. If you have questions, contact us via <1/>.'
-                            components={[<strong key={0} />, <OpenLiveChatLink className='' key={1} />]}
+                            i18n_default_text='<0>Note</0>: Some complex strategies might face issues in the Bot Builder.'
+                            components={[<strong key={0} />]}
                         />
                     ),
                 },
@@ -187,7 +173,7 @@ export const ANNOUNCEMENTS: Record<string, TAnnouncement> = {
     ACCUMULATOR_ANNOUNCE: {
         announcement: {
             id: 'ACCUMULATOR_ANNOUNCE',
-            main_title: `${localizeAccumulators()} ${localize('now on Deriv Bot')}`,
+            main_title: `${localizeAccumulators()} ${localize('now on the bot')}`,
             confirm_button_text: localize('Try now'),
             cancel_button_text: localize('Learn more'),
             base_classname: 'announcement-dialog',
@@ -253,7 +239,7 @@ export const BOT_ANNOUNCEMENTS_LIST: TAnnouncementItem[] = [
     {
         id: 'MOVING_STRATEGIES_ANNOUNCE',
         icon: IconAnnounce,
-        title: localize('Moving strategies to Deriv Bot'),
+        title: localize('Moving strategies to the bot'),
         message: localize('Follow these steps to smoothly transfer your strategies'),
         date: '1 August 2024 00:00 UTC',
         buttonAction: BUTTON_ACTION_TYPE.MODAL_BUTTON_ACTION,
@@ -263,7 +249,7 @@ export const BOT_ANNOUNCEMENTS_LIST: TAnnouncementItem[] = [
         id: 'BLOCKLY_ANNOUNCE',
         icon: IconAnnounce,
         title: localize('Google Blockly v10 update'),
-        message: localize('We have updated our Blockly system in Deriv Bot from version 3 to version 10.'),
+        message: localize('We have updated our Blockly system in the bot from version 3 to version 10.'),
         date: '24 July 2024 00:00 UTC',
         buttonAction: BUTTON_ACTION_TYPE.MODAL_BUTTON_ACTION,
         actionText: '',
@@ -271,7 +257,7 @@ export const BOT_ANNOUNCEMENTS_LIST: TAnnouncementItem[] = [
     {
         id: 'ACCUMULATOR_ANNOUNCE',
         icon: IconAnnounce,
-        title: `${localizeAccumulators()} ${localize('is now on Deriv Bot')}`,
+        title: `${localizeAccumulators()} ${localize('is now on the bot')}`,
         message: `${localize('Boost your trading strategy with')} ${localizeAccumulators()}.`,
         date: '2 July 2024 00:00 UTC',
         buttonAction: BUTTON_ACTION_TYPE.MODAL_BUTTON_ACTION,

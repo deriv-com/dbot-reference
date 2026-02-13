@@ -6,8 +6,6 @@ import Tabs from '@/components/shared_ui/tabs';
 import { useStore } from '@/hooks/useStore';
 import { LabelPairedSearchCaptionRegularIcon } from '@deriv/quill-icons/LabelPaired';
 import { LegacyCloseCircle1pxBlackIcon } from '@deriv/quill-icons/Legacy';
-/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-/* [/AI] */
 import SearchInput from './common/search-input';
 import { TTutorialsTabItem } from './tutorials';
 
@@ -92,8 +90,6 @@ const TutorialsTabDesktop = observer(({ tutorial_tabs, prev_active_tutorials }: 
                 history={history}
                 onTabItemClick={(index: number) => {
                     setActiveTabTutorial(index);
-                    /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-                    /* [/AI] */
                 }}
                 top
             >

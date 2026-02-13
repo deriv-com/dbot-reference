@@ -18,8 +18,6 @@ import {
 } from '@deriv/quill-icons/Illustration';
 import { Localize, localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
-/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-/* [/AI] */
 import DashboardBotList from './bot-list/dashboard-bot-list';
 
 type TCardProps = {
@@ -65,8 +63,6 @@ const Cards = observer(({ is_mobile, has_dashboard_strategies }: TCardProps) => 
             content: is_mobile ? <Localize i18n_default_text='Local' /> : <Localize i18n_default_text='My computer' />,
             callback: () => {
                 openFileLoader();
-                /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-                /* [/AI] */
             },
         },
         {
@@ -75,8 +71,6 @@ const Cards = observer(({ is_mobile, has_dashboard_strategies }: TCardProps) => 
             content: <Localize i18n_default_text='Google Drive' />,
             callback: () => {
                 openGoogleDriveDialog();
-                /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-                /* [/AI] */
             },
         },
         {
@@ -85,8 +79,6 @@ const Cards = observer(({ is_mobile, has_dashboard_strategies }: TCardProps) => 
             content: <Localize i18n_default_text='Bot Builder' />,
             callback: () => {
                 setActiveTab(DBOT_TABS.BOT_BUILDER);
-                /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-                /* [/AI] */
             },
         },
         {
@@ -96,8 +88,6 @@ const Cards = observer(({ is_mobile, has_dashboard_strategies }: TCardProps) => 
             callback: () => {
                 setActiveTab(DBOT_TABS.BOT_BUILDER);
                 setFormVisibility(true);
-                /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-                /* [/AI] */
             },
         },
     ];

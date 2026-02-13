@@ -1,10 +1,8 @@
 import { useMemo } from 'react';
-/* [AI] - Analytics removed - utility functions moved to @/utils/account-helpers */
-import { isVirtualAccount } from '@/utils/account-helpers';
-/* [/AI] */
 import { CurrencyIcon } from '@/components/currency/currency-icon';
 import { addComma, getDecimalPlaces } from '@/components/shared';
 import { useApiBase } from '@/hooks/useApiBase';
+import { isVirtualAccount } from '@/utils/account-helpers';
 import { Balance } from '@deriv/api-types';
 
 /** A custom hook that returns the account object for the current active account. */

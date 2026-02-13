@@ -1,7 +1,5 @@
 import { action, computed, makeObservable, observable } from 'mobx';
-/* [AI] - Analytics removed - utility functions moved to @/utils/account-helpers */
 import { getAccountId } from '@/utils/account-helpers';
-/* [/AI] */
 import { isEmptyObject } from '@/components/shared';
 import { isMultipliersOnly, isOptionsBlocked } from '@/components/shared/common/utility';
 import { removeCookies } from '@/components/shared/utils/storage/storage';
@@ -36,8 +34,6 @@ export default class ClientStore {
     private ws_login_id: string | null = null;
     private is_regenerating = false;
     private instance_id: string = '';
-
-    // TODO: fix with self exclusion
 
     onAuthorizeEvent = (data: {
         account_list?: TAuthData['account_list'];
@@ -284,19 +280,6 @@ export default class ClientStore {
             setAuthData(null);
 
             this.setIsLoggingOut(false);
-
-            // Disable livechat
-            window.LC_API?.close_chat?.();
-            window.LiveChatWidget?.call('hide');
-
-            // Shutdown and initialize intercom
-            if (window.Intercom) {
-                window.Intercom('shutdown');
-                window.DerivInterCom.initialize({
-                    hideLauncher: true,
-                    token: null,
-                });
-            }
         }
     };
 
@@ -398,10 +381,6 @@ export default class ClientStore {
                 setAuthData(null);
 
                 this.setIsLoggingOut(false);
-
-                // disable livechat
-                window.LC_API?.close_chat?.();
-                window.LiveChatWidget?.call('hide');
 
                 // Force create a new connection with the current active login ID
                 // Wrap the potentially failing init call in a try-catch

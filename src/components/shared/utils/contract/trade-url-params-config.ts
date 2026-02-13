@@ -1,6 +1,5 @@
 import { ActiveSymbols } from '@deriv/api-types';
 import { TTextValueStrings, TTradeTypesCategories } from '../constants/contract';
-import { standalone_routes } from '../routes';
 
 type TGetTradeURLParamsArgs = {
     active_symbols?: ActiveSymbols;
@@ -95,7 +94,7 @@ export const setTradeURLParams = ({ contractType, symbol, chartType, granularity
         );
     symbol && searchParams.set(TRADE_URL_PARAMS.SYMBOL, symbol);
     contractType && searchParams.set(TRADE_URL_PARAMS.TRADE_TYPE, contractType);
-    if (searchParams.toString() && window.location.pathname === standalone_routes.trade) {
+    if (searchParams.toString()) {
         const newQuery = `${window.location.pathname}?${searchParams.toString()}`;
         window.history.replaceState({}, document.title, newQuery);
     }

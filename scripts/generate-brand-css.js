@@ -52,7 +52,7 @@ const updateBrandColorsInThemes = () => {
     let insertionPoint = -1;
     let endPoint = -1;
 
-    // Look for existing brand colors section (with or without AI markers)
+    // Look for existing brand colors section
     const brandCommentStart = themesContent.indexOf(
         '/* Brand colors - dynamically generated from brand.config.json */'
     );
@@ -62,21 +62,15 @@ const updateBrandColorsInThemes = () => {
         // Found modern brand section with comment
         insertionPoint = themesContent.lastIndexOf('\n', brandCommentStart) + 1;
 
-        // Look for end marker - either AI closing tag or next major section
-        const aiEndMarker = themesContent.indexOf('/* [/AI] */', brandCommentStart);
-        if (aiEndMarker !== -1) {
-            endPoint = themesContent.indexOf('\n', aiEndMarker) + 1;
-        } else {
-            // Find end by looking for next CSS section or end of root block
-            const nextSection = themesContent.indexOf('\n    // App Cards', brandCommentStart);
-            const nextComment = themesContent.indexOf('\n    /*', brandCommentStart + 100); // Skip current comment
-            const nextThemeClass = themesContent.indexOf('\n    .theme--', brandCommentStart);
+        // Find end by looking for next CSS section or end of root block
+        const nextSection = themesContent.indexOf('\n    // App Cards', brandCommentStart);
+        const nextComment = themesContent.indexOf('\n    /*', brandCommentStart + 100); // Skip current comment
+        const nextThemeClass = themesContent.indexOf('\n    .theme--', brandCommentStart);
 
-            endPoint = Math.min(...[nextSection, nextComment, nextThemeClass].filter(pos => pos > -1));
-            if (endPoint === Infinity) {
-                // Fallback - find next blank lines
-                endPoint = themesContent.indexOf('\n\n    ', brandCommentStart + 100);
-            }
+        endPoint = Math.min(...[nextSection, nextComment, nextThemeClass].filter(pos => pos > -1));
+        if (endPoint === Infinity) {
+            // Fallback - find next blank lines
+            endPoint = themesContent.indexOf('\n\n    ', brandCommentStart + 100);
         }
     } else if (legacyBrandStart !== -1) {
         // Found legacy brand section
@@ -221,7 +215,7 @@ if (require.main === module) {
 
     console.log('\n🎯 Next steps:');
     if (hasChanges) {
-        console.log('1. The brand colors in _themes.scss have been updated with AI markers');
+        console.log('1. The brand colors in _themes.scss have been updated');
         console.log('2. To regenerate: npm run generate:brand-css');
         console.log('3. Restart your dev server to see the changes');
     } else {

@@ -75,18 +75,14 @@ const useMobileMenuConfig = (
         is_dark_mode_on,
         toggleTheme,
         localize,
-        enableThemeToggle, // [AI] Added to recalculate menu when theme toggle config changes
+        enableThemeToggle,
     ]);
 
-    // [AI] Check if menu has any items to determine if mobile menu should be shown
     const hasMenuItems = menuConfig.some(section => section.length > 0);
-    // [/AI]
 
     return {
         config: menuConfig,
-        // [AI] Return flag indicating if menu has any items
         hasMenuItems,
-        // [/AI]
     };
 };
 

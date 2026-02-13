@@ -1,5 +1,2 @@
-export const print = (message: string) => {
-    console.log(message); // eslint-disable-line no-console
-};
-
-export { generateUrlWithRedirect } from './url-redirect-utils';
+// Utility barrel export
+// Add shared utility exports here as needed

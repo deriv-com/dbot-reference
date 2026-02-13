@@ -1,5 +1,25 @@
+export type TDbot = TBotSkeleton;
+
+export type TBotInterpreter = {
+    bot: {
+        tradeEngine: {
+            options: {
+                shouldRestartOnError?: boolean;
+                timeMachineEnabled?: boolean;
+                [key: string]: unknown;
+            };
+        };
+        getInterface: () => {
+            sellAtMarket: () => void;
+            [key: string]: unknown;
+        };
+        [key: string]: unknown;
+    };
+    [key: string]: unknown;
+};
+
 export type TBotSkeleton = {
-    interpreter: unknown;
+    interpreter: TBotInterpreter;
     workspace: window.Blockly.WorkspaceSvg | null;
     before_run_funcs: (() => boolean)[];
     initWorkspace: (

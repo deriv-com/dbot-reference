@@ -244,7 +244,10 @@ export const generateOAuthURL = async () => {
         // Use brand config for login URLs
         const environment = isProduction() ? 'production' : 'staging';
         const hostname = brandConfig?.platform.auth2_url?.[environment];
-        const clientId = process.env.CLIENT_ID || '32izC2lBT4MmiSNWuxq2l';
+        const clientId = process.env.CLIENT_ID;
+        if (!clientId) {
+            console.warn('[OAuth] CLIENT_ID environment variable is not set. Authentication will not work.');
+        }
 
         if (hostname && clientId) {
             // Generate CSRF token for security

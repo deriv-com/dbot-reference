@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
-/* [AI] - Analytics removed - rudderstack event tracking removed */
-/* [/AI] */
 import ChunkLoader from '@/components/loader/chunk-loader';
 import chart_api from '@/external/bot-skeleton/services/api/chart-api';
 import { useSmartChartAdaptor } from '@/hooks/useSmartChartAdaptor';
@@ -72,10 +70,8 @@ const Chart = observer(({ show_digits_stats }: { show_digits_stats: boolean }) =
 
     const is_connection_opened = !!chart_api?.api;
 
-    const handleStateChange: TStateChangeListener = (state, options) => {
-        /* [AI] - Analytics removed - rudderstack event call removed */
+    const handleStateChange: TStateChangeListener = (state) => {
         // Handle state changes: INITIAL, READY, SCROLL_TO_LEFT
-        /* [/AI] */
         if (state === 'READY') {
             setChartStatus(true);
         }

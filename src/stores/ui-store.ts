@@ -13,7 +13,6 @@ export default class UiStore {
     is_trading_assessment_for_new_user_enabled = false;
     is_accounts_switcher_on = false;
 
-    // TODO: fix - need to implement this feature
     is_onscreen_keyboard_active = false;
 
     constructor() {

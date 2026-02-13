@@ -6,7 +6,6 @@ import { FORM_ERROR_MESSAGES } from '@/components/shared/constants/form-error-me
 import { initFormErrorMessages } from '@/components/shared/utils/validation/declarative-validation-rules';
 import { api_base } from '@/external/bot-skeleton';
 import { useApiBase } from '@/hooks/useApiBase';
-import { useLogout } from '@/hooks/useLogout';
 import { useStore } from '@/hooks/useStore';
 import { TSocketResponseData } from '@/types/api-types';
 import { clearInvalidTokenParams } from '@/utils/url-utils';
@@ -33,8 +32,6 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
     const { client, common } = useStore() ?? {};
 
     const { currentLang } = useTranslations();
-
-    const handleLogout = useLogout();
 
     const activeAccount = useMemo(
         () => accountList?.find(account => account.loginid === activeLoginid),

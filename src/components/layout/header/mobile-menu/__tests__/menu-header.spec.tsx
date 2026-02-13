@@ -15,11 +15,9 @@ jest.mock('@deriv-com/translations', () => ({
     useTranslations: jest.fn(),
 }));
 
-// [AI] Mock BrandLogo component
 jest.mock('@/components/layout/app-logo/BrandLogo', () => ({
     BrandLogo: () => <div data-testid="brand-logo">Brand Logo</div>,
 }));
-// [/AI]
 
 describe('MenuHeader component', () => {
     beforeEach(() => {
@@ -29,7 +27,6 @@ describe('MenuHeader component', () => {
         });
     });
 
-    // [AI] Updated tests to check for brand logo instead of "Menu" text
     it('renders brand logo in mobile view', () => {
         render(<MenuHeader hideLanguageSetting={false} openLanguageSetting={mockOpenLanguageSetting} />);
         expect(screen.getByTestId('brand-logo')).toBeInTheDocument();
@@ -40,7 +37,6 @@ describe('MenuHeader component', () => {
         render(<MenuHeader hideLanguageSetting={false} openLanguageSetting={mockOpenLanguageSetting} />);
         expect(screen.getByTestId('brand-logo')).toBeInTheDocument();
     });
-    // [/AI]
 
     it('does not render language setting button when hideLanguageSetting is true', () => {
         render(<MenuHeader hideLanguageSetting openLanguageSetting={mockOpenLanguageSetting} />);

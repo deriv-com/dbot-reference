@@ -21,8 +21,6 @@ export const MobileQSFooter = observer(({ current_step, setCurrentStep }: TMobil
     const is_selected_strategy_step = current_step === QsSteps.StrategySelect;
 
     const onRun = () => {
-        /* [AI] - Analytics removed - rudderstack event call removed */
-        /* [/AI] */
         handleSubmit();
     };
 

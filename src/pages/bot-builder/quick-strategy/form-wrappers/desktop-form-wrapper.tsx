@@ -7,8 +7,6 @@ import ThemedScrollbars from '@/components/shared_ui/themed-scrollbars';
 import { useStore } from '@/hooks/useStore';
 import { LegacyClose1pxIcon } from '@deriv/quill-icons/Legacy';
 import { localize } from '@deriv-com/translations';
-/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-/* [/AI] */
 import { STRATEGIES } from '../config';
 import { TFormData, TFormValues } from '../types';
 import QSStepper from './qs-stepper';
@@ -64,7 +62,7 @@ const FormWrapper = observer(
         setSelectedTradeType,
     }: TDesktopFormWrapper) => {
         const scroll_ref = React.useRef<HTMLDivElement & SVGSVGElement>(null);
-        const { submitForm, isValid, setFieldValue, validateForm, values } = useFormikContext<TFormValues>();
+        const { submitForm, isValid, setFieldValue, validateForm } = useFormikContext<TFormValues>();
         const { quick_strategy } = useStore();
         const { selected_strategy, onSubmit, is_stop_bot_dialog_open } = quick_strategy;
         const { handleSubmit } = useQsSubmitHandler();
@@ -90,8 +88,6 @@ const FormWrapper = observer(
             validateForm();
             submitForm().then((form_data: TFormData | void) => {
                 if (isValid && form_data) {
-                    /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-                    /* [/AI] */
                     onSubmit(form_data); // true to load and run the bot
                 }
             });

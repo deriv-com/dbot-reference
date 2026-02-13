@@ -6,8 +6,6 @@ import SelectNative from '@/components/shared_ui/select-native';
 import { useStore } from '@/hooks/useStore';
 import { LabelPairedArrowLeftSmRegularIcon, LabelPairedSearchSmRegularIcon } from '@deriv/quill-icons/LabelPaired';
 import { LegacyCloseCircle1pxBlackIcon } from '@deriv/quill-icons/Legacy';
-/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-/* [/AI] */
 import SearchInput from './common/search-input';
 import { TTutorialsTabItem } from './tutorials';
 
@@ -51,9 +49,6 @@ const TutorialsTabMobile = observer(({ tutorial_tabs, prev_active_tutorials }: T
         ({ target }: React.ChangeEvent<HTMLSelectElement>) => {
             const index = tutorial_tabs.findIndex(i => i.label === target.value);
             setActiveTabTutorial(index);
-
-            /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-            /* [/AI] */
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [active_tab_tutorials]

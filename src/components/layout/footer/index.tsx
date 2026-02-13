@@ -29,27 +29,25 @@ const Footer = () => {
         <footer className='app-footer'>
             <FullScreen />
             {isAuthorized && <LogoutFooter />}
-            {/* [AI] Conditionally render language settings based on brand config */}
+            {/* Conditionally render language settings based on brand config */}
             {enableLanguageSettings && (
                 <>
                     <LanguageSettings openLanguageSettingModal={openLanguageSettingModal} />
                     <div className='app-footer__vertical-line' />
                 </>
             )}
-            {/* [/AI] */}
-            {/* [AI] Conditionally render theme toggle based on brand config */}
+            {/* Conditionally render theme toggle based on brand config */}
             {enableThemeToggle && (
                 <>
                     <ChangeTheme />
                     <div className='app-footer__vertical-line' />
                 </>
             )}
-            {/* [/AI] */}
             <ServerTime />
             <div className='app-footer__vertical-line' />
             <NetworkStatus />
 
-            {/* [AI] Only show language modal if language settings are enabled */}
+            {/* Only show language modal if language settings are enabled */}
             {enableLanguageSettings && isModalOpenFor('DesktopLanguagesModal') && (
                 <DesktopLanguagesModal
                     headerTitle={localize('Select Language')}
@@ -72,7 +70,6 @@ const Footer = () => {
                     selectedLanguage={currentLang}
                 />
             )}
-            {/* [/AI] */}
         </footer>
     );
 };

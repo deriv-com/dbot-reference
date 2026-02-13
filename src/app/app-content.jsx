@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { ToastContainer } from 'react-toastify';
 import AuthLoadingWrapper from '@/components/auth-loading-wrapper';
-import useLiveChat from '@/components/chat/useLiveChat';
 import ChunkLoader from '@/components/loader/chunk-loader';
 import { getUrlBase } from '@/components/shared';
 import TransactionDetailsModal from '@/components/transaction-details';
@@ -40,23 +39,6 @@ const AppContent = observer(() => {
 
     // Initialize dev mode keyboard shortcuts
     useDevMode();
-
-    const livechat_client_information = {
-        is_client_store_initialized: client?.is_logged_in ? true : !!client,
-        is_logged_in: client?.is_logged_in,
-        loginid: client?.loginid,
-        currency: client?.currency,
-        residence: client?.residence,
-        email: '',
-        first_name: '',
-        last_name: '',
-    };
-
-    useLiveChat(livechat_client_information);
-
-    // NOTE: Disabled Intercom until further notice
-    // const token = V2GetActiveToken() ?? null;
-    // useIntercom(token);
 
     useEffect(() => {
         if (connectionStatus === CONNECTION_STATUS.OPENED) {
@@ -166,7 +148,7 @@ const AppContent = observer(() => {
     if (common?.error) return null;
 
     return is_loading ? (
-        <ChunkLoader message={localize('Initializing Deriv Bot account...')} />
+        <ChunkLoader message={localize('Initializing account...')} />
     ) : (
         <AuthLoadingWrapper>
             <ThemeProvider theme={is_dark_mode_on ? 'dark' : 'light'}>

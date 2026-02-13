@@ -4,7 +4,6 @@ import ChartStore from './chart-store';
 import ClientStore from './client-store';
 import CommonStore from './common-store';
 import DashboardStore from './dashboard-store';
-import DataCollectionStore from './data-collection-store';
 import FlyoutHelpStore from './flyout-help-store';
 import FlyoutStore from './flyout-store';
 import GoogleDriveStore from './google-drive-store';
@@ -18,10 +17,10 @@ import ToolbarStore from './toolbar-store';
 import ToolboxStore from './toolbox-store';
 import TransactionsStore from './transactions-store';
 import UiStore from './ui-store';
+import { TDbot } from 'Types';
 
-// TODO: need to write types for the individual classes and convert them to ts
 export default class RootStore {
-    public dbot;
+    public dbot: TDbot;
     public app: AppStore;
     public summary_card: SummaryCardStore;
     public flyout: FlyoutStore;
@@ -40,8 +39,6 @@ export default class RootStore {
 
     public chart_store: ChartStore;
     public blockly_store: BlocklyStore;
-    public data_collection_store: DataCollectionStore;
-
     public ui: UiStore;
     public client: ClientStore;
     public common: CommonStore;
@@ -52,7 +49,7 @@ export default class RootStore {
         common: {},
     };
 
-    constructor(dbot: unknown) {
+    constructor(dbot: TDbot) {
         this.dbot = dbot;
 
         // Need to fix later without using this.core
@@ -82,6 +79,5 @@ export default class RootStore {
         // need to be at last for dependency
         this.chart_store = new ChartStore(this);
         this.blockly_store = new BlocklyStore(this);
-        this.data_collection_store = new DataCollectionStore(this, this.core);
     }
 }

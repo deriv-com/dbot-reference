@@ -8,8 +8,6 @@ import { useStore } from '@/hooks/useStore';
 import { LabelPairedPlayLgFillIcon, LabelPairedSquareLgFillIcon } from '@deriv/quill-icons/LabelPaired';
 import { Localize, localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
-/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-/* [/AI] */
 import Button from '../shared_ui/button';
 import Tooltip from '../shared_ui/tooltip/tooltip';
 import CircularWrapper from './circular-wrapper';
@@ -131,10 +129,6 @@ const TradeAnimation = observer(({ className, should_show_overlay }: TTradeAnima
     }, [is_stop_button_visible, is_stop_button_disabled]);
     const show_overlay = should_show_overlay && is_contract_completed;
 
-    // Fix TypeScript error by ensuring active_tab is a number
-    // Use a fallback to dashboard if active_tab is undefined
-    const safeActiveTab = typeof active_tab === 'number' ? active_tab : DBOT_TABS.DASHBOARD;
-
     // Function to determine tooltip alignment based on run panel position
     const determineTooltipAlignment = (): string => {
         // Force tooltip to always appear on top for mobile devices
@@ -205,8 +199,6 @@ const TradeAnimation = observer(({ className, should_show_overlay }: TTradeAnima
                             return;
                         }
                         onRunButtonClick();
-                        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-                        /* [/AI] */
                     }}
                     has_effect
                     {...(is_stop_button_visible || !is_unavailable_for_payment_agent

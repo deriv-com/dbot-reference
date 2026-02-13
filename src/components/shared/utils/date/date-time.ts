@@ -17,7 +17,6 @@ export const initMoment = (lang: string) => {
     if (!lang) return moment;
     let locale = lang.toLowerCase().replace('_', '-');
     if (hasEnMomentLocale.includes(lang)) locale = 'en-gb';
-    // TODO: Fix
     return import(`moment/locale/${locale}`).then(() => moment.locale(locale)).catch(() => moment);
 };
 

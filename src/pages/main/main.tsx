@@ -352,7 +352,6 @@ const AppWrapper = observer(() => {
         [active_tab]
     );
 
-    // [AI]
     const handleLoginGeneration = async () => {
         const oauthUrl = await generateOAuthURL();
         if (oauthUrl) {
@@ -361,7 +360,6 @@ const AppWrapper = observer(() => {
             console.error('Failed to generate OAuth URL');
         }
     };
-    // [/AI]
     return (
         <React.Fragment>
             <div className='main'>

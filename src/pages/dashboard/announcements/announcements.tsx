@@ -7,8 +7,6 @@ import { useStore } from '@/hooks/useStore';
 import { StandaloneBullhornRegularIcon } from '@deriv/quill-icons';
 import { localize } from '@deriv-com/translations';
 import { Notifications as Announcement } from '@deriv-com/ui';
-/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-/* [/AI] */
 import { guide_content } from '../../tutorials/constants';
 import { performButtonAction } from './utils/accumulator-helper-functions';
 import { MessageAnnounce, TitleAnnounce } from './announcement-components';
@@ -54,8 +52,6 @@ const Announcements = observer(({ is_mobile, is_tablet, handleTabChange }: TAnno
         setSelectedAnnouncement(announcement);
         setIsAnnounceDialogOpen(true);
         setIsOpenAnnounceList(prev => !prev);
-        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-        /* [/AI] */
         updateLocalStorage(announce_id);
     };
 
@@ -122,8 +118,6 @@ const Announcements = observer(({ is_mobile, is_tablet, handleTabChange }: TAnno
     };
 
     const handleOnCancel = () => {
-        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-        /* [/AI] */
         if (selected_announcement?.switch_tab_on_cancel) {
             handleTabChange(selected_announcement.switch_tab_on_cancel);
             if (selected_announcement.announcement.id === 'ACCUMULATOR_ANNOUNCE') {
@@ -135,8 +129,6 @@ const Announcements = observer(({ is_mobile, is_tablet, handleTabChange }: TAnno
     };
 
     const handleOnConfirm = () => {
-        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-        /* [/AI] */
         if (selected_announcement?.switch_tab_on_confirm) {
             handleTabChange(selected_announcement.switch_tab_on_confirm);
         }
@@ -165,8 +157,6 @@ const Announcements = observer(({ is_mobile, is_tablet, handleTabChange }: TAnno
                 className='announcements__button'
                 onClick={() => {
                     setIsOpenAnnounceList(prevState => !prevState);
-                    /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-                    /* [/AI] */
                 }}
                 data-testid='btn-announcements'
             >

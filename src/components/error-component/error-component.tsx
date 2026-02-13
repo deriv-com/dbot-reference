@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import { localize } from '@deriv-com/translations';
 import PageErrorContainer from '../page-error-container';
-import { standalone_routes } from '../shared';
 
 type TErrorComponent = {
     header: JSX.Element | string;
@@ -22,7 +21,7 @@ const ErrorComponent = ({
     redirectOnClick = null,
     should_clear_error_on_click,
     setError,
-    redirect_to = standalone_routes.trade,
+    redirect_to = '/',
     should_redirect = true,
 }: Partial<TErrorComponent>) => {
     return (

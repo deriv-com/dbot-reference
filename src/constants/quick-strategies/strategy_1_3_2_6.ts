@@ -5,7 +5,7 @@ import { TDescriptionItem } from '../../pages/bot-builder/quick-strategy/types';
 export const STRATEGY_1_3_2_6 = (): TDescriptionItem[] => [
     {
         type: 'subtitle',
-        content: [`${localize('Exploring the')} 1-3-2-6 ${localize('strategy in Deriv Bot')}`],
+        content: [`${localize('Exploring the')} 1-3-2-6 ${localize('strategy in the bot')}`],
         expanded: true,
         no_collapsible: false,
     },
@@ -24,7 +24,7 @@ export const STRATEGY_1_3_2_6 = (): TDescriptionItem[] => [
     {
         type: 'text',
         content: [
-            `${localize('These are the trade parameters used in Deriv Bot with')} 1-3-2-6 ${localize('strategy.')}`,
+            `${localize('These are the trade parameters used in the bot with')} 1-3-2-6 ${localize('strategy.')}`,
         ],
     },
     {
@@ -97,7 +97,7 @@ export const STRATEGY_1_3_2_6 = (): TDescriptionItem[] => [
         type: 'text',
         content: [
             localize(
-                'With Deriv Bot, traders can set the profit and loss thresholds to secure potential profits and limit potential losses. This means that the trading bot will automatically stop when either the profit or loss threshold is reached. This is a form of risk management that can potentially boost successful trades whilst limiting the impact of loss. For example, if a trader sets the profit threshold at 100 USD and the strategy exceeds 100 USD of profit from all trades, then the bot will stop running.'
+                'With the bot, traders can set the profit and loss thresholds to secure potential profits and limit potential losses. This means that the trading bot will automatically stop when either the profit or loss threshold is reached. This is a form of risk management that can potentially boost successful trades whilst limiting the impact of loss. For example, if a trader sets the profit threshold at 100 USD and the strategy exceeds 100 USD of profit from all trades, then the bot will stop running.'
             ),
         ],
     },

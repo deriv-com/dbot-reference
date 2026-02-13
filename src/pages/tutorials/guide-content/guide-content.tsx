@@ -8,8 +8,6 @@ import { removeKeyValue } from '@/utils/settings';
 import { LegacyPlay1pxIcon } from '@deriv/quill-icons/Legacy';
 import { Localize, localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
-/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-/* [/AI] */
 
 type TGuideList = {
     content?: string;
@@ -94,8 +92,6 @@ const GuideContent = ({ guide_tab_content, video_tab_content, is_dialog_open }: 
                                                 onClick={() => {
                                                     if (subtype) {
                                                         triggerTour(subtype);
-                                                        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-                                                        /* [/AI] */
                                                     }
                                                 }}
                                                 onKeyDown={e => {
@@ -136,7 +132,7 @@ const GuideContent = ({ guide_tab_content, video_tab_content, is_dialog_open }: 
                                     lineHeight='s'
                                     size={isDesktop ? 's' : 'xs'}
                                 >
-                                    <Localize i18n_default_text='Videos on Deriv Bot' />
+                                    <Localize i18n_default_text='Videos' />
                                 </Text>
                             </div>
 
@@ -162,8 +158,6 @@ const GuideContent = ({ guide_tab_content, video_tab_content, is_dialog_open }: 
                                                                 type: 'url',
                                                                 url,
                                                             });
-                                                            /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-                                                            /* [/AI] */
                                                         }}
                                                     />
                                                 </div>

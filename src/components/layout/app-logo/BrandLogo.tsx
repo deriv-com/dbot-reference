@@ -26,7 +26,7 @@ export const BrandLogo = ({
             className={className}
             aria-label="Brand Logo Placeholder"
         >
-            {/* [AI] ⚠️ PLACEHOLDER - Replace with your brand's SVG */}
+            {/* PLACEHOLDER - Replace with your brand's SVG */}
 
             {/* Dashed border box to indicate placeholder */}
             <rect
@@ -69,7 +69,6 @@ export const BrandLogo = ({
                 BRAND LOGO
             </text>
 
-            {/* [/AI] */}
         </svg>
     );
 };

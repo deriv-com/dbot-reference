@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 import { getPropertyValue, isEmptyObject } from '../object/object';
-import { deriv_urls } from '../url/constants';
+import { brand_urls } from '../url/constants';
 
 type TCookieStorageThis = {
     initialized: boolean;
@@ -148,15 +148,9 @@ State.prototype.getByMsgType = State.getResponse;
 State.set('response', {});
 
 export const CookieStorage = function (this: TCookieStorageThis, cookie_name: string, cookie_domain?: string) {
-    const hostname = window.location.hostname;
-
     this.initialized = false;
     this.cookie_name = cookie_name;
-    this.domain =
-        cookie_domain ||
-        /* eslint-disable no-nested-ternary */
-        (hostname.includes('binary.sx') ? 'binary.sx' : deriv_urls.DERIV_HOST_NAME);
-    /* eslint-enable no-nested-ternary */
+    this.domain = cookie_domain || brand_urls.BRAND_HOST_NAME;
     this.path = '/';
     this.expires = new Date('Thu, 1 Jan 2037 12:00:00 GMT');
     this.value = {};

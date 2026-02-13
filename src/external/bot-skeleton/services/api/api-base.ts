@@ -1,8 +1,6 @@
-/* [AI] - Analytics removed - utility functions moved to @/utils/account-helpers */
-import { getAccountId, getAccountType, isDemoAccount, removeUrlParameter } from '@/utils/account-helpers';
-/* [/AI] */
 import CommonStore from '@/stores/common-store';
 import { TAuthData } from '@/types/api-types';
+import { getAccountId, getAccountType, isDemoAccount, removeUrlParameter } from '@/utils/account-helpers';
 import { clearAuthData } from '@/utils/auth-utils';
 import { handleBackendError, isBackendError } from '@/utils/error-handler';
 import { activeSymbolsProcessorService } from '../../../../services/active-symbols-processor.service';
