@@ -1,4 +1,4 @@
-# Derivatives Bot
+# Trading Bot Template
 
 > A modern platform for automated derivatives trading with visual bot building, real-time analytics, and comprehensive tutorials.
 
@@ -44,7 +44,7 @@ Before working with this repository, ensure you have the following installed:
 
     ```sh
     git clone <repository-url>
-    cd derivatives-bot
+    cd trading-bot-template
     ```
 
 2. **Install dependencies**
@@ -69,7 +69,7 @@ The application will be available at `https://localhost:8443/` (or the port spec
 
 ## Project Overview
 
-Derivatives Bot is a comprehensive platform for automated derivatives trading that provides users with powerful tools to create, test, and deploy trading bots without requiring programming knowledge.
+Trading Bot Template is a comprehensive platform for automated derivatives trading that provides users with powerful tools to create, test, and deploy trading bots without requiring programming knowledge.
 
 ### Key Features
 
