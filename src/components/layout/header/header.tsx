@@ -58,7 +58,7 @@ const AppHeader = observer(() => {
         }
 
         return () => clearTimeout(timer);
-    }, [isAuthorizing, activeLoginid, setIsAuthorizing]);
+    }, [isAuthorizing, activeLoginid, setIsAuthorizing, authTimeout]);
 
     const handleLogin = useCallback(async () => {
         try {
