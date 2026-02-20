@@ -262,6 +262,23 @@
         margin-inline-end: 1.6rem;
         border-radius: 16px;
     }
+
+    &--loading {
+        align-items: center;
+        gap: 0.8rem;
+        margin-inline-end: 1.6rem;
+
+        .derivs-loader {
+            width: auto;
+            height: 2rem;
+
+            .derivs-loader__element {
+                width: 0.3rem;
+                height: 1.6rem;
+            }
+        }
+    }
+
 }
 
 .deriv-accordion--underline {

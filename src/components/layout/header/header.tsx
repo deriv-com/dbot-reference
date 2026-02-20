@@ -9,9 +9,8 @@ import { useLogout } from '@/hooks/useLogout';
 import { useStore } from '@/hooks/useStore';
 import { navigateToTransfer } from '@/utils/transfer-utils';
 import { Localize } from '@deriv-com/translations';
-import { Header, useDevice, Wrapper } from '@deriv-com/ui';
+import { Header, Loader, useDevice, Wrapper } from '@deriv-com/ui';
 import { AppLogo } from '../app-logo';
-import AccountsInfoLoader from './account-info-loader';
 import AccountSwitcher from './account-switcher';
 import MenuItems from './menu-items';
 import MobileMenu from './mobile-menu';
@@ -137,9 +136,13 @@ const AppHeader = observer(() => {
                     </div>
                 );
             }
-            // Default: Show loader during loading states or when authorizing
+            // Default: Show spinner during loading states or when authorizing
             else if (position === 'right') {
-                return <AccountsInfoLoader isLoggedIn isMobile={!isDesktop} speed={3} />;
+                return (
+                    <div className='auth-actions auth-actions--loading'>
+                        <Loader color='var(--text-prominent)' />
+                    </div>
+                );
             }
 
             return null;
