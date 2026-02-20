@@ -16,10 +16,9 @@ import './app-root.scss';
 const Layout = lazy(() => import('../components/layout'));
 const AppRoot = lazy(() => import('./app-root'));
 
-const { TRANSLATIONS_CDN_URL, R2_PROJECT_NAME, CROWDIN_BRANCH_NAME } = process.env;
-const i18nInstance = initializeI18n({
-    cdnUrl: `${TRANSLATIONS_CDN_URL || 'https://translations.deriv.com'}/${R2_PROJECT_NAME}/${CROWDIN_BRANCH_NAME}`,
-});
+// Translations CDN is optional — requires TRANSLATIONS_CDN_URL, R2_PROJECT_NAME, and CROWDIN_BRANCH_NAME env vars.
+// Without these, the app defaults to English. See user-guide/03-white-labeling.md#translations for setup instructions.
+const i18nInstance = initializeI18n({ cdnUrl: '' });
 
 /**
  * Component wrapper to handle language URL parameter

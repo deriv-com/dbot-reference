@@ -9,9 +9,8 @@ import { useLogout } from '@/hooks/useLogout';
 import { useStore } from '@/hooks/useStore';
 import { navigateToTransfer } from '@/utils/transfer-utils';
 import { Localize } from '@deriv-com/translations';
-import { Header, useDevice, Wrapper } from '@deriv-com/ui';
+import { Header, Loader, useDevice, Wrapper } from '@deriv-com/ui';
 import { AppLogo } from '../app-logo';
-import AccountsInfoLoader from './account-info-loader';
 import AccountSwitcher from './account-switcher';
 import MenuItems from './menu-items';
 import MobileMenu from './mobile-menu';
@@ -54,12 +53,12 @@ const AppHeader = observer(() => {
 
         // Clear timeout if user gets authenticated or if not authorizing
         if (activeLoginid || !isAuthorizing) {
-            setAuthTimeout(false);
+            if (authTimeout) setAuthTimeout(false);
             clearTimeout(timer);
         }
 
         return () => clearTimeout(timer);
-    }, [isAuthorizing, activeLoginid, setIsAuthorizing]);
+    }, [isAuthorizing, activeLoginid, setIsAuthorizing, authTimeout]);
 
     const handleLogin = useCallback(async () => {
         try {
@@ -82,6 +81,15 @@ const AppHeader = observer(() => {
             setIsAuthorizing(false);
         }
     }, [setIsAuthorizing]);
+
+    const handleTransfer = useCallback(() => {
+        const transferCurrency = authData?.currency;
+        if (!transferCurrency) {
+            console.error('No currency available for transfer');
+            return;
+        }
+        navigateToTransfer(transferCurrency);
+    }, [authData?.currency]);
 
     const renderAccountSection = useCallback(
         (position: 'left' | 'right' = 'right') => {
@@ -108,15 +116,7 @@ const AppHeader = observer(() => {
                             <Button
                                 primary
                                 disabled={client?.is_logging_out || !authData?.currency}
-                                onClick={() => {
-                                    const transferCurrency = authData?.currency;
-                                    if (!transferCurrency) {
-                                        console.error('No currency available for transfer');
-                                        return;
-                                    }
-                                    // Navigate to transfer page
-                                    navigateToTransfer(transferCurrency);
-                                }}
+                                onClick={handleTransfer}
                             >
                                 <Localize i18n_default_text='Transfer' />
                             </Button>
@@ -137,9 +137,13 @@ const AppHeader = observer(() => {
                     </div>
                 );
             }
-            // Default: Show loader during loading states or when authorizing
+            // Default: Show spinner during loading states or when authorizing
             else if (position === 'right') {
-                return <AccountsInfoLoader isLoggedIn isMobile={!isDesktop} speed={3} />;
+                return (
+                    <div className='auth-actions auth-actions--loading'>
+                        <Loader color='var(--text-prominent)' />
+                    </div>
+                );
             }
 
             return null;
@@ -154,6 +158,7 @@ const AppHeader = observer(() => {
             is_account_regenerating,
             authData,
             handleLogin,
+            handleTransfer,
         ]
     );
 
