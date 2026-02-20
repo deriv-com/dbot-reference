@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Derivatives Bot is a visual trading bot platform built with React 18, TypeScript, and Blockly. It allows users to create automated trading strategies using a drag-and-drop interface without programming knowledge. The platform integrates with Deriv's trading API for real-time market data and trade execution.
+Trading Bot Template is a visual trading bot platform built with React 18, TypeScript, and Blockly. It allows users to create automated trading strategies using a drag-and-drop interface without programming knowledge. The platform integrates with Deriv's trading API for real-time market data and trade execution.
 
 ## Build System & Commands
 

@@ -39,7 +39,7 @@ git --version    # Should output 2.30+
 
 ```bash
 git clone <your-repository-url>
-cd dbot-reference
+cd trading-bot-template
 ```
 
 ### 2. Install Dependencies
@@ -104,7 +104,7 @@ Visit `https://localhost:8443` to see your platform running.
 ## Project Structure
 
 ```
-dbot-reference/
+trading-bot-template/
 ├── brand.config.json              # Central branding configuration
 ├── rsbuild.config.ts              # Build configuration (RSBuild)
 ├── jest.config.ts                 # Test configuration
