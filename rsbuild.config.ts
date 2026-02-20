@@ -26,6 +26,9 @@ export default defineConfig({
         },
         define: {
             'process.env': {
+                TRANSLATIONS_CDN_URL: JSON.stringify(process.env.TRANSLATIONS_CDN_URL),
+                R2_PROJECT_NAME: JSON.stringify(process.env.R2_PROJECT_NAME),
+                CROWDIN_BRANCH_NAME: JSON.stringify(process.env.CROWDIN_BRANCH_NAME),
                 APP_ENV: JSON.stringify(process.env.APP_ENV),
                 CLIENT_ID: JSON.stringify(process.env.CLIENT_ID),
                 GD_CLIENT_ID: JSON.stringify(process.env.GD_CLIENT_ID),
