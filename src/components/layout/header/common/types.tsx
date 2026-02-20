@@ -34,25 +34,24 @@ export type TDemoAccounts = {
     activeLoginId?: string;
 };
 
-export type TNoNonEuAccounts = {
-    isVirtual: boolean;
+export type TEuAccounts = {
+    isVirtual?: boolean;
+    tabs_labels: {
+        demo: string;
+        real: string;
+    };
+    is_low_risk_country?: boolean;
+    modifiedMFAccountList: TModifiedAccount[];
+    switchAccount: (loginId: number) => void;
+};
+
+export type TNonEUAccounts = {
+    isVirtual?: boolean;
     tabs_labels: {
         demo: string;
         real: string;
     };
     is_low_risk_country: boolean;
-    residence?: string;
-};
-
-export type TEuAccounts = TNoNonEuAccounts & {
-    modifiedMFAccountList: TModifiedAccount[];
-    switchAccount: (loginId: number) => void;
-    isVirtual?: boolean;
-    is_low_risk_country?: boolean;
-};
-
-export type TNonEUAccounts = TNoNonEuAccounts & {
-    isVirtual?: boolean;
     modifiedCRAccountList: TModifiedAccount[];
     modifiedMFAccountList?: TModifiedAccount[];
     switchAccount: (loginId: number) => void;
