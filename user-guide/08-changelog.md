@@ -1,6 +1,6 @@
 # Changelog
 
-A comprehensive record of all architectural and implementation changes made to convert this repository from the original Deriv Bot into a white-label boilerplate for third-party developers. Use this as a reference to understand what changed, what was removed, and what replaced it.
+A comprehensive record of all architectural and implementation changes made to convert this repository from the legacy DBot into a white-label boilerplate for third-party developers. Use this as a reference to understand what changed, what was removed, and what replaced it.
 
 ## Table of Contents
 
