@@ -53,7 +53,7 @@ const AppHeader = observer(() => {
 
         // Clear timeout if user gets authenticated or if not authorizing
         if (activeLoginid || !isAuthorizing) {
-            setAuthTimeout(false);
+            if (authTimeout) setAuthTimeout(false);
             clearTimeout(timer);
         }
 
@@ -82,6 +82,15 @@ const AppHeader = observer(() => {
         }
     }, [setIsAuthorizing]);
 
+    const handleTransfer = useCallback(() => {
+        const transferCurrency = authData?.currency;
+        if (!transferCurrency) {
+            console.error('No currency available for transfer');
+            return;
+        }
+        navigateToTransfer(transferCurrency);
+    }, [authData?.currency]);
+
     const renderAccountSection = useCallback(
         (position: 'left' | 'right' = 'right') => {
             // Show account switcher and logout when user is fully authenticated
@@ -107,15 +116,7 @@ const AppHeader = observer(() => {
                             <Button
                                 primary
                                 disabled={client?.is_logging_out || !authData?.currency}
-                                onClick={() => {
-                                    const transferCurrency = authData?.currency;
-                                    if (!transferCurrency) {
-                                        console.error('No currency available for transfer');
-                                        return;
-                                    }
-                                    // Navigate to transfer page
-                                    navigateToTransfer(transferCurrency);
-                                }}
+                                onClick={handleTransfer}
                             >
                                 <Localize i18n_default_text='Transfer' />
                             </Button>
@@ -157,6 +158,7 @@ const AppHeader = observer(() => {
             is_account_regenerating,
             authData,
             handleLogin,
+            handleTransfer,
         ]
     );
 
