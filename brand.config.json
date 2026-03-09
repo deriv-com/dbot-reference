@@ -57,6 +57,10 @@
         "auto_generate_variants": true,
         "css_variable_prefix": "--brand"
     },
+    "signup_url": {
+        "production": "https://home.deriv.com/dashboard/signup",
+        "staging": "https://staging-home.deriv.com/dashboard/signup"
+    },
     "platform": {
         "name": "Trading Bot",
         "logo": {

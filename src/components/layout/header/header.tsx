@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
+import brandConfig from '@/../brand.config.json';
 import { generateOAuthURL } from '@/components/shared';
 import Button from '@/components/shared_ui/button';
 import useActiveAccount from '@/hooks/api/account/useActiveAccount';
@@ -83,6 +84,17 @@ const AppHeader = observer(() => {
         return () => clearTimeout(timer);
     }, [isAuthorizing, activeLoginid, setIsAuthorizing, authTimeout, isOAuthPending]);
 
+    const signupUrl = (() => {
+        const isStaging =
+            typeof window !== 'undefined' &&
+            (window.location.hostname.includes('staging') || window.location.hostname === 'localhost');
+        return isStaging ? brandConfig.signup_url.staging : brandConfig.signup_url.production;
+    })();
+
+    const handleSignup = useCallback(() => {
+        window.open(signupUrl, '_blank', 'noopener,noreferrer');
+    }, [signupUrl]);
+
     const handleLogin = useCallback(async () => {
         try {
             // Set authorizing state immediately when login is clicked
@@ -158,6 +170,9 @@ const AppHeader = observer(() => {
                         <Button tertiary onClick={handleLogin}>
                             <Localize i18n_default_text='Log in' />
                         </Button>
+                        <Button primary_light onClick={handleSignup}>
+                            <Localize i18n_default_text='Sign up' />
+                        </Button>
                     </div>
                 );
             }
@@ -171,7 +186,16 @@ const AppHeader = observer(() => {
                             fill='none'
                             xmlns='http://www.w3.org/2000/svg'
                         >
-                            <circle cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeDasharray='31.416' strokeDashoffset='10' />
+                            <circle
+                                cx='12'
+                                cy='12'
+                                r='10'
+                                stroke='currentColor'
+                                strokeWidth='2.5'
+                                strokeLinecap='round'
+                                strokeDasharray='31.416'
+                                strokeDashoffset='10'
+                            />
                         </svg>
                     </div>
                 );
@@ -190,6 +214,7 @@ const AppHeader = observer(() => {
             isOAuthPending,
             authData,
             handleLogin,
+            handleSignup,
             handleTransfer,
         ]
     );
@@ -209,9 +234,7 @@ const AppHeader = observer(() => {
                     <AppLogo />
                     {isDesktop ? <MenuItems /> : renderAccountSection('left')}
                 </Wrapper>
-                <Wrapper variant='right'>
-                    {renderAccountSection('right')}
-                </Wrapper>
+                <Wrapper variant='right'>{renderAccountSection('right')}</Wrapper>
             </Header>
         </>
     );
